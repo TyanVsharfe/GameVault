@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search page</title>
+    <link rel="stylesheet" type="text/css" href="/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <script src="/js/get_games.js"></script>
+</head>
+<body>
+    <header class="search-header">
+        <form method="post">
+            <div class="search-form">
+                <!--<input type="submit" value="Submit" id="submit-input" src="/icons/account.svg">-->
+                <label for="gameNameInput"></label>
+                <input type="text" id="gameNameInput">
+                <button type="button" id="submitButton">Submit</button>
+            </div>
+        </form>
+        <nav>
+            <a href="/main"><img src="/icons/home.svg" alt=""></a>
+            <a href="/account"><img src="/icons/account.svg" alt=""></a>
+        </nav>
+    </header>
+    <div class="search-result" id="search-result">
+        <ul id="resultList"></ul>
+        <pre id="jsonOutput"></pre>
+    </div>
+</body>
+</html>
