@@ -1,7 +1,7 @@
 package com.gamevault.data_template;
 
 public class Enums {
-    enum category {
+    public enum category {
         main_game,
         dlc_addon,
         expansion,

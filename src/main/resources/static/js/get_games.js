@@ -16,8 +16,15 @@ fetch('/api/games', {
 
     data.forEach(game => {
         const listItem = document.createElement('li');
+
+        const img = document.createElement('img');
+        img.src = game.cover.url;
+
         listItem.textContent = game.name;
         resultList.appendChild(listItem);
+
+        resultList.appendChild(listItem);
+        resultList.appendChild(img);
     });
 })
 .catch(error => {

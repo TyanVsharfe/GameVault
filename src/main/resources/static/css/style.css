@@ -33,32 +33,45 @@ h2 {
 
 header {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
     width: auto;
     background: #D4DAE0;
-    height: 78px;
+    height: 80px;
     padding-left: 30px;
     padding-right: 30px;
     margin-bottom: 50px;
-    gap: 1400px;
+}
+
+.header__title {
+
 }
 
 .main {
     width: 1135px;
-    height: 900px;
+    height: 800px;
     margin: auto;
 }
 
 /*----------------------*/
 
 .search-header {
-    gap: 1150px;
+
+}
+
+form {
+    display: flex;;
+    align-items: center;
 }
 
 .search-form {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.search-form__input {
+    height: 30px;
+    width: 200px;
 }
 
 #search-input {
@@ -76,10 +89,28 @@ header {
     height: 40px;
 }
 
+#submitButton {
+    height: 35px;
+    width: 35px;
+}
+
 .search-result {
     width: 1135px;
-    height: 900px;
+    height: 100%;
     margin: auto;
+
+    text-align: center;
+}
+
+ul {
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+li {
+    text-align: center;
 }
 
 
