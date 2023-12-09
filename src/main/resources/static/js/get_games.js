@@ -15,16 +15,33 @@ fetch('/api/games', {
     resultList.innerHTML = '';
 
     data.forEach(game => {
-        const listItem = document.createElement('li');
-
+        const div = document.createElement('div')
+        const divTextInfo = document.createElement('div')
+        const gameName = document.createElement('a');
+        const gameReleaseDate = document.createElement('p');
         const img = document.createElement('img');
-        img.src = game.cover.url;
+        div.classList.add('game-item');
+        divTextInfo.classList.add('game-item__text-info');
 
-        listItem.textContent = game.name;
-        resultList.appendChild(listItem);
+        img.src = game.cover.url.replace('t_thumb', 't_cover_big');
+        img.style.width = '10%';
+        img.style.height = '10%';
+        let id = game.id
 
-        resultList.appendChild(listItem);
-        resultList.appendChild(img);
+        gameName.textContent = game.name;
+        gameName.href = `/game/${id}`;
+
+        // gameReleaseDate.textContent = date.toISOString().slice(0, 10);
+
+        gameReleaseDate.textContent = game.release_dates[0].y;
+
+        divTextInfo.appendChild(gameName);
+        divTextInfo.appendChild(gameReleaseDate);
+
+        div.appendChild(divTextInfo);
+        div.appendChild(img);
+
+        resultList.appendChild(div);
     });
 })
 .catch(error => {

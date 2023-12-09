@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Search page</title>
     <link rel="stylesheet" type="text/css" href="/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/css/fonts.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <script src="/js/get_games.js"></script>
 </head>
@@ -18,13 +19,12 @@
             </div>
         </form>
         <nav>
-            <a href="/main"><img src="/icons/home.svg" alt=""></a>
-            <a href="/account"><img src="/icons/account.svg" alt=""></a>
+            <a class="nav__icon" href="/main"><img src="/icons/home.svg" alt=""></a>
+            <a class="nav__icon" href="/account"><img src="/icons/account.svg" alt=""></a>
         </nav>
     </header>
     <div class="search-result" id="search-result">
-        <ul id="resultList"></ul>
-        <pre id="jsonOutput"></pre>
+        <div id="resultList"></div>
     </div>
 </body>
 </html>

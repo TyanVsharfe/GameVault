@@ -2,7 +2,16 @@ div {
     background: #D4DAE0;
 }
 
+body {
+    font-family: RethinkSans, serif;
+}
+
 a {
+    color: black;
+    text-decoration: none;
+}
+
+.nav__icon {
     height: 40px;
     width: 40px;
 }
@@ -24,7 +33,7 @@ h2 {
     height: 55px;
 
     color: #000;
-    font-family: Inter;
+    font-family: RethinkSans, sans-serif;
     font-size: 50px;
     font-style: normal;
     font-weight: 400;
@@ -111,6 +120,24 @@ ul {
 
 li {
     text-align: center;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.game-item__text-info {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+    width: 400px;
 }
 
 

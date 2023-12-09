@@ -7,6 +7,7 @@ import jakarta.jws.WebParam;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -39,5 +40,10 @@ public class NavigationController {
 
         //ArrayList<GameInfo> gameInfoArrayList = new Gson().fromJson(jsonString, listType);
         return "search";
+    }
+
+    @GetMapping("/game/{id}")
+    public String gamePage(@PathVariable String id) {
+        return "game-page";
     }
 }

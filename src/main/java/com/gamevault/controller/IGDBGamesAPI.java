@@ -1,7 +1,6 @@
 package com.gamevault.controller;
 
 import com.gamevault.data_template.API_CLIENT;
-import com.gamevault.data_template.Enums;
 import com.gamevault.service.RequestService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -20,12 +19,26 @@ public class IGDBGamesAPI {
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", API_CLIENT.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url,category; search \""
+                .body("fields name,cover.url, release_dates.y, category; search \""
                         + searchGame + "\";"
                         + "where category = (0,8) & "
                         + "version_parent = null;"
                         //+ "sort asc;"
                         + "limit 200;")
+                .asJson();
+
+        return jsonResponse.getBody().toString();
+    }
+
+    @PostMapping("/game/{gameId}")
+    public String gameIGDB(@PathVariable String gameId) throws UnirestException {
+        API_CLIENT apiClient = RequestService.getAPIKey();
+
+        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
+                .header("Client-ID", API_CLIENT.getClient_id())
+                .header("Authorization", "Bearer " + apiClient.getAccess_token())
+                .body("fields name,cover.url, release_dates.y, category;"
+                        + " where id = " + gameId + ";")
                 .asJson();
 
         return jsonResponse.getBody().toString();
