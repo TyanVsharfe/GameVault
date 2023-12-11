@@ -9,37 +9,45 @@ window.onload = async function () {
         })
             .then(response => response.json())
             .then(data => {
-                const resultList = document.getElementById('main');
-                resultList.innerHTML = '';
-
                 data.forEach(game => {
-                    const div = document.createElement('div')
-                    const divTextInfo = document.createElement('div')
-                    const gameName = document.createElement('a');
-                    const gameReleaseDate = document.createElement('p');
-                    const img = document.createElement('img');
-                    div.classList.add('game');
-                    divTextInfo.classList.add('game-info');
+                    const gameName = document.querySelector('.game-title');
+                    const gameReleaseDate = document.querySelector('.game-release-date');
+                    const gameCover = document.querySelector('.game__cover');
+                    const gamePlatforms = document.querySelector('.game-platforms');
+                    const gameSummary = document.querySelector('.game__summary');
 
-                    img.src = game.cover.url.replace('t_thumb', 't_cover_big');
-             /*       img.style.width = '10%';
-                    img.style.height = '10%';*/
-                    let id = game.id
+                    // Обложка игры
+                    gameCover.src = game.cover.url.replace('t_thumb', 't_1080p');
+                    gameCover.style.width = '30%';
+                    gameCover.style.height = '30%';
+                    //let id = game.id
 
+                    // Список платформ
+                    console.log('Кол-во платформ', game.platforms.length)
+                    if (game.platforms.length > 1) {
+                        game.platforms.forEach(platform => {
+                            const li = document.createElement('li')
+                            li.textContent = platform.abbreviation
+                            gamePlatforms.appendChild(li);
+                        })
+                    }
+                    else {
+                        const li = document.createElement('li')
+                        li.textContent = game.platforms[0].abbreviation
+                        gamePlatforms.appendChild(li);
+                    }
+
+                    // Заголовок
+                    console.log('Присваиваем заголовок игры')
                     gameName.textContent = game.name;
-                    gameName.href = `/game/${id}`;
+                    console.log('Game title', gameName.textContent)
 
+                    // Год релиза
                     // gameReleaseDate.textContent = date.toISOString().slice(0, 10);
-
                     gameReleaseDate.textContent = game.release_dates[0].y;
 
-                    divTextInfo.appendChild(gameName);
-                    divTextInfo.appendChild(gameReleaseDate);
-
-                    div.appendChild(divTextInfo);
-                    div.appendChild(img);
-
-                    resultList.appendChild(div);
+                    // Описание
+                    gameSummary.textContent = game.summary
                 });
             })
             .catch(error => {
@@ -58,3 +66,4 @@ window.onload = async function () {
 
     sendRequest(gameId)
 }
+

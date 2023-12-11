@@ -23,6 +23,11 @@ fetch('/api/games', {
         div.classList.add('game-item');
         divTextInfo.classList.add('game-item__text-info');
 
+        // Проверка, что обложка не пустая
+        if (game.cover === undefined) {
+            return;
+        }
+
         img.src = game.cover.url.replace('t_thumb', 't_cover_big');
         img.style.width = '10%';
         img.style.height = '10%';

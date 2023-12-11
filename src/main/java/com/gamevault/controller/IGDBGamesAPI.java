@@ -37,7 +37,7 @@ public class IGDBGamesAPI {
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", API_CLIENT.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url, release_dates.y, category;"
+                .body("fields name,cover.url, release_dates.y, category, summary, platforms.abbreviation;"
                         + " where id = " + gameId + ";")
                 .asJson();
 
