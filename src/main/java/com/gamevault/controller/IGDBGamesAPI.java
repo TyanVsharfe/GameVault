@@ -1,7 +1,7 @@
 package com.gamevault.controller;
 
 import com.gamevault.data_template.API_CLIENT;
-import com.gamevault.service.RequestService;
+import com.gamevault.service.RequestIGDBService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -11,15 +11,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class IGDBGamesAPI {
-    // TODO Переместить этот метод в другой контроллер, связанный именно с этим API (Еще придумать пути с сайтами) !!СДЕЛАНО!!
     @PostMapping("/games")
     public String gamesIGDB(@RequestBody String searchGame) throws UnirestException {
-        API_CLIENT apiClient = RequestService.getAPIKey();
+        API_CLIENT apiClient = RequestIGDBService.getAPIKey();
 
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", API_CLIENT.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url, release_dates.y, category; search \""
+                .body("fields name,cover.url, release_dates.y, status, first_release_date, category; search \""
                         + searchGame + "\";"
                         + "where category = (0,8) & "
                         + "version_parent = null;"
@@ -32,12 +31,13 @@ public class IGDBGamesAPI {
 
     @PostMapping("/game/{gameId}")
     public String gameIGDB(@PathVariable String gameId) throws UnirestException {
-        API_CLIENT apiClient = RequestService.getAPIKey();
+        API_CLIENT apiClient = RequestIGDBService.getAPIKey();
 
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", API_CLIENT.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url, release_dates.y, category, summary, platforms.abbreviation;"
+                .body("fields name,cover.url, release_dates.y, status, " +
+                        "category, summary, genres.name, first_release_date, platforms.abbreviation;"
                         + " where id = " + gameId + ";")
                 .asJson();
 

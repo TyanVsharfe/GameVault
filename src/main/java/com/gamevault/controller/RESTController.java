@@ -1,16 +1,17 @@
 package com.gamevault.controller;
 
-import com.gamevault.data_template.API_CLIENT;
-import com.gamevault.service.RequestService;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import com.gamevault.db.repository.GameRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 public class RESTController {
+
+    final GameRepository gameRepository;
+
+    public RESTController(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+    }
 
     @GetMapping("/game/{id}")
     public int getGame(@PathVariable("id") Long id) {

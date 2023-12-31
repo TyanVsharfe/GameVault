@@ -6,21 +6,19 @@
     <link rel="stylesheet" type="text/css" href="/css/reset.css">
     <link rel="stylesheet" type="text/css" href="/css/fonts.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <script src="/js/get_games.js"></script>
+    <script src="/js/GetGames.js"></script>
 </head>
 <body>
     <header class="search-header">
-        <form method="post">
-            <div class="search-form">
-                <input class="search-form__input" type="text" id="gameNameInput">
-                <button type="button" id="submitButton">
-                    <img src="/icons/search.svg" alt="Иконка" width="20" height="20">
-                </button>
-            </div>
-        </form>
+        <div class="search-form">
+            <input class="search-form__input" type="text" id="gameNameInput">
+            <button type="button" id="submitButton">
+                <img src="/icons/search.svg" alt="Иконка" width="20" height="20">
+            </button>
+        </div>
         <nav>
-            <a class="nav__icon" href="/main"><img src="/icons/home.svg" alt=""></a>
-            <a class="nav__icon" href="/account"><img src="/icons/account.svg" alt=""></a>
+            <a href="/main"><img class="nav__icon" src="/icons/home.svg" alt=""></a>
+            <a href="/account"><img class="nav__icon" src="/icons/account.svg" alt=""></a>
         </nav>
     </header>
     <div class="search-result" id="search-result">

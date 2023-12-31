@@ -1,4 +1,4 @@
-window.onload = async function () {
+window.onload = async function() {
 function sendRequest() {
     const gameName = document.getElementById('gameNameInput').value; // Получаем значение из поля ввода
 
@@ -23,22 +23,31 @@ fetch('/api/games', {
         div.classList.add('game-item');
         divTextInfo.classList.add('game-item__text-info');
 
-        // Проверка, что обложка не пустая
-        if (game.cover === undefined) {
-            return;
+        if (game.status !== undefined) {
+            const status = game.status
+            if ([6,7].includes(status))
+                return
         }
 
-        img.src = game.cover.url.replace('t_thumb', 't_cover_big');
-        img.style.width = '10%';
-        img.style.height = '10%';
+        // Проверка, что обложка не пустая
+        if (game.cover !== undefined) {
+            img.src = game.cover.url.replace('t_thumb', 't_cover_big');
+            img.style.width = '10%';
+            img.style.height = '10%';
+        }
+
         let id = game.id
 
         gameName.textContent = game.name;
         gameName.href = `/game/${id}`;
 
-        // gameReleaseDate.textContent = date.toISOString().slice(0, 10);
 
-        gameReleaseDate.textContent = game.release_dates[0].y;
+        if (game.first_release_date !== undefined) {
+            gameReleaseDate.textContent = new Date(game.first_release_date * 1000).toLocaleDateString();
+        }
+        else if (game.release_dates !== undefined) {
+            gameReleaseDate.textContent = game.release_dates[0].y;
+        }
 
         divTextInfo.appendChild(gameName);
         divTextInfo.appendChild(gameReleaseDate);
@@ -57,4 +66,11 @@ fetch('/api/games', {
 // Находим кнопку и добавляем обработчик события при ее нажатии
 const button = document.getElementById('submitButton');
 button.addEventListener('click', sendRequest);
+
+const inputField = document.getElementById('gameNameInput');
+    inputField.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        sendRequest();
+    }
+});
 };

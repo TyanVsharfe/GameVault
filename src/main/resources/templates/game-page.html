@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="/css/fonts.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <link rel="stylesheet" type="text/css" href="/css/game-page.css">
-    <script src="/js/get_game.js"></script>
+    <script src="/js/GetGame.js"></script>
 </head>
 <body>
     <header>
@@ -15,20 +15,28 @@
             <a class="page-logo" href="/main">gamevault</a>
         </div>
         <nav>
-            <a href="/search"><img src="/icons/search.svg" alt=""></a>
-            <a href="/account"><img src="/icons/account.svg" alt=""></a>
+            <a href="/search"><img class="nav__icon" src="/icons/search.svg" alt=""></a>
+            <a href="/account"><img class="nav__icon" src="/icons/account.svg" alt=""></a>
         </nav>
     </header>
     <div class="main" id="main">
         <div class="game">
+            <div id="loading">Loading...</div>
             <div class="game-info">
                 <h2 class="game-title"></h2>
                 <p class="game-release-date"></p>
                 <ul class="game-platforms"></ul>
+                <ul class="game-genres"></ul>
                 <span class="game__summary"></span>
             </div>
             <img class="game__cover" alt="cover">
         </div>
     </div>
+    <script>
+        // Скрипт для скрытия экрана загрузки после загрузки страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            getGame(); // Вызываем вашу функцию для загрузки данных
+        });
+    </script>
 </body>
 </html>

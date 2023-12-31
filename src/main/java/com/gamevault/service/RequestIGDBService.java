@@ -10,7 +10,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RequestService {
+public class RequestIGDBService {
 
     public static API_CLIENT getAPIKey() throws UnirestException {
         HttpResponse<JsonNode> jsonRequest = Unirest.post("https://id.twitch.tv/oauth2/token")
