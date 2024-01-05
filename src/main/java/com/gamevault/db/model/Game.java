@@ -1,25 +1,34 @@
 package com.gamevault.db.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.gamevault.form.GameForm;
+import jakarta.persistence.*;
 
 @Entity
 public class Game {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long Id;
+    private Long IGDB_ID;
+    private String Title;
+    private Double UserRating;
+    @Lob
+    private byte[] UserScreenshots;
 
-    private String name;
+    public Game() {
 
-    private String description;
+    }
+
+    public Game(GameForm gameForm) {
+        this.IGDB_ID = gameForm.getId();
+        System.out.println("get id " + gameForm.getId());
+        this.Title = gameForm.getTitle();
+    }
 
     public void setId(Long id) {
-        this.id = id;
+        this.Id = id;
     }
 
     public Long getId() {
-        return id;
+        return Id;
     }
 }

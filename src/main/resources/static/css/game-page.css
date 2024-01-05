@@ -20,3 +20,10 @@
 ul {
     display: inline;
 }
+
+.add-game-button {
+    width: 110px;
+    height: 30px;
+
+    font-family: RethinkSans, serif;
+}

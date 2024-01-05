@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <link rel="stylesheet" type="text/css" href="/css/game-page.css">
     <script src="/js/GetGame.js"></script>
+    <script src="/js/AddGame.js"></script>
 </head>
 <body>
     <header>
@@ -20,13 +21,14 @@
         </nav>
     </header>
     <div class="main" id="main">
+        <div id="loading">Loading...</div>
         <div class="game">
-            <div id="loading">Loading...</div>
             <div class="game-info">
                 <h2 class="game-title"></h2>
                 <p class="game-release-date"></p>
                 <ul class="game-platforms"></ul>
                 <ul class="game-genres"></ul>
+                <button class="add-game-button">Add game</button>
                 <span class="game__summary"></span>
             </div>
             <img class="game__cover" alt="cover">
@@ -34,8 +36,10 @@
     </div>
     <script>
         // Скрипт для скрытия экрана загрузки после загрузки страницы
-        document.addEventListener("DOMContentLoaded", function() {
-            getGame(); // Вызываем вашу функцию для загрузки данных
+        document.addEventListener("DOMContentLoaded", function () {
+            getGame();
+            const addGameButton = document.querySelector('.add-game-button');
+            addGameButton.addEventListener('click', addGame)
         });
     </script>
 </body>

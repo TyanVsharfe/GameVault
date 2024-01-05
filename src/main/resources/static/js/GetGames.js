@@ -20,6 +20,7 @@ fetch('/api/games', {
         const gameName = document.createElement('a');
         const gameReleaseDate = document.createElement('p');
         const img = document.createElement('img');
+
         div.classList.add('game-item');
         divTextInfo.classList.add('game-item__text-info');
 

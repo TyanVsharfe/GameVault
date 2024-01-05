@@ -13,7 +13,7 @@ function getGame() {
 
 
 function sendRequest(gameId) {
-
+    const storedData = localStorage.getItem('gameData')
     fetch(`/api/game/${gameId}`, {
         method: 'POST',
         headers: {
@@ -22,6 +22,7 @@ function sendRequest(gameId) {
     })
         .then(response => response.json())
         .then(data => {
+            localStorage.setItem('gameData', JSON.stringify(data));
             data.forEach(game => {
                 const gameName = document.querySelector('.game-title');
                 const gameReleaseDate = document.querySelector('.game-release-date');
@@ -65,10 +66,10 @@ function sendRequest(gameId) {
                     gameGenres.appendChild(li);
                 }
 
-                // Заголовок
-                console.log('Присваиваем заголовок игры')
+                // Название игры
+                console.log('Присваиваем название игры')
                 gameName.textContent = game.name;
-                console.log('Game title', gameName.textContent)
+                console.log('Название: ', gameName.textContent)
 
                 // Дата релиза
                 if (game.first_release_date !== undefined) {

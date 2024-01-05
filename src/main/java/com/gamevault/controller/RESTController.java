@@ -1,40 +1,44 @@
 package com.gamevault.controller;
 
+import com.gamevault.db.model.Game;
 import com.gamevault.db.repository.GameRepository;
+import com.gamevault.form.GameForm;
+import com.gamevault.service.GameService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class RESTController {
+    final GameService gameService;
 
-    final GameRepository gameRepository;
-
-    public RESTController(GameRepository gameRepository) {
-        this.gameRepository = gameRepository;
+    public RESTController(GameService gameService) {
+        this.gameService = gameService;
     }
 
     @GetMapping("/game/{id}")
-    public int getGame(@PathVariable("id") Long id) {
-        return 0;
+    public Optional<Game> get(@PathVariable("id") Long id) {
+        return gameService.getGame(id);
     }
 
     @GetMapping("/games")
-    public int getGames() {
-        return 0;
+    public Iterable<Game> getAll() {
+        return gameService.getAllGames();
     }
 
     @PostMapping("/game")
-    public int postGame() {
-        return 0;
+    public Game add(@RequestBody GameForm gameForm) {
+        return gameService.addGame(gameForm);
     }
 
     @DeleteMapping("/game/{id}")
-    public int deleteGame(@PathVariable("id") Long id) {
-        return 0;
+    public void delete(@PathVariable("id") Long id) {
+        gameService.deleteGame(id);
     }
 
     @PutMapping("/game/{id}")
-    public int putGame(@PathVariable("id") Long id) {
+    public int put(@PathVariable("id") Long id) {
         return 0;
     }
 }

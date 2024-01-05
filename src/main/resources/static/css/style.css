@@ -23,6 +23,8 @@ a {
 .nav__icon {
     height: 40px;
     width: 40px;
+    font-weight: 800;
+    font-variation-settings: 'FILL' 1
 }
 
 a:hover {
