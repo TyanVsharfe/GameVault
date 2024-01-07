@@ -6,6 +6,12 @@ body {
     font-family: RethinkSans, serif;
 }
 
+h1 {
+    font-family: RethinkSans, serif;
+    font-weight: bold;
+    text-align: center;
+}
+
 .page-logo {
     color: #000;
     font-family: RethinkSans, sans-serif;
@@ -74,65 +80,6 @@ header {
 
 /*----------------------*/
 
-.search-header {
-
-}
-
-form {
-    display: flex;;
-    align-items: center;
-}
-
-.search-form {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-form__input {
-    height: 30px;
-    width: 200px;
-}
-
-#search-input {
-    width: 500px;
-    padding: 10px 20px;
-
-    background-image: url('../icons/search.svg');
-    background-size: 20px;
-    background-repeat: no-repeat;
-    background-position: center right;
-}
-
-#submit-input {
-    width: 70px;
-    height: 40px;
-}
-
-#submitButton {
-    height: 35px;
-    width: 35px;
-}
-
-.search-result {
-    width: 1135px;
-    height: 100%;
-    margin: auto;
-
-    text-align: center;
-}
-
-ul {
-    flex-direction: column;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-li {
-    text-align: center;
-}
-
 .game-item {
     display: flex;
     align-items: center;
@@ -140,15 +87,6 @@ li {
     gap: 30px;
     padding-top: 25px;
     padding-bottom: 25px;
-}
-
-.game-item__text-info {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    justify-content: center;
-    width: 400px;
 }
 
 #loading {
@@ -160,6 +98,8 @@ li {
     height: 100%;
     background: #fff url('../icons/loader.gif') no-repeat center center;
 }
+
+
 
 
 

@@ -7,28 +7,45 @@ import jakarta.persistence.*;
 public class Game {
     @Id
     @GeneratedValue
-    private Long Id;
-    private Long IGDB_ID;
-    private String Title;
-    private Double UserRating;
+    private Long id;
+    private Long igdbId;
+    private String title;
+    private Double userRating;
+    private String coverUrl;
     @Lob
-    private byte[] UserScreenshots;
+    private byte[] userScreenshots;
 
     public Game() {
 
     }
 
     public Game(GameForm gameForm) {
-        this.IGDB_ID = gameForm.getId();
+        this.igdbId = gameForm.getId();
         System.out.println("get id " + gameForm.getId());
-        this.Title = gameForm.getTitle();
+        this.title = gameForm.getTitle();
     }
 
     public void setId(Long id) {
-        this.Id = id;
+        this.id = id;
     }
 
     public Long getId() {
-        return Id;
+        return id;
+    }
+
+    public Long getIgdbId() {
+        return igdbId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 }

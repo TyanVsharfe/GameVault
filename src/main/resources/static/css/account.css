@@ -1,0 +1,4 @@
+#user-game-list {
+    display: flex;
+    flex-direction: row;
+}

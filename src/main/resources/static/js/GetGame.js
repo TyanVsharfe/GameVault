@@ -1,3 +1,10 @@
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector('.game').style.display = 'none';
+    getGame();
+    const addGameButton = document.querySelector('.add-game-button');
+    addGameButton.addEventListener('click', addGame)
+});
+
 function getGame() {
     // Получаем текущий путь страницы
     let currentPath = window.location.pathname;
@@ -83,6 +90,7 @@ function sendRequest(gameId) {
                 gameSummary.textContent = game.summary
 
                 document.getElementById('loading').style.display = 'none';
+                document.querySelector('.game').style.display = 'flex';
             });
         })
         .catch(error => {
