@@ -24,6 +24,7 @@ public class GameService {
     }
 
     public Game addGame(GameForm gameForm) {
+        System.out.println(gameForm.coverUrl() + "  title " + gameForm.title());
         return gameRepository.save(new Game(gameForm));
     }
 

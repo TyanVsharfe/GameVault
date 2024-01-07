@@ -2,3 +2,13 @@
     display: flex;
     flex-direction: row;
 }
+
+.game-preview {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.cover-preview {
+    width: 60%;
+}

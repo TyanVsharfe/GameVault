@@ -20,9 +20,10 @@ public class Game {
     }
 
     public Game(GameForm gameForm) {
-        this.igdbId = gameForm.getId();
-        System.out.println("get id " + gameForm.getId());
-        this.title = gameForm.getTitle();
+        this.igdbId = gameForm.id();
+        System.out.println("get id " + gameForm.id());
+        this.title = gameForm.title();
+        this.coverUrl = gameForm.coverUrl();
     }
 
     public void setId(Long id) {

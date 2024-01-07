@@ -16,8 +16,8 @@ window.onload = async function() {
                 const gameName = document.createElement('a');
                 const img = document.createElement('img');
 
-                div.classList.add('game-item');
-                divTextInfo.classList.add('game-item__text-info');
+                div.classList.add('game-preview');
+                img.classList.add('cover-preview')
 
                 if (game.status !== undefined) {
                     const status = game.status
@@ -29,8 +29,6 @@ window.onload = async function() {
                 // Проверка, что обложка не пустая
                 if (game.coverUrl !== null) {
                     img.src = game.coverUrl.replace('t_thumb', 't_cover_big');
-                    img.style.width = '10%';
-                    img.style.height = '10%';
                 }
 
                 let igdbId = game.igdbId
