@@ -1,7 +1,6 @@
 package com.gamevault.controller;
 
 import com.gamevault.db.model.Game;
-import com.gamevault.db.repository.GameRepository;
 import com.gamevault.form.GameForm;
 import com.gamevault.service.GameService;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +39,10 @@ public class RESTController {
     @PutMapping("/game/{id}")
     public int put(@PathVariable("id") Long id) {
         return 0;
+    }
+
+    @GetMapping("/checkEntity/{id}")
+    public boolean isContains(@PathVariable("id") Long id) {
+        return gameService.isContains(id);
     }
 }

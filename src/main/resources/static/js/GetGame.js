@@ -15,7 +15,26 @@ function getGame() {
     console.log(gameId)
     console.log('Щас будет вызов метода')
 
-    sendRequest(gameId)
+    checkEntity(gameId)
+}
+
+async function checkEntity(id) {
+    const response = await fetch(`/api/checkEntity/${id}`);
+    if (response.ok) {
+        const result = await response.json();
+        console.log('Результат проверки:', result); // Вывести полученное булево значение
+
+        if (result) {
+            console.log('Запись в бд есть');
+            sendRequest(id)
+        } else {
+            console.log('Записи в бд нету, берем с сайта IGDB');
+            sendRequest(id)
+        }
+    }
+    else {
+        console.error('Ошибка при проверке сущности:', response.status);
+    }
 }
 
 

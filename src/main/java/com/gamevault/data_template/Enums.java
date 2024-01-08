@@ -1,7 +1,7 @@
 package com.gamevault.data_template;
 
 public class Enums {
-    public enum category {
+    public enum categoryIGDB {
         main_game,
         dlc_addon,
         expansion,
@@ -19,7 +19,7 @@ public class Enums {
         update
     }
 
-    enum status {
+    public enum statusIGDB {
         released,
         unreleased,
         alpha,
@@ -29,5 +29,11 @@ public class Enums {
         cancelled,
         rumored,
         delisted
+    }
+
+    public enum status {
+        completed,
+        playing,
+        abandoned
     }
 }

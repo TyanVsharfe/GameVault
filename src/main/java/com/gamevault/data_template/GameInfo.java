@@ -6,7 +6,7 @@ import java.util.Date;
 public class GameInfo {
     private int id;
     private int[] alternative_names; // Array of Alternative Name IDs
-    private Enums.category category;
+    private Enums.categoryIGDB category;
     private int collection; // The series the game belongs to
     private int cover; //
     private int[] dlcs;
@@ -18,7 +18,7 @@ public class GameInfo {
     private int[] platforms;
     private String slug; // An url-safe, unique, lower-case version of the name
     // Пример "slug": "halo-3-odst"
-    private Enums.status status;
+    private Enums.statusIGDB statusIGDB;
     private String storyline;
     private String summary;
     private Double total_rating;

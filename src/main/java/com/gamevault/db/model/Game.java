@@ -1,5 +1,6 @@
 package com.gamevault.db.model;
 
+import com.gamevault.data_template.Enums;
 import com.gamevault.form.GameForm;
 import jakarta.persistence.*;
 
@@ -10,6 +11,7 @@ public class Game {
     private Long id;
     private Long igdbId;
     private String title;
+    private Enums.status status;
     private Double userRating;
     private String coverUrl;
     @Lob

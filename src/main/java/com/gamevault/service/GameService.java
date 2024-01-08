@@ -35,4 +35,8 @@ public class GameService {
     public void deleteGame(Long id) {
         gameRepository.deleteById(id);
     }
+
+    public boolean isContains(Long id) {
+        return gameRepository.existsByIgdbId(id);
+    }
 }
