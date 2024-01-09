@@ -1,11 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelector('.game').style.display = 'none';
     getGame();
-    const addGameButton = document.querySelector('.add-game-button');
-    addGameButton.addEventListener('click', addGame)
 });
 
-function getGame() {
+async function getGame() {
     // Получаем текущий путь страницы
     let currentPath = window.location.pathname;
     // Разбиваем путь на части по слешу '/'
@@ -15,31 +13,24 @@ function getGame() {
     console.log(gameId)
     console.log('Щас будет вызов метода')
 
-    checkEntity(gameId)
-}
+    const result = await checkEntity(gameId)
+    if (result) {
+        console.log('Запись в бд есть');
+        sendRequest(gameId)
+    } else {
+        console.log('Записи в бд нету, берем с сайта IGDB');
+        sendRequest(gameId)
 
-async function checkEntity(id) {
-    const response = await fetch(`/api/checkEntity/${id}`);
-    if (response.ok) {
-        const result = await response.json();
-        console.log('Результат проверки:', result); // Вывести полученное булево значение
-
-        if (result) {
-            console.log('Запись в бд есть');
-            sendRequest(id)
-        } else {
-            console.log('Записи в бд нету, берем с сайта IGDB');
-            sendRequest(id)
-        }
-    }
-    else {
-        console.error('Ошибка при проверке сущности:', response.status);
+        const gameGenres = document.querySelector('.game-genres');
+        const addGameButton = document.createElement('button');
+        addGameButton.classList.add('add-game-button');
+        addGameButton.textContent = "Add game";
+        addGameButton.addEventListener('click', addGame);
+        gameGenres.insertAdjacentElement('afterend', addGameButton)
     }
 }
-
 
 function sendRequest(gameId) {
-    const storedData = localStorage.getItem('gameData')
     fetch(`/api/game/${gameId}`, {
         method: 'POST',
         headers: {
@@ -108,7 +99,8 @@ function sendRequest(gameId) {
                 // Описание
                 gameSummary.textContent = game.summary
 
-                document.getElementById('loading').style.display = 'none';
+                const divLoading = document.getElementById('loading');
+                divLoading.parentNode.removeChild(divLoading);
                 document.querySelector('.game').style.display = 'flex';
             });
         })
