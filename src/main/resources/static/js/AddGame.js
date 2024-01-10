@@ -17,5 +17,6 @@ function addGame() {
         })
     });
     localStorage.clear();
-    alert("Игра добавлена")
+    location.reload();
+    alert("Игра добавлена");
 }

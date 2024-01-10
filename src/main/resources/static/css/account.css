@@ -1,10 +1,12 @@
 #user-game-list {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .game-preview {
     display: flex;
+    flex: 0 0 calc(20% - 10px);
     flex-direction: column-reverse;
     align-items: center;
     padding: 10px 0 0 0;

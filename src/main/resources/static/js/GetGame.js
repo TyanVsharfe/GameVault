@@ -17,6 +17,13 @@ async function getGame() {
     if (result) {
         console.log('Запись в бд есть');
         sendRequest(gameId)
+
+        const gameGenres = document.querySelector('.game-genres');
+        const deleteGameButton = document.createElement('button');
+        deleteGameButton.classList.add('add-game-button');
+        deleteGameButton.textContent = "Delete game";
+        deleteGameButton.addEventListener('click', deleteGame);
+        gameGenres.insertAdjacentElement('afterend', deleteGameButton)
     } else {
         console.log('Записи в бд нету, берем с сайта IGDB');
         sendRequest(gameId)

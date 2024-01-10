@@ -3,6 +3,7 @@ package com.gamevault.service;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.form.GameForm;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -32,8 +33,9 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    @Transactional
     public void deleteGame(Long id) {
-        gameRepository.deleteById(id);
+        gameRepository.deleteByIgdbId(id);
     }
 
     public boolean isContains(Long id) {
