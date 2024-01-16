@@ -17,6 +17,7 @@ window.onload = async function() {
                 const img = document.createElement('img');
 
                 div.classList.add('game-preview');
+                divTextInfo.classList.add('game-title')
                 img.classList.add('cover-preview')
 
                 if (game.status !== undefined) {

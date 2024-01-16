@@ -23,7 +23,6 @@ public class Game {
 
     public Game(GameForm gameForm) {
         this.igdbId = gameForm.id();
-        System.out.println("get id " + gameForm.id());
         this.title = gameForm.title();
         this.coverUrl = gameForm.coverUrl();
     }
@@ -50,5 +49,21 @@ public class Game {
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public Double getUserRating() {
+        return userRating;
+    }
+
+    public void setUserRating(Double userRating) {
+        this.userRating = userRating;
+    }
+
+    public Enums.status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Enums.status status) {
+        this.status = status;
     }
 }

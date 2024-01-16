@@ -1,10 +1,13 @@
 package com.gamevault.controller;
 
+import com.gamevault.data_template.Enums;
 import com.gamevault.db.model.Game;
 import com.gamevault.form.GameForm;
+import com.gamevault.form.GameUpdateDTO;
 import com.gamevault.service.GameService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -19,6 +22,11 @@ public class RESTController {
     @GetMapping("/game/{id}")
     public Optional<Game> get(@PathVariable("id") Long id) {
         return gameService.getGame(id);
+    }
+
+    @GetMapping("/game/igdb/{IgdbId}")
+    public Optional<Game> getByIgdbId(@PathVariable("IgdbId") Long igdbId) {
+        return gameService.getGameByIgdbId(igdbId);
     }
 
     @GetMapping("/games")
@@ -37,8 +45,14 @@ public class RESTController {
     }
 
     @PutMapping("/game/{id}")
-    public int put(@PathVariable("id") Long id) {
-        return 0;
+    public void put(@PathVariable("id") Long id, @RequestBody GameUpdateDTO gameUpdateDTO) {
+        gameService.updateGame(id, gameUpdateDTO);
+    }
+
+    @PatchMapping("/game/{id}")
+    public void patch(@PathVariable("id") Long id, @RequestBody Map<String, Enums.status> requestBody) {
+        Enums.status status = requestBody.get("status");
+        gameService.patchGame(id, status);
     }
 
     @GetMapping("/checkEntity/{id}")

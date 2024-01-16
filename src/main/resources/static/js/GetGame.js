@@ -4,40 +4,65 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function getGame() {
-    // Получаем текущий путь страницы
-    let currentPath = window.location.pathname;
-    // Разбиваем путь на части по слешу '/'
-    let pathParts = currentPath.split('/');
-    // Получаем последний элемент массива (последний параметр в пути)
-    let gameId = pathParts[pathParts.length - 1];
-    console.log(gameId)
-    console.log('Щас будет вызов метода')
+    const gameId = getGameId();
+    console.log(gameId);
+    console.log('Щас будет вызов метода');
 
     const result = await checkEntity(gameId)
     if (result) {
         console.log('Запись в бд есть');
-        sendRequest(gameId)
+        await sendRequest(gameId)
 
         const gameGenres = document.querySelector('.game-genres');
+
         const deleteGameButton = document.createElement('button');
-        deleteGameButton.classList.add('add-game-button');
+        deleteGameButton.classList.add('game-button');
         deleteGameButton.textContent = "Delete game";
         deleteGameButton.addEventListener('click', deleteGame);
         gameGenres.insertAdjacentElement('afterend', deleteGameButton)
+
+        const gameStatusButton= document.createElement('button');
+        gameStatusButton.classList.add('game-button');
+        gameStatusButton.textContent = "Change status";
+        gameGenres.insertAdjacentElement('afterend', gameStatusButton)
+        gameStatusButton.addEventListener('click', openModalWindow);
+
+        await fetch(`/api/game/igdb/${gameId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(game => {
+                const gameStatusTitle = document.createElement('label');
+                gameStatusTitle.classList.add("status-title")
+                gameStatusTitle.textContent = game.status;
+
+                const numStatus = enumStatus[game.status]
+                const radioButtons = document.getElementsByName('radio');
+                radioButtons.forEach( btn => {
+                    if (parseInt(btn.value) === numStatus) {
+                        btn.checked = true;
+                    }
+                })
+
+                gameGenres.insertAdjacentElement('afterend', gameStatusTitle);
+            })
     } else {
         console.log('Записи в бд нету, берем с сайта IGDB');
-        sendRequest(gameId)
+        await sendRequest(gameId)
 
         const gameGenres = document.querySelector('.game-genres');
         const addGameButton = document.createElement('button');
-        addGameButton.classList.add('add-game-button');
+        addGameButton.classList.add('game-button');
         addGameButton.textContent = "Add game";
         addGameButton.addEventListener('click', addGame);
         gameGenres.insertAdjacentElement('afterend', addGameButton)
     }
 }
 
-function sendRequest(gameId) {
+async function sendRequest(gameId) {
     fetch(`/api/game/${gameId}`, {
         method: 'POST',
         headers: {
@@ -46,19 +71,17 @@ function sendRequest(gameId) {
     })
         .then(response => response.json())
         .then(data => {
-            localStorage.setItem('gameData', JSON.stringify(data));
+            localStorage.setItem(`/game/${gameId}`, JSON.stringify(data));
             data.forEach(game => {
-                const gameName = document.querySelector('.game-title');
-                const gameReleaseDate = document.querySelector('.game-release-date');
-                const gameCover = document.querySelector('.game__cover');
-                const gamePlatforms = document.querySelector('.game-platforms');
-                const gameSummary = document.querySelector('.game__summary');
-                const gameGenres = document.querySelector('.game-genres');
+                const gameName = document.querySelector('.game-title'),
+                      gameReleaseDate = document.querySelector('.game-release-date'),
+                      gameCover = document.querySelector('.game__cover'),
+                      gamePlatforms = document.querySelector('.game-platforms'),
+                      gameSummary = document.querySelector('.game__summary'),
+                      gameGenres = document.querySelector('.game-genres');
 
                 // Обложка игры
                 gameCover.src = game.cover.url.replace('t_thumb', 't_1080p');
-                gameCover.style.width = '30%';
-                gameCover.style.height = '30%';
                 //let id = game.id
 
                 // Список платформ
@@ -114,4 +137,13 @@ function sendRequest(gameId) {
         .catch(error => {
             console.error('Ошибка при выполнении запроса:', error);
         });
+}
+
+function getGameId() {
+    // Получаем текущий путь страницы
+    let currentPath = window.location.pathname;
+    // Разбиваем путь на части по слешу '/'
+    let pathParts = currentPath.split('/');
+    // Получаем последний элемент массива (последний параметр в пути)
+    return pathParts[pathParts.length - 1];
 }

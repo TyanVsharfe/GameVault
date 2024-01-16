@@ -32,8 +32,9 @@ public class Enums {
     }
 
     public enum status {
-        completed,
-        playing,
-        abandoned
+        Completed,
+        Playing,
+        Planned,
+        Abandoned
     }
 }

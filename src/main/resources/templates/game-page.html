@@ -11,6 +11,8 @@
     <script src="/js/AddGame.js"></script>
     <script src="/js/DeleteGame.js"></script>
     <script src="/js/CheckEntity.js"></script>
+    <script src="/js/ModalWindow.js"></script>
+    <script src="/js/Enums.js"></script>
 </head>
 <body>
     <header>
@@ -22,8 +24,36 @@
             <a href="/account"><img class="nav__icon" src="/icons/account.svg" alt=""></a>
         </nav>
     </header>
-    <div class="main" id="main">
-        <div id="loading">Loading...</div>
+    <div class="modal">
+        <p class="modal__title">Set status</p>
+        <div class="modal__buttons">
+            <div class="list-radio-button">
+                <div class="radio-button">
+                    <input id="Completed" type="radio" name="radio" value="0">
+                    <label for="Completed">Completed</label>
+                </div>
+
+                <div class="radio-button">
+                    <input id="Playing" type="radio" name="radio" value="1">
+                    <label for="Playing">Playing</label>
+                </div>
+
+                <div class="radio-button">
+                    <input id="Planned" type="radio" name="radio" value="2">
+                    <label for="Planned">Planned</label>
+                </div>
+
+                <div class="radio-button">
+                    <input id="Abandoned" type="radio" name="radio" value="3">
+                    <label for="Abandoned">Abandoned</label>
+                </div>
+            </div>
+            <button class="modal__accept game-button">Accept</button>
+            <button class="modal__close game-button">Close</button>
+        </div>
+    </div>
+    <div id="loading">Loading...</div>
+    <div class="main-info" id="main">
         <div class="game">
             <div class="game-info">
                 <h2 class="game-title"></h2>

@@ -1,10 +1,10 @@
-function deleteGame() {
+async function deleteGame() {
     console.log('Вызывается DeleteGame');
-    const storedData = localStorage.getItem('gameData')
+    const storedData = localStorage.getItem(window.location.pathname)
     const parsedData = JSON.parse(storedData);
     console.log(parsedData[0]);
     console.log(parsedData[0].id);// Это ваши сохраненные данные
-    fetch(`/api/game/${parsedData[0].id}`, {
+    await fetch(`/api/game/${parsedData[0].id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'

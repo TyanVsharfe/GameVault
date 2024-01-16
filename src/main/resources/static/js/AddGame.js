@@ -1,13 +1,13 @@
-function addGame() {
+async function addGame() {
     console.log('Вызывается AddGame');
-    const storedData = localStorage.getItem('gameData')
+    const storedData = localStorage.getItem(window.location.pathname)
     const parsedData = JSON.parse(storedData);
     console.log(parsedData[0]); // Это ваши сохраненные данные
     console.log('Тут что я отправляю');
     console.log(parsedData[0].id);
     console.log(parsedData[0].name);
     console.log(parsedData[0].cover.url);
-    fetch("/api/game", {
+    await fetch("/api/game", {
         method: "POST",
         headers: {"Accept": "application/json", "Content-Type": "application/json"},
         body: JSON.stringify({
