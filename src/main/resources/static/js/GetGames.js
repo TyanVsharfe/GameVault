@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = document.getElementById('submitButton');
     button.addEventListener('click', sendRequest);
 
-    const filterButton = document.getElementById('filter-by-date-button');
-    filterButton.addEventListener('click', filterByDate);
+   /* const filterButton = document.getElementById('filter-by-date-button');
+    filterButton.addEventListener('click', filterByDate);*/
 
     const inputField = document.getElementById('gameNameInput');
     inputField.addEventListener('keypress', function(event) {

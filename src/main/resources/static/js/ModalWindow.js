@@ -5,6 +5,11 @@ function openModalWindow() {
     closeModalButton.addEventListener('click', closeModalWindow);
     acceptModalButton.addEventListener('click', acceptModalWindow);
     modalWindow.classList.add('active');
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === "Escape")
+            closeModalWindow();
+    })
 }
 
 function closeModalWindow() {
