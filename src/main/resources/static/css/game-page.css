@@ -13,12 +13,11 @@
     flex-direction: column;
     gap: 30px;
     justify-content: center;
-    width: 400px;
-    height: 700px;
+    width: 500px;
 }
 
 .game__cover {
-    width: 15%;
+    width: 20%;
 }
 
 ul {
@@ -84,4 +83,14 @@ ul {
 .radio-button input[type=radio]:disabled + label {
     background: #efefef;
     color: #666;
+}
+
+/*-------------------------------------------------------------------*/
+.rating-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.rating-form__input {
+    padding: 10px;
 }

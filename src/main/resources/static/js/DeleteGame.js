@@ -10,7 +10,7 @@ async function deleteGame() {
             'Content-Type': 'application/json'
         }
     })
-    localStorage.clear();
+    localStorage.removeItem(window.location.pathname);
     location.reload();
     alert("Игра удалена");
 }

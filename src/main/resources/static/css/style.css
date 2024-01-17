@@ -78,6 +78,12 @@ header {
     margin: auto;
 }
 
+.main-info {
+    justify-content: center;
+    height: 900px;
+    margin: auto;
+}
+
 /*----------------------*/
 
 .game-item {

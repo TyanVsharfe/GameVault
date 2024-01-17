@@ -24,7 +24,7 @@
             <a href="/account"><img class="nav__icon" src="/icons/account.svg" alt=""></a>
         </nav>
     </header>
-    <div class="modal">
+    <div class="modal" data-modal="1">
         <p class="modal__title">Set status</p>
         <div class="modal__buttons">
             <div class="list-radio-button">
@@ -48,9 +48,32 @@
                     <label for="Abandoned">Abandoned</label>
                 </div>
             </div>
-            <button class="modal__accept game-button">Accept</button>
-            <button class="modal__close game-button">Close</button>
+            <button class="modal__accept game-button" data-modal="1">Accept</button>
+            <button class="modal__close game-button" data-modal="1">Close</button>
         </div>
+    </div>
+    <div class="modal" data-modal="2">
+        <p class="modal__title">Set Rating</p>
+        <div class="rating-form">
+            <div class="rating-form__input">
+                <label>Graphics</label>
+                <input id="rating-graphics" type="range" min="0" max="10">
+                <span id="rating-graphics-value"></span>
+            </div>
+            <div class="rating-form__input">
+                <label>Story</label>
+                <input id="rating-story" type="range" min="0" max="10">
+                <span id="rating-story-value"></span>
+            </div>
+            <div class="rating-form__input">
+                <label>Gameplay</label>
+                <input id="rating-gameplay" type="range" min="0" max="10">
+                <span id="rating-gameplay-value"></span>
+            </div>
+        </div>
+
+        <button class="modal__accept game-button"  data-modal="2">Accept</button>
+        <button class="modal__close game-button"  data-modal="2">Close</button>
     </div>
     <div id="loading">Loading...</div>
     <div class="main-info" id="main">

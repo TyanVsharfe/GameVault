@@ -16,7 +16,7 @@ async function addGame() {
             "coverUrl": parsedData[0].cover.url
         })
     });
-    localStorage.clear();
+    localStorage.removeItem(window.location.pathname);
     location.reload();
     alert("Игра добавлена");
 }

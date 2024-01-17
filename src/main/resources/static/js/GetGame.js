@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    document.querySelector('.game').style.display = 'none';
+    document.querySelector('.main-info').style.display = 'none';
     getGame();
 });
 
@@ -25,7 +25,9 @@ async function getGame() {
         gameStatusButton.classList.add('game-button');
         gameStatusButton.textContent = "Change status";
         gameGenres.insertAdjacentElement('afterend', gameStatusButton)
-        gameStatusButton.addEventListener('click', openModalWindow);
+        gameStatusButton.addEventListener('click', function () {
+            openModalWindow(1);
+        });
 
         await fetch(`/api/game/igdb/${gameId}`, {
             method: 'GET',
@@ -46,6 +48,23 @@ async function getGame() {
                         btn.checked = true;
                     }
                 })
+
+                if (numStatus !== 2) {
+                    const gameRatingButton= document.createElement('button');
+                    gameRatingButton.classList.add('game-button');
+                    gameRatingButton.textContent = "Change Rating";
+                    gameGenres.insertAdjacentElement('afterend', gameRatingButton)
+                    gameRatingButton.addEventListener('click', function () {
+                        openModalWindow(2);
+                    });
+
+                    if (game.userRating !== null) {
+                        const gameUserRating = document.createElement('label');
+                        gameUserRating.classList.add("status-title")
+                        gameUserRating.textContent = game.userRating;
+                        gameGenres.insertAdjacentElement('afterend', gameUserRating);
+                    }
+                }
 
                 gameGenres.insertAdjacentElement('afterend', gameStatusTitle);
             })
@@ -71,7 +90,8 @@ async function sendRequest(gameId) {
     })
         .then(response => response.json())
         .then(data => {
-            localStorage.setItem(`/game/${gameId}`, JSON.stringify(data));
+            const keyStorage = `/game/${gameId}`;
+            localStorage.setItem(keyStorage, JSON.stringify(data));
             data.forEach(game => {
                 const gameName = document.querySelector('.game-title'),
                       gameReleaseDate = document.querySelector('.game-release-date'),
@@ -131,7 +151,7 @@ async function sendRequest(gameId) {
 
                 const divLoading = document.getElementById('loading');
                 divLoading.parentNode.removeChild(divLoading);
-                document.querySelector('.game').style.display = 'flex';
+                document.querySelector('.main-info').style.display = 'flex';
             });
         })
         .catch(error => {
