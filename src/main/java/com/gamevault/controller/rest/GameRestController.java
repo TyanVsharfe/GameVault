@@ -1,21 +1,19 @@
-package com.gamevault.controller;
+package com.gamevault.controller.rest;
 
-import com.gamevault.data_template.Enums;
 import com.gamevault.db.model.Game;
 import com.gamevault.form.GameForm;
 import com.gamevault.form.GameUpdateDTO;
 import com.gamevault.service.GameService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class RESTController {
+public class GameRestController {
     final GameService gameService;
 
-    public RESTController(GameService gameService) {
+    public GameRestController(GameService gameService) {
         this.gameService = gameService;
     }
 
@@ -47,12 +45,6 @@ public class RESTController {
     @PutMapping("/game/{id}")
     public void put(@PathVariable("id") Long id, @RequestBody GameUpdateDTO gameUpdateDTO) {
         gameService.updateGame(id, gameUpdateDTO);
-    }
-
-    @PatchMapping("/game/{id}")
-    public void patch(@PathVariable("id") Long id, @RequestBody Map<String, Enums.status> requestBody) {
-        Enums.status status = requestBody.get("status");
-        gameService.patchGame(id, status);
     }
 
     @GetMapping("/checkEntity/{id}")

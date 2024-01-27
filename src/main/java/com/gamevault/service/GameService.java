@@ -2,6 +2,7 @@ package com.gamevault.service;
 
 import com.gamevault.data_template.Enums;
 import com.gamevault.db.model.Game;
+import com.gamevault.db.model.Note;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.form.GameUpdateDTO;
 import com.gamevault.form.GameForm;
@@ -44,16 +45,19 @@ public class GameService {
         game.setStatus(gameUpdateDTO.status().orElse(game.getStatus()));
         game.setUserRating(gameUpdateDTO.userRating().orElse(game.getUserRating()));
 
+        if (gameUpdateDTO.notes().isPresent())
+        {
+            gameUpdateDTO.notes().ifPresent(notes -> {
+                notes.forEach(note -> {
+                    note.setGame(game);
+                    game.getNotes().add(note);
+                });
+            });
+
+            System.out.println("Note content " + game.getNotes().get(0));
+        }
+
         System.out.println("Запись изменена");
-        System.out.println("Id "+ game.getId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
-        gameRepository.save(game);
-    }
-
-    public void patchGame(Long id, Enums.status status) {
-        Game game = gameRepository.findGameByIgdbId(id).orElseThrow(
-                () -> new EntityNotFoundException("Game with id " + id + " not found"));
-
-        game.setStatus(status);
         System.out.println("Id "+ game.getId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
         gameRepository.save(game);
     }

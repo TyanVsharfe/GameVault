@@ -69,17 +69,14 @@ ul {
     width: 100px;
 }
 
-/* Checked */
 .radio-button input[type=radio]:checked + label {
     background: #ffe0a6;
 }
 
-/* Hover */
 .radio-button label:hover {
     color: #666;
 }
 
-/* Disabled */
 .radio-button input[type=radio]:disabled + label {
     background: #efefef;
     color: #666;
@@ -93,4 +90,12 @@ ul {
 
 .rating-form__input {
     padding: 10px;
+}
+
+/*-------------------------------------------------------------------*/
+
+.note-info {
+    width: 200px;
+    height: 100px;
+    background: #ffe0a6;
 }

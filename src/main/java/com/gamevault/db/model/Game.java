@@ -4,6 +4,9 @@ import com.gamevault.data_template.Enums;
 import com.gamevault.form.GameForm;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Game {
     @Id
@@ -14,6 +17,8 @@ public class Game {
     private Enums.status status;
     private Double userRating;
     private String coverUrl;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Note> notes = new ArrayList<>();
     @Lob
     private byte[] userScreenshots;
 
@@ -65,5 +70,13 @@ public class Game {
 
     public void setStatus(Enums.status status) {
         this.status = status;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
     }
 }

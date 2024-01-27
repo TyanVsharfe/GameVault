@@ -49,7 +49,9 @@ async function getGame() {
                     }
                 })
 
-                if (numStatus !== 2) {
+                console.log("Num status " + numStatus);
+
+                if (numStatus !== 2 && numStatus !== undefined) {
                     const gameRatingButton= document.createElement('button');
                     gameRatingButton.classList.add('game-button');
                     gameRatingButton.textContent = "Change Rating";
@@ -82,7 +84,7 @@ async function getGame() {
 }
 
 async function sendRequest(gameId) {
-    fetch(`/api/game/${gameId}`, {
+    fetch(`/api/igdb/game/${gameId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

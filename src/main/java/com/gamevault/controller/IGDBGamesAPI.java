@@ -9,7 +9,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/igdb")
 public class IGDBGamesAPI {
     @PostMapping("/games")
     public String gamesIGDB(@RequestBody String searchGame) throws UnirestException {
