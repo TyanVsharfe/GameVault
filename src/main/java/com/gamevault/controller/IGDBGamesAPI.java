@@ -29,6 +29,26 @@ public class IGDBGamesAPI {
         return jsonResponse.getBody().toString();
     }
 
+    @PostMapping("/games/ids")
+    public String gamesIGDBids(@RequestBody Iterable<Long> igdbIds) throws UnirestException {
+        API_CLIENT apiClient = RequestIGDBService.getAPIKey();
+
+        StringBuilder stringBuilder = new StringBuilder("(");
+        for (Long id: igdbIds) {
+            stringBuilder.append(id).append(",");
+        }
+        stringBuilder = new StringBuilder(stringBuilder.substring(0, stringBuilder.length() - 1));
+
+        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
+                .header("Client-ID", API_CLIENT.getClient_id())
+                .header("Authorization", "Bearer " + apiClient.getAccess_token())
+                .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
+                        + "where id = " + stringBuilder + ");")
+                .asJson();
+
+        return jsonResponse.getBody().toString();
+    }
+
     @PostMapping("/game/{gameId}")
     public String gameIGDB(@PathVariable String gameId) throws UnirestException {
         API_CLIENT apiClient = RequestIGDBService.getAPIKey();

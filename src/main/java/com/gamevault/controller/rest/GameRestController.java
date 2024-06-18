@@ -32,6 +32,11 @@ public class GameRestController {
         return gameService.getAllGames();
     }
 
+    @GetMapping("/games/igdbIds")
+    public Iterable<Long> getAllIgdbIds() {
+        return gameService.getAllGamesIgdbIds();
+    }
+
     @PostMapping("/game")
     public Game add(@RequestBody GameForm gameForm) {
         return gameService.addGame(gameForm);
