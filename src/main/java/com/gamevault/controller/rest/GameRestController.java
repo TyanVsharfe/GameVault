@@ -11,7 +11,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 public class GameRestController {
-    final GameService gameService;
+    private final GameService gameService;
 
     public GameRestController(GameService gameService) {
         this.gameService = gameService;

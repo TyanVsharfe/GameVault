@@ -51,9 +51,9 @@ public class GameService {
 
     public void updateGame(Long id, GameUpdateDTO gameUpdateDTO) {
         Game game = gameRepository.findGameByIgdbId(id).orElseThrow(
-                () -> new EntityNotFoundException("Game with id " + gameUpdateDTO.id() + " not found"));
+                () -> new EntityNotFoundException("Game with id " + gameUpdateDTO.igdbId() + " not found"));
         System.out.println("Id "+ game.getIgdbId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
-        System.out.println("DTO id " + gameUpdateDTO.id() + " Rating " + gameUpdateDTO.userRating());
+        System.out.println("DTO id " + gameUpdateDTO.igdbId() + " Rating " + gameUpdateDTO.userRating());
 
         game.setStatus(gameUpdateDTO.status().orElse(game.getStatus()));
         game.setUserRating(gameUpdateDTO.userRating().orElse(game.getUserRating()));

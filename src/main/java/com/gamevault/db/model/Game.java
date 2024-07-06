@@ -1,5 +1,6 @@
 package com.gamevault.db.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gamevault.data_template.Enums;
 import com.gamevault.form.GameForm;
 import jakarta.persistence.*;
@@ -16,6 +17,7 @@ public class Game {
     private Double userRating;
     private String coverUrl;
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Note> notes = new ArrayList<>();
     @Lob
     private byte[] userScreenshots;
@@ -25,7 +27,7 @@ public class Game {
     }
 
     public Game(GameForm gameForm) {
-        this.igdbId = gameForm.id();
+        this.igdbId = gameForm.igdbId();
         this.title = gameForm.title();
         this.coverUrl = gameForm.coverUrl();
     }

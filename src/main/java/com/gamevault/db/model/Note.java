@@ -1,5 +1,7 @@
 package com.gamevault.db.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.gamevault.form.NoteForm;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,9 +12,16 @@ public class Note {
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", referencedColumnName = "igdbId")
+    @JsonBackReference
     private Game game;
+
     public Note() {
 
+    }
+
+    public Note(NoteForm noteForm, Game game) {
+        this.content = noteForm.content();
+        this.game = game;
     }
 
     public Note(String content) {
