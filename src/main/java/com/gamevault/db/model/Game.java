@@ -10,8 +10,6 @@ import java.util.List;
 @Entity
 public class Game {
     @Id
-    @GeneratedValue
-    private Long id;
     private Long igdbId;
     private String title;
     private Enums.status status;
@@ -30,14 +28,6 @@ public class Game {
         this.igdbId = gameForm.id();
         this.title = gameForm.title();
         this.coverUrl = gameForm.coverUrl();
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Long getIgdbId() {

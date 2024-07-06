@@ -9,7 +9,7 @@ public class Note {
     private Long id;
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id", referencedColumnName = "id")
+    @JoinColumn(name = "game_id", referencedColumnName = "igdbId")
     private Game game;
     public Note() {
 

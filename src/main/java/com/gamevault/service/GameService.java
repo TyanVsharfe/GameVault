@@ -42,14 +42,17 @@ public class GameService {
     }
 
     public Game addGame(GameForm gameForm) {
-        System.out.println(gameForm.coverUrl() + "  title " + gameForm.title());
         return gameRepository.save(new Game(gameForm));
+    }
+
+    public void saveGame(Game game) {
+        gameRepository.save(game);
     }
 
     public void updateGame(Long id, GameUpdateDTO gameUpdateDTO) {
         Game game = gameRepository.findGameByIgdbId(id).orElseThrow(
                 () -> new EntityNotFoundException("Game with id " + gameUpdateDTO.id() + " not found"));
-        System.out.println("Id "+ game.getId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
+        System.out.println("Id "+ game.getIgdbId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
         System.out.println("DTO id " + gameUpdateDTO.id() + " Rating " + gameUpdateDTO.userRating());
 
         game.setStatus(gameUpdateDTO.status().orElse(game.getStatus()));
@@ -68,7 +71,7 @@ public class GameService {
         }
 
         System.out.println("Запись изменена");
-        System.out.println("Id "+ game.getId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
+        System.out.println("Id "+ game.getIgdbId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
         gameRepository.save(game);
     }
 
