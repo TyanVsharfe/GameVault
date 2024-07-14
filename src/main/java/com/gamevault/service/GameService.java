@@ -37,9 +37,6 @@ public class GameService {
     public Optional<Game> getGame(Long id) {
         return gameRepository.findById(id);
     }
-    public Optional<Game> getGameByIgdbId(Long id) {
-        return gameRepository.findGameByIgdbId(id);
-    }
 
     public Game addGame(GameForm gameForm) {
         return gameRepository.save(new Game(gameForm));

@@ -22,18 +22,13 @@ public class GameRestController {
         return gameService.getGame(id);
     }
 
-    @GetMapping("/game/igdb/{IgdbId}")
-    public Optional<Game> getByIgdbId(@PathVariable("IgdbId") Long igdbId) {
-        return gameService.getGameByIgdbId(igdbId);
-    }
-
     @GetMapping("/games")
     public Iterable<Game> getAll() {
         return gameService.getAllGames();
     }
 
-    @GetMapping("/games/igdbIds")
-    public Iterable<Long> getAllIgdbIds() {
+    @GetMapping("/games/ids")
+    public Iterable<Long> getAllIds() {
         return gameService.getAllGamesIgdbIds();
     }
 
