@@ -5,6 +5,7 @@ import com.gamevault.db.model.Note;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.db.repository.NoteRepository;
 import com.gamevault.form.NoteForm;
+import com.gamevault.form.NoteUpdateDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,17 @@ public class NoteService {
 
     public Note addNote(NoteForm noteForm) {
         Game game = gameRepository.findGameByIgdbId(noteForm.igdbId()).orElseThrow(() ->
-                new EntityNotFoundException("Game with igdbId " + noteForm.igdbId() + " not found"));;
+                new EntityNotFoundException("Game with igdbId " + noteForm.igdbId() + " not found"));
         return noteRepository.save(new Note(noteForm, game));
+    }
+
+    public void updateNote(Long id, NoteUpdateDTO noteUpdateDTO) {
+        Note note = noteRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Note with id " + id + " not found"));
+        note.setContent(noteUpdateDTO.content().orElse(note.getContent()));
+
+        System.out.println("Заметка изменена");
+        System.out.println("Id " + note.getId() + " Content " + note.getContent());
+        noteRepository.save(note);
     }
 }

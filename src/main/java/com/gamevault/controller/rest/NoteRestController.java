@@ -1,8 +1,8 @@
 package com.gamevault.controller.rest;
 
 import com.gamevault.db.model.Note;
-import com.gamevault.form.GameForm;
 import com.gamevault.form.NoteForm;
+import com.gamevault.form.NoteUpdateDTO;
 import com.gamevault.service.NoteService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +23,11 @@ public class NoteRestController {
     @PostMapping("/game/note")
     public Note add(@RequestBody NoteForm noteForm) {
         return noteService.addNote(noteForm);
+    }
+
+    @PutMapping("/game/note/{id}")
+    public void put(@PathVariable("id") Long id, @RequestBody NoteUpdateDTO noteUpdateDTO) {
+        noteService.updateNote(id, noteUpdateDTO);
     }
 
     @DeleteMapping("/game/note/{id}")

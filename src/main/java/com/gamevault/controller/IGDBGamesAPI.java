@@ -1,11 +1,14 @@
 package com.gamevault.controller;
 
 import com.gamevault.component.IgdbTokenManager;
+import com.gamevault.data_template.SteamGameTitle;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/igdb")
@@ -62,6 +65,24 @@ public class IGDBGamesAPI {
                         "category, summary, genres.name, first_release_date, platforms.abbreviation;"
                         + " where id = " + gameId + ";")
                 .asJson();
+
+        return jsonResponse.getBody().toString();
+    }
+
+    @PostMapping("/steam-import")
+    public String steamImportGamesIGDB(@RequestBody SteamGameTitle[] gameTitles) throws UnirestException {
+
+        StringBuilder titlesString = new StringBuilder("(");
+        Arrays.stream(gameTitles).forEach(title -> titlesString.append("\"").append(title.getName()).append("\"").append(","));
+        titlesString.replace(titlesString.length() - 1, titlesString.length(), ")");
+        System.out.println("Titles string " + titlesString);
+
+        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
+                .header("Client-ID", apiClient.getClient_id())
+                .header("Authorization", "Bearer " + apiClient.getAccess_token())
+                .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
+                        + "where name = " + titlesString + ";"
+                ).asJson();
 
         return jsonResponse.getBody().toString();
     }

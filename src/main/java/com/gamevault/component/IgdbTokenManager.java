@@ -6,12 +6,16 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class IgdbTokenManager {
-    private final String client_id = "c5x4cwm5mp474yt174al5uwv11zuvx";
+    @Value("${client.id}")
+    private String client_id;
+    @Value("${client.secret}")
+    private String client_secret;
     private String access_token;
     private Integer expires_in;
     private String token_type;
@@ -20,11 +24,10 @@ public class IgdbTokenManager {
     @Scheduled(fixedRate = 4500000)
     public void getAPIKey() throws UnirestException {
         HttpResponse<JsonNode> jsonRequest = Unirest.post("https://id.twitch.tv/oauth2/token")
-                .field("client_id","c5x4cwm5mp474yt174al5uwv11zuvx")
-                .field("client_secret","zp3to8x9x28qihvjf0fh0ocx6deg7g")
+                .field("client_id", client_id)
+                .field("client_secret", client_secret)
                 .field("grant_type","client_credentials")
                 .asJson();
-        System.out.println(jsonRequest);
         IgdbTokenResponse igdbTokenResponse = new Gson().fromJson(jsonRequest.getBody().toString(), IgdbTokenResponse.class);
 
         System.out.println("Access Token: " + igdbTokenResponse.getAccess_token());

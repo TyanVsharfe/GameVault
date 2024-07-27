@@ -55,15 +55,13 @@ public class GameService {
         game.setStatus(gameUpdateDTO.status().orElse(game.getStatus()));
         game.setUserRating(gameUpdateDTO.userRating().orElse(game.getUserRating()));
 
-        if (gameUpdateDTO.notes().isPresent())
-        {
+        if (gameUpdateDTO.notes().isPresent()) {
             gameUpdateDTO.notes().ifPresent(notes -> {
                 notes.forEach(note -> {
                     note.setGame(game);
                     game.getNotes().add(note);
                 });
             });
-
             System.out.println("Note content " + game.getNotes().get(0));
         }
 
