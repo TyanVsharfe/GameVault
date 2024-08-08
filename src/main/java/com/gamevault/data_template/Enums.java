@@ -35,6 +35,7 @@ public class Enums {
         Completed,
         Playing,
         Planned,
-        Abandoned
+        Abandoned,
+        None
     }
 }

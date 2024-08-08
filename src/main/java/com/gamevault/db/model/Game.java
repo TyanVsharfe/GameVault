@@ -30,6 +30,7 @@ public class Game {
         this.igdbId = gameForm.igdbId();
         this.title = gameForm.title();
         this.coverUrl = gameForm.coverUrl();
+        this.status = Enums.status.None;
     }
 
     public Long getIgdbId() {

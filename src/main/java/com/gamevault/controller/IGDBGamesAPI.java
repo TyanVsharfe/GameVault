@@ -49,7 +49,7 @@ public class IGDBGamesAPI {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
-                        + "where id = " + stringBuilder + ");")
+                        + "where id = " + stringBuilder + "); limit 50;")
                 .asJson();
 
         return jsonResponse.getBody().toString();

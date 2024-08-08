@@ -1,5 +1,6 @@
 package com.gamevault.controller.rest;
 
+import com.gamevault.data_template.UserStatisticsInfo;
 import com.gamevault.db.model.Game;
 import com.gamevault.form.GameForm;
 import com.gamevault.form.GameUpdateDTO;
@@ -23,13 +24,13 @@ public class GameRestController {
     }
 
     @GetMapping("/games")
-    public Iterable<Game> getAll() {
-        return gameService.getAllGames();
+    public Iterable<Game> getAll(@RequestParam(value = "status", required = false) String status) {
+        return gameService.getAllGames(status);
     }
 
     @GetMapping("/games/ids")
-    public Iterable<Long> getAllIds() {
-        return gameService.getAllGamesIgdbIds();
+    public Iterable<Long> getAllIds(@RequestParam(value = "status", required = false) String status) {
+        return gameService.getAllGamesIgdbIds(status);
     }
 
     @PostMapping("/game")
@@ -50,5 +51,10 @@ public class GameRestController {
     @GetMapping("/checkEntity/{id}")
     public boolean isContains(@PathVariable("id") Long id) {
         return gameService.isContains(id);
+    }
+
+    @GetMapping("/statistics")
+    public UserStatisticsInfo userStatistics() {
+        return gameService.userStatistics();
     }
 }
