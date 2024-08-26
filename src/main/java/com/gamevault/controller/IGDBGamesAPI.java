@@ -61,9 +61,42 @@ public class IGDBGamesAPI {
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url, release_dates.y, status, " +
-                        "category, summary, genres.name, first_release_date, platforms.abbreviation;"
-                        + " where id = " + gameId + ";")
+                .body("fields name,cover.url, release_dates.y, status, "
+                        + "category, summary, genres.name, first_release_date, platforms.abbreviation,"
+                        + "franchises.name, franchises.slug, franchises.games.name, franchises.games.cover.url, "
+                        + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y;"
+                        + " where id = " + gameId + "; sort franchises.games.release_dates.y desc;")
+                .asJson();
+
+        return jsonResponse.getBody().toString();
+    }
+
+    @PostMapping("/series/{seriesTitle}")
+    public String gameSeries(@PathVariable String seriesTitle) throws UnirestException {
+
+        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/franchises")
+                .header("Client-ID", apiClient.getClient_id())
+                .header("Authorization", "Bearer " + apiClient.getAccess_token())
+                .body("fields name, games, slug,"
+                        + "games.name, games.cover.url, games.platforms.abbreviation, games.first_release_date;"
+                        + " where slug = \"" + seriesTitle + "\"; sort games.first_release_date desc;")
+                .asJson();
+
+        return jsonResponse.getBody().toString();
+    }
+
+    @PostMapping("/games/release_dates")
+    public String gamesReleaseDates() throws UnirestException {
+
+        long actualDate = System.currentTimeMillis()/1000;
+
+        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/release_dates/")
+                .header("Client-ID", apiClient.getClient_id())
+                .header("Authorization", "Bearer " + apiClient.getAccess_token())
+                .body("fields *, game.name, game.category, game.cover.url, game.platforms.abbreviation, game.hypes; "
+                        + " where date > " + actualDate + " & region = 8;"
+                        + "sort date asc;"
+                        + "limit 50;")
                 .asJson();
 
         return jsonResponse.getBody().toString();
