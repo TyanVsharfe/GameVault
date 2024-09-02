@@ -1,4 +1,4 @@
-package com.gamevault.controller;
+package com.gamevault.controller.rest;
 
 import com.gamevault.component.IgdbTokenManager;
 import com.gamevault.data_template.SteamGameTitle;
