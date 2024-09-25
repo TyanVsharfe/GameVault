@@ -2,9 +2,11 @@ package com.gamevault.service;
 
 import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserRepository;
+import com.gamevault.form.UserForm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -34,7 +36,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId);
     }
 
-    public User addUser(User user) {
-        return userRepository.save(user);
+    public String addUser(UserForm user) {
+        if (userRepository.findByUsername(user.username()) != null) {
+            return "Username already exists!";
+        }
+        String bcryptPass = new BCryptPasswordEncoder().encode(user.password());
+        User newUser = new User(user.username(), bcryptPass);
+        userRepository.save(newUser);
+        return "User registered successfully!";
     }
 }

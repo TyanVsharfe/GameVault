@@ -38,4 +38,22 @@ public class Enums {
         Abandoned,
         None
     }
+
+    public enum platforms {
+        PC(6),
+
+        PS1(7),
+        PS2(8),
+        PS3(9),
+        PS4(48),
+        PS5(167),
+
+        XBOX(11),
+        X360(12),
+        XONE(49),
+        SERIES_X(169);
+
+        platforms(long i) {
+        }
+    }
 }
