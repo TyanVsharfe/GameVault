@@ -21,11 +21,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) {
             throw new UsernameNotFoundException("User with username" +  username + " not found");
         }
-        return (UserDetails) user;
+        return (UserDetails) user.get();
     }
 
     public Iterable<User> getAllUsers() {
@@ -36,13 +36,27 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId);
     }
 
+    public String getUser(UserForm userForm) {
+
+        Optional<User> user = userRepository.findByUsername(userForm.username());
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User with username" +  userForm.username() + " not found");
+        }
+        boolean isMatch = new BCryptPasswordEncoder().matches(userForm.password(), user.get().getPassword());
+        if (!isMatch) {
+            throw new UsernameNotFoundException("Wrong password");
+        }
+
+        return "Login successfully";
+    }
+
     public String addUser(UserForm user) {
-        if (userRepository.findByUsername(user.username()) != null) {
-            return "Username already exists!";
+        if (userRepository.findByUsername(user.username()).isPresent()) {
+            return "Username already exists";
         }
         String bcryptPass = new BCryptPasswordEncoder().encode(user.password());
         User newUser = new User(user.username(), bcryptPass);
         userRepository.save(newUser);
-        return "User registered successfully!";
+        return "User registered successfully";
     }
 }

@@ -1,13 +1,14 @@
 package com.gamevault.controller.rest;
 
-import com.gamevault.db.model.User;
 import com.gamevault.form.UserForm;
 import com.gamevault.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/users")
 public class UserRestController {
     private final UserService userService;
 
@@ -22,6 +23,6 @@ public class UserRestController {
 
     @PostMapping("/login")
     public String loginUser(@RequestBody UserForm user) {
-        return user.toString();
+        return userService.getUser(user);
     }
 }
