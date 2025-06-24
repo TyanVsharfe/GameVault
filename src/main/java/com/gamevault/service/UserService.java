@@ -3,13 +3,17 @@ package com.gamevault.service;
 import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserRepository;
 import com.gamevault.form.UserForm;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -25,7 +29,17 @@ public class UserService implements UserDetailsService {
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User with username" +  username + " not found");
         }
-        return (UserDetails) user.get();
+
+        User exUser = user.get();
+
+        List<GrantedAuthority> authorities = exUser.getRoles().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        return new org.springframework.security.core.userdetails.User(
+                exUser.getUsername(),
+                exUser.getPassword(),
+                authorities);
     }
 
     public Iterable<User> getAllUsers() {
@@ -36,26 +50,12 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId);
     }
 
-    public String getUser(UserForm userForm) {
-
-        Optional<User> user = userRepository.findByUsername(userForm.username());
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User with username" +  userForm.username() + " not found");
-        }
-        boolean isMatch = new BCryptPasswordEncoder().matches(userForm.password(), user.get().getPassword());
-        if (!isMatch) {
-            throw new UsernameNotFoundException("Wrong password");
-        }
-
-        return "Login successfully";
-    }
-
     public String addUser(UserForm user) {
         if (userRepository.findByUsername(user.username()).isPresent()) {
             return "Username already exists";
         }
         String bcryptPass = new BCryptPasswordEncoder().encode(user.password());
-        User newUser = new User(user.username(), bcryptPass);
+        User newUser = new User(user.username(), bcryptPass, List.of("ROLE_USER"));
         userRepository.save(newUser);
         return "User registered successfully";
     }

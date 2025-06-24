@@ -56,4 +56,9 @@ public class Enums {
         platforms(long i) {
         }
     }
+
+    public enum subscription {
+        Free,
+        Tracker
+    }
 }

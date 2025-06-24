@@ -1,4 +1,4 @@
-package com.gamevault.config;
+package com.gamevault.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

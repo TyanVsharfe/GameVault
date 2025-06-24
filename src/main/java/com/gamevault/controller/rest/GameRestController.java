@@ -5,6 +5,8 @@ import com.gamevault.db.model.Game;
 import com.gamevault.form.GameForm;
 import com.gamevault.form.GameUpdateDTO;
 import com.gamevault.service.GameService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -55,6 +57,8 @@ public class GameRestController {
 
     @GetMapping("/statistics")
     public UserStatisticsInfo userStatistics() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication in /statistics: " + authentication.getName());
         return gameService.userStatistics();
     }
 }
