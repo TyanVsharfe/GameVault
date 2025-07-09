@@ -5,6 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.repository.GameRepository;
+import com.gamevault.exception.GameNotFoundInIgdbException;
+import com.gamevault.exception.IgdbFetchException;
+import com.gamevault.exception.IgdbParsingException;
 import com.gamevault.form.igdb.GameDTO;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.transaction.Transactional;
@@ -35,7 +38,7 @@ public class GameService {
             List<GameDTO> games = new ObjectMapper().readValue(igdbGameJson, new TypeReference<>() {});
 
             if (games == null || games.isEmpty()) {
-                throw new IllegalStateException("Game with id " + igdbId + " not found in IGDB.");
+                throw new GameNotFoundInIgdbException("Game with id " + igdbId + " not found in IGDB.");
             }
 
             GameDTO gameDto = games.get(0);
@@ -49,9 +52,9 @@ public class GameService {
             return gameRepository.save(game);
 
         } catch (UnirestException e) {
-            throw new RuntimeException("Failed to fetch IGDB game", e);
+            throw new IgdbFetchException("Failed to fetch IGDB game", e);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new IgdbParsingException("Failed to parse IGDB game JSON", e);
         }
     }
 
