@@ -1,8 +1,8 @@
 package com.gamevault.service;
 
-import com.gamevault.db.model.Game;
+import com.gamevault.db.model.UserGame;
 import com.gamevault.db.model.Note;
-import com.gamevault.db.repository.GameRepository;
+import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.db.repository.NoteRepository;
 import com.gamevault.form.NoteForm;
 import com.gamevault.form.NoteUpdateDTO;
@@ -13,15 +13,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class NoteService {
     private final NoteRepository noteRepository;
-    private final GameRepository gameRepository;
+    private final UserGameRepository userGameRepository;
 
-    public NoteService(NoteRepository noteRepository, GameRepository gameRepository) {
+    public NoteService(NoteRepository noteRepository, UserGameRepository userGameRepository) {
         this.noteRepository = noteRepository;
-        this.gameRepository = gameRepository;
+        this.userGameRepository = userGameRepository;
     }
 
     public Iterable<Note> getAllNotesByIgdbId(Long igdbId) {
-        return noteRepository.findAllByGame_IgdbId(igdbId);
+        return noteRepository.findAllByUserGame_Id(igdbId);
     }
 
     @Transactional
@@ -31,13 +31,13 @@ public class NoteService {
 
     @Transactional
     public void deleteAllGameNotes(Long igdbId) {
-        noteRepository.deleteAllByGame_IgdbId(igdbId);
+        noteRepository.deleteAllByUserGame_Id(igdbId);
     }
 
     public Note addNote(NoteForm noteForm) {
-        Game game = gameRepository.findGameByIgdbId(noteForm.igdbId()).orElseThrow(() ->
+        UserGame userGame = userGameRepository.findById(noteForm.igdbId()).orElseThrow(() ->
                 new EntityNotFoundException("Game with igdbId " + noteForm.igdbId() + " not found"));
-        return noteRepository.save(new Note(noteForm, game));
+        return noteRepository.save(new Note(noteForm, userGame));
     }
 
     public void updateNote(Long id, NoteUpdateDTO noteUpdateDTO) {

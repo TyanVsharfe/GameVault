@@ -3,8 +3,6 @@ package com.gamevault.service;
 import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserRepository;
 import com.gamevault.form.UserForm;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,21 +23,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User with username" +  username + " not found");
-        }
-
-        User exUser = user.get();
-
-        List<GrantedAuthority> authorities = exUser.getRoles().stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        return new org.springframework.security.core.userdetails.User(
-                exUser.getUsername(),
-                exUser.getPassword(),
-                authorities);
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public Iterable<User> getAllUsers() {

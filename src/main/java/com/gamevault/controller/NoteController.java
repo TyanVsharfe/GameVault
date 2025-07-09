@@ -1,4 +1,4 @@
-package com.gamevault.controller.rest;
+package com.gamevault.controller;
 
 import com.gamevault.db.model.Note;
 import com.gamevault.form.NoteForm;
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-public class NoteRestController {
+public class NoteController {
     private final NoteService noteService;
 
-    public NoteRestController(NoteService noteService) {
+    public NoteController(NoteService noteService) {
         this.noteService = noteService;
     }
 

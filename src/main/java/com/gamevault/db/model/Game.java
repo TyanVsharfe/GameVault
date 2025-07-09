@@ -1,75 +1,31 @@
 package com.gamevault.db.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.gamevault.data_template.Enums;
 import com.gamevault.form.GameForm;
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Game {
     @Id
+    @Column(name = "igdb_id")
     private Long igdbId;
     private String title;
-    private Enums.status status;
-    private Double userRating;
+    @Column(length = 512)
     private String coverUrl;
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Note> notes = new ArrayList<>();
     @Lob
-    private byte[] userScreenshots;
-
-    public Game() {
-
-    }
+    private String description;
+//    @OneToMany(cascade = CascadeType.ALL)
+//    private final List<Platform> platforms = new ArrayList<>();
 
     public Game(GameForm gameForm) {
         this.igdbId = gameForm.igdbId();
         this.title = gameForm.title();
         this.coverUrl = gameForm.coverUrl();
-        this.status = Enums.status.None;
-    }
-
-    public Long getIgdbId() {
-        return igdbId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getCoverUrl() {
-        return coverUrl;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
-    }
-
-    public Double getUserRating() {
-        return userRating;
-    }
-
-    public void setUserRating(Double userRating) {
-        this.userRating = userRating;
-    }
-
-    public Enums.status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Enums.status status) {
-        this.status = status;
-    }
-
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
+        this.description = gameForm.description();
     }
 }

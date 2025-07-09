@@ -1,9 +1,9 @@
 package com.gamevault.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.component.SteamTokenManager;
 import com.gamevault.data_template.SteamGame;
 import com.gamevault.data_template.SteamResponse;
-import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -47,14 +47,13 @@ public class SteamWebApi {
     @GetMapping("/user/{id}/games/titles")
     public List<SteamGame> getGamesTitles(@PathVariable("id") Long steamId) {
         try {
-            Gson gson = new Gson();
             HttpResponse<JsonNode> jsonRequest = Unirest.get("https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001")
                     .queryString("key", steamTokenManager.getSteam_api_key())
                     .queryString("steamid", steamId)
                     .queryString("include_appinfo",1)
                     .asJson();
 
-            SteamResponse gameResponse = gson.fromJson(jsonRequest.getBody().toString(), SteamResponse.class);
+            SteamResponse gameResponse = new ObjectMapper().readValue(jsonRequest.getBody().toString(), SteamResponse.class);
             System.out.println("Steam games count " + gameResponse.getResponse().getGame_count());
 
             return gameResponse.getResponse().getGames();

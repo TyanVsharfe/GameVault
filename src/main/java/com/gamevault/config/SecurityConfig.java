@@ -48,6 +48,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
+                    .requestMatchers("/api/igdb/**").permitAll()
                     .requestMatchers(REGISTRATION_URL, LOGIN_URL).permitAll()
                     .anyRequest().authenticated())
             .csrf(AbstractHttpConfigurer::disable)
@@ -73,7 +74,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:8080","http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:8080","http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

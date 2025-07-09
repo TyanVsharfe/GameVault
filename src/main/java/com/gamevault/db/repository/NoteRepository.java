@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NoteRepository extends CrudRepository<Note, Long> {
-    Iterable<Note> findAllByGame_IgdbId(Long igdbId);
-    void deleteAllByGame_IgdbId(Long igdbId);
+    Iterable<Note> findAllByUserGame_Id(Long Id);
+    void deleteAllByUserGame_Id(Long Id);
 }
