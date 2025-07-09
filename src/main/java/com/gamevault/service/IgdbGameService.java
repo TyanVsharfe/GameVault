@@ -100,7 +100,7 @@ public class IgdbGameService {
     public String steamImportGamesIGDB(SteamGameTitle[] gameTitles) throws UnirestException {
 
         StringBuilder titlesString = new StringBuilder("(");
-        Arrays.stream(gameTitles).forEach(title -> titlesString.append("\"").append(title.getName()).append("\"").append(","));
+        Arrays.stream(gameTitles).limit(200).forEach(title -> titlesString.append("\"").append(title.getName()).append("\"").append(","));
         titlesString.replace(titlesString.length() - 1, titlesString.length(), ")");
         System.out.println("Titles string " + titlesString);
 
@@ -108,7 +108,9 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
-                        + "where name = " + titlesString + ";"
+                        + "where (name = " + titlesString + " | alternative_names.name = " + titlesString + ")"
+                        + " & platforms.abbreviation = \"" + "PC" + "\";"
+                        + "limit 300;"
                 ).asJson();
 
         return jsonResponse.getBody().toString();
