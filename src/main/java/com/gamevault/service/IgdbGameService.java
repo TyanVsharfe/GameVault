@@ -1,4 +1,4 @@
-package com.gamevault.controller.rest;
+package com.gamevault.service;
 
 import com.gamevault.component.IgdbTokenManager;
 import com.gamevault.data_template.SteamGameTitle;
@@ -6,21 +6,19 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
-@RestController
-@RequestMapping("/api/igdb")
-public class IGDBGamesAPI {
+@Service
+public class IgdbGameService {
     private final IgdbTokenManager apiClient;
 
-    public IGDBGamesAPI(IgdbTokenManager apiClient) {
+    public IgdbGameService(IgdbTokenManager apiClient) {
         this.apiClient = apiClient;
     }
 
-    @PostMapping("/games")
-    public String gamesIGDB(@RequestBody String searchGame) throws UnirestException {
+    public String gamesIGDB(String searchGame) throws UnirestException {
 
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", apiClient.getClient_id())
@@ -36,8 +34,7 @@ public class IGDBGamesAPI {
         return jsonResponse.getBody().toString();
     }
 
-    @PostMapping("/games/ids")
-    public String gamesIGDBids(@RequestBody Iterable<Long> igdbIds) throws UnirestException {
+    public String gamesIGDBids(Iterable<Long> igdbIds) throws UnirestException {
 
         StringBuilder stringBuilder = new StringBuilder("(");
         for (Long id: igdbIds) {
@@ -55,24 +52,23 @@ public class IGDBGamesAPI {
         return jsonResponse.getBody().toString();
     }
 
-    @PostMapping("/game/{gameId}")
-    public String gameIGDB(@PathVariable String gameId) throws UnirestException {
+    public String gameIGDB(String gameId) throws UnirestException {
 
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url, release_dates.y, status, "
-                        + "category, summary, genres.name, first_release_date, platforms.abbreviation,"
+                .body("fields name,cover.url, release_dates.y, "
+                        + "game_type, summary, genres.name, first_release_date, platforms.abbreviation,"
                         + "franchises.name, franchises.slug, franchises.games.name, franchises.games.cover.url, "
-                        + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y;"
+                        + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y, "
+                        + "involved_companies.company.name, involved_companies.developer, involved_companies.publisher; "
                         + " where id = " + gameId + "; sort franchises.games.release_dates.y desc;")
                 .asJson();
 
         return jsonResponse.getBody().toString();
     }
 
-    @PostMapping("/series/{seriesTitle}")
-    public String gameSeries(@PathVariable String seriesTitle) throws UnirestException {
+    public String gameSeries(String seriesTitle) throws UnirestException {
 
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/franchises")
                 .header("Client-ID", apiClient.getClient_id())
@@ -85,7 +81,6 @@ public class IGDBGamesAPI {
         return jsonResponse.getBody().toString();
     }
 
-    @PostMapping("/games/release_dates")
     public String gamesReleaseDates() throws UnirestException {
 
         long actualDate = System.currentTimeMillis()/1000;
@@ -96,15 +91,13 @@ public class IGDBGamesAPI {
                 .body("fields *, game.name, game.category, game.cover.url, game.platforms.abbreviation, game.hypes; "
                         + " where date > " + actualDate + " & region = 8;"
                         + "sort date asc;"
-                        + "limit 50;"
-                )
+                        + "limit 50;")
                 .asJson();
 
         return jsonResponse.getBody().toString();
     }
 
-    @PostMapping("/steam-import")
-    public String steamImportGamesIGDB(@RequestBody SteamGameTitle[] gameTitles) throws UnirestException {
+    public String steamImportGamesIGDB(SteamGameTitle[] gameTitles) throws UnirestException {
 
         StringBuilder titlesString = new StringBuilder("(");
         Arrays.stream(gameTitles).limit(200).forEach(title -> titlesString.append("\"").append(title.getName()).append("\"").append(","));

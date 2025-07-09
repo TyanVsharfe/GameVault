@@ -1,119 +1,65 @@
 package com.gamevault.service;
 
-import com.gamevault.data_template.Enums;
-import com.gamevault.data_template.UserStatisticsInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.repository.GameRepository;
-import com.gamevault.form.GameUpdateDTO;
-import com.gamevault.form.GameForm;
-import jakarta.persistence.EntityNotFoundException;
+import com.gamevault.exception.GameNotFoundInIgdbException;
+import com.gamevault.exception.IgdbFetchException;
+import com.gamevault.exception.IgdbParsingException;
+import com.gamevault.form.igdb.GameDTO;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class GameService {
     private final GameRepository gameRepository;
+    private final IgdbGameService igdbGameService;
 
-    public GameService(GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, IgdbGameService igdbGameService) {
         this.gameRepository = gameRepository;
+        this.igdbGameService = igdbGameService;
     }
 
-    public Iterable<Game> getAllGames(String status) {
-        if (status == null || status.isEmpty()) {
-            return gameRepository.findAll();
-        }
-        else {
-            try {
-                Enums.status statusEnum = Enums.status.valueOf(status);
-                return gameRepository.findGamesByStatus(statusEnum);
-            }
-            catch (IllegalArgumentException e) {
-                throw new EntityNotFoundException("Invalid game status " + e.getMessage());
-            }
-        }
-    }
-
-    public Iterable<Long> getAllGamesIgdbIds(String status) {
-        Iterable<Game> allGames;
-
-        if (status == null || status.isEmpty()) {
-            allGames = gameRepository.findAll();
-        }
-        else {
-            try {
-                Enums.status statusEnum = Enums.status.valueOf(status);
-                allGames = gameRepository.findGamesByStatus(statusEnum);
-            }
-            catch (IllegalArgumentException e) {
-                throw new EntityNotFoundException("Invalid game status " + e.getMessage());
-            }
-        }
-
-        LinkedList<Long> igdbIds = new LinkedList<>();
-
-        for (Game game : allGames) {
-            igdbIds.add(game.getIgdbId());
-        }
-
-        return igdbIds;
-    }
-
-    public Optional<Game> getGame(Long id) {
+    public Optional<Game> get(Long id) {
         return gameRepository.findById(id);
     }
 
-    public Game addGame(GameForm gameForm) {
-        return gameRepository.save(new Game(gameForm));
-    }
+    @Transactional
+    public Game add(Long igdbId) {
+        try {
+            String igdbGameJson = igdbGameService.gameIGDB(igdbId.toString());
 
-    public void saveGame(Game game) {
-        gameRepository.save(game);
-    }
+            List<GameDTO> games = new ObjectMapper().readValue(igdbGameJson, new TypeReference<>() {});
 
-    public void updateGame(Long id, GameUpdateDTO gameUpdateDTO) {
-        Game game = gameRepository.findGameByIgdbId(id).orElseThrow(
-                () -> new EntityNotFoundException("Game with id " + gameUpdateDTO.igdbId() + " not found"));
-        System.out.println("Id "+ game.getIgdbId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
-        System.out.println("DTO id " + gameUpdateDTO.igdbId() + " Rating " + gameUpdateDTO.userRating());
+            if (games == null || games.isEmpty()) {
+                throw new GameNotFoundInIgdbException("Game with id " + igdbId + " not found in IGDB.");
+            }
 
-        game.setStatus(gameUpdateDTO.status().orElse(game.getStatus()));
-        game.setUserRating(gameUpdateDTO.userRating().orElse(game.getUserRating()));
+            GameDTO gameDto = games.get(0);
 
-        if (gameUpdateDTO.notes().isPresent()) {
-            gameUpdateDTO.notes().ifPresent(notes -> {
-                notes.forEach(note -> {
-                    note.setGame(game);
-                    game.getNotes().add(note);
-                });
-            });
-            System.out.println("Note content " + game.getNotes().get(0));
+            Game game = new Game();
+            game.setIgdbId((long) gameDto.id());
+            game.setTitle(gameDto.name());
+            game.setDescription(gameDto.summary());
+            game.setCoverUrl(gameDto.cover().url());
+
+            return gameRepository.save(game);
+
+        } catch (UnirestException e) {
+            throw new IgdbFetchException("Failed to fetch IGDB game", e);
+        } catch (JsonProcessingException e) {
+            throw new IgdbParsingException("Failed to parse IGDB game JSON", e);
         }
-
-        System.out.println("Запись изменена");
-        System.out.println("Id "+ game.getIgdbId() + " Title " + game.getTitle() + " Rating " + game.getUserRating() + " Status " + game.getStatus());
-        gameRepository.save(game);
     }
 
     @Transactional
-    public void deleteGame(Long id) {
-        gameRepository.deleteByIgdbId(id);
-    }
-
-    public boolean isContains(Long id) {
-        return gameRepository.existsByIgdbId(id);
-    }
-
-    public UserStatisticsInfo userStatistics() {
-        UserStatisticsInfo userInfo = new UserStatisticsInfo();
-        userInfo.setTotalGames(gameRepository.count());
-        userInfo.setCompletedGames(gameRepository.countGamesByStatus(Enums.status.Completed));
-        userInfo.setPlayingGames(gameRepository.countGamesByStatus(Enums.status.Playing));
-        userInfo.setPlannedGames(gameRepository.countGamesByStatus(Enums.status.Planned));
-        userInfo.setAbandonedGames(gameRepository.countGamesByStatus(Enums.status.Abandoned));
-        userInfo.setNoneStatusGames(gameRepository.countGamesByStatus(Enums.status.None));
-        return userInfo;
+    public void delete(Long id) {
+        gameRepository.deleteById(id);
     }
 }

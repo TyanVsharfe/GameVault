@@ -27,7 +27,7 @@ Frontend находится по ссылке [GameVault-frontend](https://githu
 ### CRUD для игр
 **Получение игры по id**:
   ```http
-  GET /game/{id}
+  GET /games/{id}
   ```
 **Получение списка игр**:
   ```http
@@ -35,18 +35,12 @@ Frontend находится по ссылке [GameVault-frontend](https://githu
   ```
 **Добавление новой игры**:
   ```http
-  POST /api/games
-  {
-    "igdbId": 1979,
-    "title": "Battlefield 4",
-    "coverUrl": "https://images.igdb.com/igdb/image/upload/t_720p/co1nmf.jpg"
-  }
+  POST /users/games/{id}
   ```
 **Обновление информации об игре**:
   ```http
-  PUT /api/games/{id}
+  PUT /users/games/{id}
   {
-    "igdbId": 1979,
     "status": "Completed",
     "userRating": 87.5,
     "notes": [
@@ -59,7 +53,7 @@ Frontend находится по ссылке [GameVault-frontend](https://githu
   ```
 **Удаление игры по id**:
   ```http
-  DELETE /game/{id}
+  DELETE /users/games/{id}
   ```
 
 ### **Импорт из Steam**
@@ -69,6 +63,6 @@ Frontend находится по ссылке [GameVault-frontend](https://githu
   ```
 **Получение списка заголовков игр пользователя Steam по id**:
   ```http
-  GET /api/steam//user/{id}/games/titles
+  GET /api/steam/user/{id}/games/titles
   ```
 
