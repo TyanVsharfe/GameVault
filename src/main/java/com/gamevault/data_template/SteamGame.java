@@ -1,5 +1,12 @@
 package com.gamevault.data_template;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SteamGame {
     private Long appid;
     private String name;
@@ -12,8 +19,4 @@ public class SteamGame {
     private Long playtime_deck_forever;
     private Long rtime_last_played;
     private Long playtime_disconnected;
-
-    public String getName() {
-        return name;
-    }
 }

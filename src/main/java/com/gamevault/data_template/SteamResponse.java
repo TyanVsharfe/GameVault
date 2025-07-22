@@ -1,13 +1,8 @@
 package com.gamevault.data_template;
 
+import lombok.Getter;
+
+@Getter
 public class SteamResponse {
     private SteamGameResponse response;
-
-    public SteamGameResponse getResponse() {
-        return response;
-    }
-
-    public void setResponse(SteamGameResponse response) {
-        this.response = response;
-    }
 }
