@@ -2,6 +2,7 @@ package com.gamevault.db.model;
 
 import com.gamevault.data_template.Enums;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,16 +12,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
+@EqualsAndHashCode
 public class User implements UserDetails {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     @Setter
     private String username;
     @Setter

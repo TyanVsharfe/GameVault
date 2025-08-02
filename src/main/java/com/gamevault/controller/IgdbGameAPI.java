@@ -34,7 +34,7 @@ public class IgdbGameAPI {
         return igdbGameService.gameSeries(seriesTitle);
     }
 
-    @GetMapping("/games/release_dates")
+    @GetMapping("/games/release-dates")
     public String gamesReleaseDates() throws UnirestException {
         return igdbGameService.gamesReleaseDates();
     }

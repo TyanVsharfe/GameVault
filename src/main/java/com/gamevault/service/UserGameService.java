@@ -1,14 +1,13 @@
 package com.gamevault.service;
 
 import com.gamevault.data_template.Enums;
-import com.gamevault.data_template.UserStatisticsInfo;
 import com.gamevault.db.model.Game;
-import com.gamevault.db.model.Note;
 import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.form.UserGameUpdateDTO;
+import com.gamevault.form.UserReviewsDTO;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,11 +25,13 @@ public class UserGameService {
     private final UserGameRepository userGameRepository;
     private final GameRepository gameRepository;
     private final GameService gameService;
+    private final AchievementProcessorService achievementProcessorService;
 
-    public UserGameService(UserGameRepository userGameRepository, GameRepository gameRepository, GameService gameService) {
+    public UserGameService(UserGameRepository userGameRepository, GameRepository gameRepository, GameService gameService, AchievementProcessorService achievementProcessorService) {
         this.userGameRepository = userGameRepository;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
+        this.achievementProcessorService = achievementProcessorService;
     }
 
     public Iterable<UserGame> getAll(String status, User author) {
@@ -49,37 +49,29 @@ public class UserGameService {
         }
     }
 
-    public Iterable<Long> getAllIgdbIds(String status) {
-        Iterable<UserGame> allGames;
+    public Optional<List<UserReviewsDTO>> getGameReviews(Long id) {
+        List<UserGame> reviews = userGameRepository.findByGameIgdbIdAndReviewIsNotNull(id);
+        return Optional.of(reviews.stream()
+                .filter(review -> review.getReview() != null && !review.getReview().isEmpty())
+                .map(this::convertToDTO)
+                .toList());
+    }
 
-        if (status == null || status.isEmpty()) {
-            allGames = userGameRepository.findAll();
-        }
-        else {
-            try {
-                Enums.status statusEnum = Enums.status.valueOf(status);
-                allGames = userGameRepository.findGamesByStatus(statusEnum);
-            }
-            catch (IllegalArgumentException e) {
-                throw new EntityNotFoundException("Invalid game status " + e.getMessage());
-            }
-        }
-
-        LinkedList<Long> igdbIds = new LinkedList<>();
-
-        for (UserGame userGame : allGames) {
-            igdbIds.add(userGame.getId());
-        }
-
-        return igdbIds;
+    private UserReviewsDTO convertToDTO(UserGame userBook) {
+        return new UserReviewsDTO(
+                userBook.getId(),
+                userBook.getUser().getUsername(),
+                userBook.getReview(),
+                userBook.getUserRating()
+        );
     }
 
     public Optional<UserGame> get(Long id) {
         return userGameRepository.findById(id);
     }
 
-    public Optional<UserGame> getByIgdbId(Long igdbId) {
-        return userGameRepository.findUserGameByGame_IgdbId(igdbId);
+    public Optional<UserGame> getByIgdbId(Long igdbId, User user) {
+        return userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername());
     }
 
     @Transactional
@@ -129,21 +121,19 @@ public class UserGameService {
 
         userGame.setStatus(userGameUpdateDTO.status().orElse(userGame.getStatus()));
         userGame.setUserRating(userGameUpdateDTO.userRating().orElse(userGame.getUserRating()));
+        userGame.setReview(userGameUpdateDTO.review().orElse(userGame.getReview()));
+        userGame.setFullyCompleted(userGameUpdateDTO.fullyCompleted().orElse(userGame.isFullyCompleted()));
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         userGame.setUpdatedAt(offsetDateTime.toInstant());
 
-        userGameUpdateDTO.notes().ifPresent(notes -> {
-            for (Note note : notes) {
-                note.setUserGame(userGame);
-                userGame.getNotes().add(note);
-                log.info("Added note for UserGame id={}: {}", userGame.getId(), note.getContent());
-            }
-        });
-
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        if (saved.getStatus().equals(Enums.status.Completed)) {
+            achievementProcessorService.processBookCompletion(author, userGame);
+        }
 
         return saved;
     }
@@ -166,16 +156,5 @@ public class UserGameService {
 
     public boolean isContains(Long igdbId, User author) {
         return userGameRepository.existsByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
-    }
-
-    public UserStatisticsInfo userStatistics() {
-        UserStatisticsInfo userInfo = new UserStatisticsInfo();
-        userInfo.setTotalGames(userGameRepository.count());
-        userInfo.setCompletedGames(userGameRepository.countGamesByStatus(Enums.status.Completed));
-        userInfo.setPlayingGames(userGameRepository.countGamesByStatus(Enums.status.Playing));
-        userInfo.setPlannedGames(userGameRepository.countGamesByStatus(Enums.status.Planned));
-        userInfo.setAbandonedGames(userGameRepository.countGamesByStatus(Enums.status.Abandoned));
-        userInfo.setNoneStatusGames(userGameRepository.countGamesByStatus(Enums.status.None));
-        return userInfo;
     }
 }

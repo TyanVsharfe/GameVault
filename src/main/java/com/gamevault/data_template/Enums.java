@@ -61,4 +61,12 @@ public class Enums {
         Free,
         Tracker
     }
+
+    public enum AchievementCategory {
+        TOTAL_GAMES_COMPLETED,
+        GENRE_SPECIFIC,
+        SERIES_COMPLETED,
+        REVIEWS_WRITTEN
+    }
+
 }

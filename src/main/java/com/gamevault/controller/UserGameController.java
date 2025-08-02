@@ -1,9 +1,9 @@
 package com.gamevault.controller;
 
-import com.gamevault.data_template.UserStatisticsInfo;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.model.User;
 import com.gamevault.form.UserGameUpdateDTO;
+import com.gamevault.form.UserReviewsDTO;
 import com.gamevault.service.UserGameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("users/games")
@@ -22,8 +23,15 @@ public class UserGameController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserGame> get(@PathVariable("id") Long igdbId) {
-        return userGameService.getByIgdbId(igdbId)
+    public ResponseEntity<UserGame> get(@PathVariable("id") Long igdbId, @AuthenticationPrincipal User user) {
+        return userGameService.getByIgdbId(igdbId, user)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<UserReviewsDTO>> getUserReviews(@PathVariable("id") Long igdbId) {
+        return userGameService.getGameReviews(igdbId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -66,10 +74,5 @@ public class UserGameController {
         else {
             return ResponseEntity.noContent().build();
         }
-    }
-
-    @GetMapping("/statistics")
-    public UserStatisticsInfo userStatistics() {
-        return userGameService.userStatistics();
     }
 }

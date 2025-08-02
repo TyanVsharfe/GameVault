@@ -2,6 +2,7 @@ package com.gamevault.db.model;
 
 import com.gamevault.form.GameForm;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
+@Table(name = "games")
 public class Game {
     @Id
     @Column(name = "igdb_id")

@@ -6,5 +6,5 @@ import com.gamevault.db.model.Note;
 import java.util.List;
 import java.util.Optional;
 
-public record UserGameUpdateDTO(Optional<Enums.status> status, Optional<Double> userRating, Optional<List<Note>> notes) {
+public record UserGameUpdateDTO(Optional<Enums.status> status, Optional<Boolean> fullyCompleted, Optional<Double> userRating, Optional<String> review, Optional<List<Note>> notes) {
 }
