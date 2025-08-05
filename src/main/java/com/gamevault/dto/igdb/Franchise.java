@@ -1,4 +1,4 @@
-package com.gamevault.form.igdb;
+package com.gamevault.dto.igdb;
 
 import java.util.List;
 
@@ -7,5 +7,4 @@ public record Franchise(
         String name,
         String slug,
         List<FranchiseGame> games
-) {
-}
+) {}

@@ -3,7 +3,7 @@ package com.gamevault.controller;
 import com.gamevault.db.model.Note;
 import com.gamevault.db.model.User;
 import com.gamevault.form.NoteForm;
-import com.gamevault.form.NoteUpdateDTO;
+import com.gamevault.form.update.NoteUpdateForm;
 import com.gamevault.service.NoteService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +30,9 @@ public class NoteController {
     }
 
     @PutMapping("/{note_id}")
-    public void put(@PathVariable("note_id") Long id, @RequestBody NoteUpdateDTO noteUpdateDTO,
+    public void put(@PathVariable("note_id") Long id, @RequestBody NoteUpdateForm noteUpdateForm,
                     @AuthenticationPrincipal User user) {
-        noteService.updateNote(id, noteUpdateDTO, user);
+        noteService.updateNote(id, noteUpdateForm, user);
     }
 
     @DeleteMapping("/{id}")

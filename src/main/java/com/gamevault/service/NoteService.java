@@ -6,7 +6,7 @@ import com.gamevault.db.model.Note;
 import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.db.repository.NoteRepository;
 import com.gamevault.form.NoteForm;
-import com.gamevault.form.NoteUpdateDTO;
+import com.gamevault.form.update.NoteUpdateForm;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +43,12 @@ public class NoteService {
         return noteRepository.save(new Note(noteForm, userGame, user));
     }
 
-    public void updateNote(Long id, NoteUpdateDTO noteUpdateDTO, User user) {
+    public void updateNote(Long id, NoteUpdateForm noteUpdateForm, User user) {
         Note note = noteRepository.findByIdAndUser_Id(id, user.getId()).orElseThrow(
                 () -> new EntityNotFoundException("Note with id " + id + " not found"));
-        note.setContent(noteUpdateDTO.content().orElse(note.getContent()));
-        note.setTitle(noteUpdateDTO.title().orElse(note.getTitle()));
+
+        if (noteUpdateForm.title() != null) note.setTitle(noteUpdateForm.title());
+        if (noteUpdateForm.content() != null) note.setContent(noteUpdateForm.content());
 
         noteRepository.save(note);
         log.info("Updated note with id={} for UserGame id={}:", id, note.getUserGame().getGame().getIgdbId());

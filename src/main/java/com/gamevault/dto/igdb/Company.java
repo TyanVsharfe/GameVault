@@ -1,4 +1,4 @@
-package com.gamevault.form.igdb;
+package com.gamevault.dto.igdb;
 
 public record Company(
         int id,

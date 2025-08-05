@@ -1,8 +1,8 @@
-package com.gamevault.form.igdb;
+package com.gamevault.dto.igdb;
 
 import java.util.List;
 
-public record GameDTO(
+public record IgdbGameDTO(
         int id,
         String name,
         String summary,

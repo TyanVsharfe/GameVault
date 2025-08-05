@@ -28,7 +28,7 @@ public class UserAchievementController {
         return ResponseEntity.ok(achievementService.getUserAchievements(user.getId()));
     }
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<Achievement> createAchievement(@RequestBody Achievement achievement) {
         return ResponseEntity.ok(achievementService.createAchievement(achievement));
     }

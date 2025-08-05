@@ -1,7 +1,7 @@
 package com.gamevault.controller;
 
 import com.gamevault.db.model.User;
-import com.gamevault.form.UserStatsDTO;
+import com.gamevault.dto.UserStatsDTO;
 import com.gamevault.service.UserStatsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

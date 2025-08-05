@@ -3,6 +3,7 @@ package com.gamevault.db.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gamevault.data_template.Enums;
+import com.gamevault.form.update.UserGameUpdateForm;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -71,5 +72,16 @@ public class UserGame {
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         this.createdAt = offsetDateTime.toInstant();
         this.game = game;
+    }
+
+    public void updateDto(UserGameUpdateForm dto) {
+        if (dto.status() != null) this.status = dto.status();
+        if (dto.userRating() != null) this.userRating = dto.userRating();
+        if (dto.review() != null) this.review = dto.review();
+        if (dto.isFullyCompleted() != null) this.isFullyCompleted = dto.isFullyCompleted();
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        this.updatedAt = offsetDateTime.toInstant();
     }
 }

@@ -1,4 +1,4 @@
-package com.gamevault.form.igdb;
+package com.gamevault.dto.igdb;
 
 import java.util.List;
 
@@ -8,5 +8,4 @@ public record FranchiseGame(
         Company.Cover cover,
         List<Platform> platforms,
         List<ReleaseDate> release_dates
-) {
-}
+) {}

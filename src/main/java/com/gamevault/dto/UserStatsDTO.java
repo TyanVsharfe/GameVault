@@ -1,4 +1,4 @@
-package com.gamevault.form;
+package com.gamevault.dto;
 
 import com.gamevault.data_template.Enums;
 import lombok.Getter;
