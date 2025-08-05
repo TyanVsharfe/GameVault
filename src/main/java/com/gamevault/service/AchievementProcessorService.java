@@ -6,6 +6,7 @@ import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.repository.UserGameRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -18,7 +19,6 @@ public class AchievementProcessorService {
         this.achievementService = achievementService;
     }
 
-    @Transactional(readOnly = true)
     public void checkTotalGamesCompleted(User user) {
         long totalCompleted = userGameRepository.countGamesByStatusAndUser_Id(Enums.status.Completed, user.getId());
 
@@ -29,7 +29,7 @@ public class AchievementProcessorService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processBookCompletion(User user, UserGame userGame) {
         checkTotalGamesCompleted(user);
     }
