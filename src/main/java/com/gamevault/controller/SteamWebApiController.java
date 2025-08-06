@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/steam")
+@RequestMapping("${api.prefix}/steam")
 public class SteamWebApiController {
     private final SteamWebApiService steamWebApiService;
 

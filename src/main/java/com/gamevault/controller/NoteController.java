@@ -9,7 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/games/notes")
+@RequestMapping("${api.prefix}/games/notes")
 public class NoteController {
     private final NoteService noteService;
 

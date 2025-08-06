@@ -31,6 +31,7 @@ public class UserStatsService {
         long totalGames = userGameRepository.countGamesByUser_Username(username);
 
         Double averageRating = calculateAverageRating(userGames);
+        if (averageRating != null ) averageRating = Math.round(averageRating * 10.0) / 10.0;
 
         long totalNotes = calculateTotalNotes(userGames);
 

@@ -9,7 +9,6 @@ import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.events.UserGameCompletedEvent;
 import com.gamevault.form.update.UserGameUpdateForm;
 import com.gamevault.dto.UserReviewsDTO;
-import com.gamevault.listener.UserGameAchievementListener;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -53,29 +52,17 @@ public class UserGameService {
         }
     }
 
-    public Optional<List<UserReviewsDTO>> getGameReviews(Long id) {
-        List<UserGame> reviews = userGameRepository.findByGameIgdbIdAndReviewIsNotNull(id);
-        return Optional.of(reviews.stream()
-                .filter(review -> review.getReview() != null && !review.getReview().isEmpty())
-                .map(this::convertToDTO)
-                .toList());
+    public List<UserReviewsDTO> getGameReviews(Long igdbId) {
+        List<UserGame> reviews = userGameRepository.findByGameIgdbIdAndReviewIsNotNull(igdbId);
+        return reviews.stream()
+                .filter(review -> !review.getReview().isEmpty())
+                .map(UserReviewsDTO::new)
+                .toList();
     }
 
-    private UserReviewsDTO convertToDTO(UserGame userBook) {
-        return new UserReviewsDTO(
-                userBook.getId(),
-                userBook.getUser().getUsername(),
-                userBook.getReview(),
-                userBook.getUserRating()
-        );
-    }
-
-    public Optional<UserGame> get(Long id) {
-        return userGameRepository.findById(id);
-    }
-
-    public Optional<UserGame> getByIgdbId(Long igdbId, User user) {
-        return userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername());
+    public UserGame getByIgdbId(Long igdbId, User user) {
+        return userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()).orElseThrow(() ->
+                new EntityNotFoundException("Game with igdbId " + igdbId + " not found"));
     }
 
     @Transactional
@@ -127,7 +114,6 @@ public class UserGameService {
         if (saved.getStatus().equals(Enums.status.Completed)) {
             eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
         }
-
 
         return saved;
     }
@@ -229,7 +215,6 @@ public class UserGameService {
                     return new EntityNotFoundException("UserGame not found");
                 });
     }
-
 
     public boolean isContains(Long igdbId, User author) {
         return userGameRepository.existsByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());

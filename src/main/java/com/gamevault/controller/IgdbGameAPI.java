@@ -6,7 +6,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/igdb")
+@RequestMapping("${api.prefix}/igdb")
 public class IgdbGameAPI {
     private final IgdbGameService igdbGameService;
 

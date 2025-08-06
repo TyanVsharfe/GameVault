@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("${api.prefix}/users")
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;

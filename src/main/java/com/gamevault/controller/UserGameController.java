@@ -5,6 +5,7 @@ import com.gamevault.db.model.User;
 import com.gamevault.dto.UserReviewsDTO;
 import com.gamevault.form.update.*;
 import com.gamevault.service.UserGameService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +16,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("users/games")
+@RequestMapping("${api.prefix}/users/games")
 public class UserGameController {
     private final UserGameService userGameService;
 
@@ -23,29 +24,25 @@ public class UserGameController {
         this.userGameService = userGameService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserGame> get(@PathVariable("id") Long igdbId,
+    @GetMapping("/{igdbId}")
+    public ResponseEntity<UserGame> get(@PathVariable Long igdbId,
                                         @AuthenticationPrincipal User user) {
-        return userGameService.getByIgdbId(igdbId, user)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok().body(userGameService.getByIgdbId(igdbId, user));
     }
 
-    @GetMapping("/{id}/reviews")
-    public ResponseEntity<List<UserReviewsDTO>> getUserReviews(@PathVariable("id") Long igdbId) {
-        return userGameService.getGameReviews(igdbId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/{igdbId}/reviews")
+    public ResponseEntity<List<UserReviewsDTO>> getUserReviews(@PathVariable Long igdbId) {
+        return ResponseEntity.ok().body(userGameService.getGameReviews(igdbId));
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<Iterable<UserGame>> getAll(@RequestParam(value = "status", required = false) String status,
                                                      @AuthenticationPrincipal User user) {
         return ResponseEntity.ok().body(userGameService.getAll(status, user));
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<UserGame> add(@PathVariable("id") Long igdbId,
+    @PostMapping("/{igdbId}")
+    public ResponseEntity<UserGame> add(@PathVariable Long igdbId,
                                         @AuthenticationPrincipal User user) {
         UserGame created = userGameService.add(igdbId, user);
 
@@ -58,52 +55,51 @@ public class UserGameController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long igdbId,
+    @DeleteMapping("/{igdbId}")
+    public ResponseEntity<Void> delete(@PathVariable Long igdbId,
                                        @AuthenticationPrincipal User user) {
         userGameService.delete(igdbId, user);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserGame> put(@PathVariable("id") Long id,
+    @PutMapping("/{igdbId}")
+    public ResponseEntity<UserGame> put(@PathVariable Long igdbId,
                                         @Valid @RequestBody UserGameUpdateForm userGameUpdateForm,
                                         @AuthenticationPrincipal User user) {
-        UserGame updated = userGameService.update(id, user, userGameUpdateForm);
+        UserGame updated = userGameService.update(igdbId, user, userGameUpdateForm);
         return ResponseEntity.ok(updated);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<UserGame> updateStatus(@PathVariable Long id,
+    @PatchMapping("/{igdbId}/status")
+    public ResponseEntity<UserGame> updateStatus(@PathVariable Long igdbId,
                                                  @Valid @RequestBody StatusUpdateForm dto,
                                                  @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userGameService.updateStatus(id, user, dto.status()));
+        return ResponseEntity.ok(userGameService.updateStatus(igdbId, user, dto.status()));
     }
 
-    @PatchMapping("/{id}/fullyCompleted")
-    public ResponseEntity<UserGame> updateFullyCompleted(@PathVariable Long id,
+    @PatchMapping("/{igdbId}/fully-completed")
+    public ResponseEntity<UserGame> updateFullyCompleted(@PathVariable Long igdbId,
                                                          @Valid @RequestBody FullyCompletedUpdateForm dto,
                                                          @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userGameService.updateFullyCompleted(id, user, dto.fullyCompleted()));
+        return ResponseEntity.ok(userGameService.updateFullyCompleted(igdbId, user, dto.fullyCompleted()));
     }
 
-    @PatchMapping("/{id}/rating")
-    public ResponseEntity<UserGame> updateRating(@PathVariable Long id,
+    @PatchMapping("/{igdbId}/rating")
+    public ResponseEntity<UserGame> updateRating(@PathVariable Long igdbId,
                                                  @Valid @RequestBody UserRatingUpdateForm dto,
                                                  @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userGameService.updateRating(id, user, dto.userRating()));
+        return ResponseEntity.ok(userGameService.updateRating(igdbId, user, dto.userRating()));
     }
 
-    @PatchMapping("/{id}/review")
-    public ResponseEntity<UserGame> updateReview(@PathVariable Long id,
+    @PatchMapping("/{igdbId}/review")
+    public ResponseEntity<UserGame> updateReview(@PathVariable Long igdbId,
                                                  @Valid @RequestBody ReviewUpdateForm dto,
                                                  @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userGameService.updateReview(id, user, dto.review()));
+        return ResponseEntity.ok(userGameService.updateReview(igdbId, user, dto.review()));
     }
 
-
-    @GetMapping("/check-entity/{id}")
-    public ResponseEntity<Void> isContains(@PathVariable("id") Long igdbId,
+    @GetMapping("/exists/{igdbId}")
+    public ResponseEntity<Void> isContains(@PathVariable Long igdbId,
                                            @AuthenticationPrincipal User user) {
         if (userGameService.isContains(igdbId, user)) {
             return ResponseEntity.ok().build();

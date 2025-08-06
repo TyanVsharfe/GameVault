@@ -1,0 +1,34 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+
+  datasource:
+    url: jdbc:h2:file:./database
+    driver-class-name: org.h2.Driver
+    username: root
+    password: root
+
+server:
+  servlet:
+    session:
+      timeout: 24h
+      cookie:
+        same-site: strict
+
+springdoc:
+  packages-to-scan: com.gamevault.controller
+
+igdb:
+  client:
+    id: YOUR-IGDB-CLIENT-ID
+    secret: YOUR-IGDB-CLIENT-SECRET
+
+steam:
+  api:
+    key: YOUR-STEAM-API-KEY
+
+api:
+  prefix: /api/v1

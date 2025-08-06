@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/achievements")
+@RequestMapping("${api.prefix}/users/achievements")
 public class UserAchievementController {
     private final AchievementService achievementService;
 
@@ -23,7 +23,7 @@ public class UserAchievementController {
         return ResponseEntity.ok(achievementService.getAchievementsByCategory(category));
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<Iterable<UserAchievement>> getUserAchievements(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(achievementService.getUserAchievements(user.getId()));
     }

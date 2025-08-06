@@ -1,5 +1,6 @@
 package com.gamevault.config;
 
+import com.gamevault.domain.ControllerNames;
 import com.gamevault.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,9 +23,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static com.gamevault.domain.ControllerNames.LOGIN_URL;
-import static com.gamevault.domain.ControllerNames.REGISTRATION_URL;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -32,11 +30,13 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint entryPoint;
     private final UserService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final ControllerNames controllerNames;
 
-    public SecurityConfig(AuthenticationEntryPoint entryPoint, UserService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(AuthenticationEntryPoint entryPoint, UserService userDetailsService, PasswordEncoder passwordEncoder, ControllerNames controllerNames) {
         this.entryPoint = entryPoint;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.controllerNames = controllerNames;
     }
 
     @Bean
@@ -48,8 +48,8 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
-                    .requestMatchers("/api/igdb/**").permitAll()
-                    .requestMatchers(REGISTRATION_URL, LOGIN_URL).permitAll()
+                    .requestMatchers(controllerNames.getIgdbPattern()).permitAll()
+                    .requestMatchers(controllerNames.getRegistrationUrl(), controllerNames.getLoginUrl()).permitAll()
                     .anyRequest().authenticated())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
