@@ -6,12 +6,12 @@ import com.gamevault.db.model.UserAchievement;
 import com.gamevault.db.repository.AchievementRepository;
 import com.gamevault.db.repository.UserAchievementRepository;
 import com.gamevault.db.repository.UserRepository;
-import com.gamevault.form.UserForm;
+import com.gamevault.form.user.UserForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,11 +24,13 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserAchievementRepository userAchievementRepository;
     private final AchievementRepository achievementRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, UserAchievementRepository userAchievementRepository, AchievementRepository achievementRepository) {
+    public UserService(UserRepository userRepository, UserAchievementRepository userAchievementRepository, AchievementRepository achievementRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userAchievementRepository = userAchievementRepository;
         this.achievementRepository = achievementRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class UserService implements UserDetailsService {
             return "Username already exists";
         }
 
-        String bcryptPass = new BCryptPasswordEncoder().encode(user.password());
+        String bcryptPass = passwordEncoder.encode(user.password());
         User newUser = new User(user.username(), bcryptPass, List.of("ROLE_USER"));
         userRepository.save(newUser);
         log.info("User '{}' registered successfully.", user.username());

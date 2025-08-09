@@ -4,17 +4,21 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
-
   datasource:
-    url: jdbc:h2:file:./database
-    driver-class-name: org.h2.Driver
     username: root
     password: root
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 60000
+  profiles:
+    active: dev
 
 server:
   servlet:
     session:
-      timeout: 24h
       cookie:
         same-site: strict
 
@@ -32,3 +36,30 @@ steam:
 
 api:
   prefix: /api/v1
+
+jwt:
+  secret: YOUR-JWT-SECRET
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:file:./database
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gamevault
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

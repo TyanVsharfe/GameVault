@@ -1,6 +1,8 @@
 package com.gamevault.config;
 
 import com.gamevault.domain.ControllerNames;
+import com.gamevault.security.JwtAuthenticationFilter;
+import com.gamevault.security.SecurityContextLoggingFilter;
 import com.gamevault.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -16,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,7 +33,8 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final ControllerNames controllerNames;
 
-    public SecurityConfig(AuthenticationEntryPoint entryPoint, UserService userDetailsService, PasswordEncoder passwordEncoder, ControllerNames controllerNames) {
+    public SecurityConfig(AuthenticationEntryPoint entryPoint, UserService userDetailsService,
+                          PasswordEncoder passwordEncoder, ControllerNames controllerNames) {
         this.entryPoint = entryPoint;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
@@ -40,11 +42,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices("uniqueAndSecretKey", userDetailsService);
-        rememberMeServices.setTokenValiditySeconds(1209600);
-        rememberMeServices.setParameter("remember-me");
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter,
+                                                   SecurityContextLoggingFilter securityContextLoggingFilter) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
@@ -53,15 +52,11 @@ public class SecurityConfig {
                     .anyRequest().authenticated())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
-            .addFilterBefore(new SecurityContextLoggingFilter(), UsernamePasswordAuthenticationFilter.class)
-            .rememberMe(rememberMe -> rememberMe
-                    .userDetailsService(userDetailsService)
-                    .rememberMeServices(rememberMeServices)
-            );
-
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(securityContextLoggingFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -81,14 +76,6 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
-    }
-
-    @Bean
-    public TokenBasedRememberMeServices rememberMeServices(UserService userDetailsService) {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices("uniqueAndSecretKey", userDetailsService);
-        services.setTokenValiditySeconds(1209600);
-        services.setParameter("remember-me");
-        return services;
     }
 
     @Bean

@@ -1,111 +1,117 @@
 package com.gamevault.controller;
 
-import com.gamevault.form.UserForm;
+import com.gamevault.security.JwtUtil;
+import com.gamevault.form.user.LoginRequest;
+import com.gamevault.form.user.LogoutRequest;
+import com.gamevault.form.user.RefreshRequest;
+import com.gamevault.form.user.UserForm;
+import com.gamevault.service.TokenBlacklistService;
 import com.gamevault.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
 public class UserController {
-    private final UserService userService;
+    private final UserService userDetailsService;
     private final AuthenticationManager authenticationManager;
-    private final TokenBasedRememberMeServices rememberMeServices;
-    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public UserController(UserService userService, AuthenticationManager authenticationManager, TokenBasedRememberMeServices rememberMeServices) {
-        this.userService = userService;
+    public UserController(UserService userDetailsService, AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
+        this.userDetailsService = userDetailsService;
         this.authenticationManager = authenticationManager;
-        this.rememberMeServices = rememberMeServices;
+        this.jwtUtil = jwtUtil;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @PostMapping("/registration")
     public String register(@RequestBody UserForm user) {
-        return userService.addUser(user);
+        return userDetailsService.addUser(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String username,
-                                                     @RequestParam String password,
-                                                     @RequestParam(value = "remember-me", required = false) String rememberMe,
-                                                     HttpServletRequest request,
-                                                     HttpServletResponse response) {
-        Map<String, String> responseBody = new HashMap<>();
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request) {
+        Map<String, String> response = new HashMap<>();
 
         try {
-            if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {
-                responseBody.put("error", "Username or password is missing");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+            if (request.username() == null || request.password() == null ||
+                    request.username().trim().isEmpty() || request.password().trim().isEmpty()) {
+                response.put("error", "Username or password is missing");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            UsernamePasswordAuthenticationToken authRequest =
-                    new UsernamePasswordAuthenticationToken(username, password);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+            );
+            UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
 
-            Authentication authResult = authenticationManager.authenticate(authRequest);
+            String accessToken = jwtUtil.generateAccessToken(userDetails);
+            String refreshToken = request.remember_me() ? jwtUtil.generateRefreshToken(userDetails) : null;
 
-            SecurityContextHolder.getContext().setAuthentication(authResult);
-
-            request.getSession(true);
-
-            securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
-
-            if ("true".equals(rememberMe) || "on".equals(rememberMe)) {
-                rememberMeServices.loginSuccess(request, response, authResult);
+            response.put("access_token", accessToken);
+            if (refreshToken != null) {
+                response.put("refresh_token", refreshToken);
             }
 
-            responseBody.put("message", "Login successful");
-            return ResponseEntity.ok(responseBody);
-
+            return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
-            responseBody.put("error", "Invalid credentials");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+            response.put("error", "Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (AuthenticationException e) {
-            responseBody.put("error", "Authentication failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+            response.put("error", "Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        SecurityContextHolder.clearContext();
-
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
+    public ResponseEntity<Void> logout(@RequestBody LogoutRequest request) {
+        String token = request.token();
+        if (token != null) {
+            long remainingTime = jwtUtil.extractExpiration(token).getTime() - java.util.Date.from(Instant.now()).getTime();
+            tokenBlacklistService.addToBlacklist(token, remainingTime);
         }
 
-        rememberMeServices.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+        String refreshToken = request.refresh_token();
+        if (refreshToken != null) {
+            long remainingTime = jwtUtil.extractExpiration(refreshToken).getTime() - java.util.Date.from(Instant.now()).getTime();
+            tokenBlacklistService.addToBlacklist(refreshToken, remainingTime);
+        }
 
-        return ResponseEntity.ok("Logout successful");
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/check-session")
-    public ResponseEntity<Void> checkSession() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    @PostMapping("/refresh-token")
+    public ResponseEntity<Map<String, String>> refreshToken(@Valid @RequestBody RefreshRequest request) {
+        String refreshToken = request.refresh_token();
 
-        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
-            return ResponseEntity.ok().build();
+        if (tokenBlacklistService.isBlacklisted(request.refresh_token())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        if (jwtUtil.validateToken(refreshToken, userDetailsService.loadUserByUsername(jwtUtil.extractUsername(refreshToken)))) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(jwtUtil.extractUsername(refreshToken));
+            String newAccessToken = jwtUtil.generateAccessToken(userDetails);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("access_token", newAccessToken);
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(403).build();
         }
     }
 }
