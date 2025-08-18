@@ -1,13 +1,15 @@
 package com.gamevault.controller;
 
 import com.gamevault.db.model.Note;
-import com.gamevault.form.NoteForm;
-import com.gamevault.form.NoteUpdateDTO;
+import com.gamevault.db.model.User;
+import com.gamevault.dto.input.NoteForm;
+import com.gamevault.dto.input.update.NoteUpdateForm;
 import com.gamevault.service.NoteService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("${api.prefix}/games/notes")
 public class NoteController {
     private final NoteService noteService;
 
@@ -15,28 +17,33 @@ public class NoteController {
         this.noteService = noteService;
     }
 
-    @GetMapping("/game/note/{game_id}")
-    public Iterable<Note> getAllByIgdbId(@PathVariable("game_id") Long igdbId) {
-        return noteService.getAllNotesByIgdbId(igdbId);
+    @GetMapping("/{igdbId}")
+    public Iterable<Note> getAllByIgdbId(@PathVariable("igdbId") Long igdbId,
+                                         @AuthenticationPrincipal User user) {
+        return noteService.getAllNotesByIgdbId(igdbId, user);
     }
 
-    @PostMapping("/game/note")
-    public Note add(@RequestBody NoteForm noteForm) {
-        return noteService.addNote(noteForm);
+    @PostMapping("/{igdbId}")
+    public Note add(@RequestBody NoteForm noteForm, @PathVariable("igdbId") Long igdbId,
+                    @AuthenticationPrincipal User user) {
+        return noteService.addNote(noteForm, igdbId, user);
     }
 
-    @PutMapping("/game/note/{id}")
-    public void put(@PathVariable("id") Long id, @RequestBody NoteUpdateDTO noteUpdateDTO) {
-        noteService.updateNote(id, noteUpdateDTO);
+    @PutMapping("/{note_id}")
+    public void put(@PathVariable("note_id") Long id, @RequestBody NoteUpdateForm noteUpdateForm,
+                    @AuthenticationPrincipal User user) {
+        noteService.updateNote(id, noteUpdateForm, user);
     }
 
-    @DeleteMapping("/game/note/{id}")
-    public void delete(@PathVariable("id") Long id) {
-        noteService.deleteNote(id);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id,
+                       @AuthenticationPrincipal User user) {
+        noteService.deleteNote(id, user);
     }
 
-    @DeleteMapping("/game/notes/{igdbId}")
-    public void deleteAllByIgdbId(@PathVariable("igdbId") Long igdbId) {
-        noteService.deleteAllGameNotes(igdbId);
+    @DeleteMapping("/{igdbId}/all")
+    public void deleteAllByIgdbId(@PathVariable("igdbId") Long igdbId,
+                                  @AuthenticationPrincipal User user) {
+        noteService.deleteAllGameNotes(igdbId, user);
     }
 }

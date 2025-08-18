@@ -1,0 +1,86 @@
+[
+  {
+    "category": "TOTAL_GAMES_COMPLETED",
+    "requiredCount": 5,
+    "iconUrl": "/icons/beginner.png",
+    "exp": 10,
+    "ru": {
+      "name": "Начинающий игрок",
+      "description": "Пройдите 5 игр"
+    },
+    "en": {
+      "name": "Beginner Player",
+      "description": "Complete 5 games"
+    }
+  },
+  {
+    "category": "TOTAL_GAMES_COMPLETED",
+    "requiredCount": 15,
+    "iconUrl": "/icons/advanced.png",
+    "exp": 25,
+    "ru": {
+      "name": "Продвинутый игрок",
+      "description": "Пройдите 15 игр"
+    },
+    "en": {
+      "name": "Advanced Player",
+      "description": "Complete 15 games"
+    }
+  },
+  {
+    "category": "TOTAL_GAMES_COMPLETED",
+    "requiredCount": 25,
+    "iconUrl": "/icons/experience.png",
+    "exp": 50,
+    "ru": {
+      "name": "Опытный геймер",
+      "description": "Пройдите 25 игр"
+    },
+    "en": {
+      "name": "Experienced Gamer",
+      "description": "Complete 25 games"
+    }
+  },
+  {
+    "category": "TOTAL_GAMES_COMPLETED",
+    "requiredCount": 50,
+    "iconUrl": "/icons/master.png",
+    "exp": 100,
+    "ru": {
+      "name": "Игровой мастер",
+      "description": "Пройдите 50 игр"
+    },
+    "en": {
+      "name": "Game Master",
+      "description": "Complete 50 games"
+    }
+  },
+  {
+    "category": "TOTAL_GAMES_COMPLETED",
+    "requiredCount": 75,
+    "iconUrl": "/icons/expert.png",
+    "exp": 150,
+    "ru": {
+      "name": "Игрок-эксперт",
+      "description": "Пройдите 75 игр"
+    },
+    "en": {
+      "name": "Expert Player",
+      "description": "Complete 75 games"
+    }
+  },
+  {
+    "category": "TOTAL_GAMES_COMPLETED",
+    "requiredCount": 100,
+    "iconUrl": "/icons/true_gamer.png",
+    "exp": 250,
+    "ru": {
+      "name": "Игровой монстр",
+      "description": "Пройдите 100 игр"
+    },
+    "en": {
+      "name": "Game Monster",
+      "description": "Complete 100 games"
+    }
+  }
+]

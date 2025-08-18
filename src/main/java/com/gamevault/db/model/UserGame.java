@@ -2,8 +2,10 @@ package com.gamevault.db.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.gamevault.data_template.Enums;
+import com.gamevault.enums.Enums;
+import com.gamevault.dto.input.update.UserGameUpdateForm;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +17,8 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
+@Table(name = "user_games")
 public class UserGame {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +40,9 @@ public class UserGame {
     @Setter
     @Column(columnDefinition = "TEXT")
     private String review;
+
+    @Setter
+    private boolean isFullyCompleted;
 
     @Lob
     private byte[] userScreenshots;
@@ -60,9 +67,21 @@ public class UserGame {
         this.user = user;
         this.userCoverUrl = game.getCoverUrl();
         this.status = Enums.status.None;
+        this.isFullyCompleted = false;
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         this.createdAt = offsetDateTime.toInstant();
         this.game = game;
+    }
+
+    public void updateDto(UserGameUpdateForm dto) {
+        if (dto.status() != null) this.status = dto.status();
+        if (dto.userRating() != null) this.userRating = dto.userRating();
+        if (dto.review() != null) this.review = dto.review();
+        if (dto.isFullyCompleted() != null) this.isFullyCompleted = dto.isFullyCompleted();
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        this.updatedAt = offsetDateTime.toInstant();
     }
 }

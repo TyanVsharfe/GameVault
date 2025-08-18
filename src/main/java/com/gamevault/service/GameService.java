@@ -8,7 +8,7 @@ import com.gamevault.db.repository.GameRepository;
 import com.gamevault.exception.GameNotFoundInIgdbException;
 import com.gamevault.exception.IgdbFetchException;
 import com.gamevault.exception.IgdbParsingException;
-import com.gamevault.form.igdb.GameDTO;
+import com.gamevault.dto.output.igdb.IgdbGameDTO;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -35,19 +35,19 @@ public class GameService {
         try {
             String igdbGameJson = igdbGameService.gameIGDB(igdbId.toString());
 
-            List<GameDTO> games = new ObjectMapper().readValue(igdbGameJson, new TypeReference<>() {});
+            List<IgdbGameDTO> games = new ObjectMapper().readValue(igdbGameJson, new TypeReference<>() {});
 
             if (games == null || games.isEmpty()) {
                 throw new GameNotFoundInIgdbException("Game with id " + igdbId + " not found in IGDB.");
             }
 
-            GameDTO gameDto = games.get(0);
+            IgdbGameDTO igdbGameDto = games.get(0);
 
             Game game = new Game();
-            game.setIgdbId((long) gameDto.id());
-            game.setTitle(gameDto.name());
-            game.setDescription(gameDto.summary());
-            game.setCoverUrl(gameDto.cover().url());
+            game.setIgdbId(igdbGameDto.id());
+            game.setTitle(igdbGameDto.name());
+            game.setDescription(igdbGameDto.summary());
+            game.setCoverUrl(igdbGameDto.cover().url());
 
             return gameRepository.save(game);
 

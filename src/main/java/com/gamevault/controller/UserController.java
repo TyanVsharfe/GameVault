@@ -1,6 +1,6 @@
 package com.gamevault.controller;
 
-import com.gamevault.form.UserForm;
+import com.gamevault.dto.input.UserForm;
 import com.gamevault.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("${api.prefix}/users")
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -39,7 +39,7 @@ public class UserController {
 
     @PostMapping("/registration")
     public String register(@RequestBody UserForm user) {
-        return userService.addUser(user);
+        return userService.add(user);
     }
 
     @PostMapping("/login")

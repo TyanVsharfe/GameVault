@@ -1,37 +1,42 @@
 package com.gamevault.service;
 
-import com.gamevault.data_template.Enums;
-import com.gamevault.data_template.UserStatisticsInfo;
+import com.gamevault.enums.Enums;
 import com.gamevault.db.model.Game;
-import com.gamevault.db.model.Note;
 import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.db.repository.UserGameRepository;
-import com.gamevault.form.UserGameUpdateDTO;
-import jakarta.persistence.EntityExistsException;
+import com.gamevault.events.UserGameCompletedEvent;
+import com.gamevault.dto.input.update.UserGameUpdateForm;
+import com.gamevault.dto.output.UserReviewsDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
 public class UserGameService {
     private final UserGameRepository userGameRepository;
+    private final UserService userService;
     private final GameRepository gameRepository;
     private final GameService gameService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public UserGameService(UserGameRepository userGameRepository, GameRepository gameRepository, GameService gameService) {
+    public UserGameService(UserGameRepository userGameRepository, UserService userService, GameRepository gameRepository,
+                           GameService gameService, ApplicationEventPublisher eventPublisher) {
         this.userGameRepository = userGameRepository;
+        this.userService = userService;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
+        this.eventPublisher = eventPublisher;
     }
 
     public Iterable<UserGame> getAll(String status, User author) {
@@ -49,37 +54,17 @@ public class UserGameService {
         }
     }
 
-    public Iterable<Long> getAllIgdbIds(String status) {
-        Iterable<UserGame> allGames;
-
-        if (status == null || status.isEmpty()) {
-            allGames = userGameRepository.findAll();
-        }
-        else {
-            try {
-                Enums.status statusEnum = Enums.status.valueOf(status);
-                allGames = userGameRepository.findGamesByStatus(statusEnum);
-            }
-            catch (IllegalArgumentException e) {
-                throw new EntityNotFoundException("Invalid game status " + e.getMessage());
-            }
-        }
-
-        LinkedList<Long> igdbIds = new LinkedList<>();
-
-        for (UserGame userGame : allGames) {
-            igdbIds.add(userGame.getId());
-        }
-
-        return igdbIds;
+    public List<UserReviewsDTO> getGameReviews(Long igdbId) {
+        List<UserGame> reviews = userGameRepository.findByGameIgdbIdAndReviewIsNotNull(igdbId);
+        return reviews.stream()
+                .filter(review -> !review.getReview().isEmpty())
+                .map(UserReviewsDTO::new)
+                .toList();
     }
 
-    public Optional<UserGame> get(Long id) {
-        return userGameRepository.findById(id);
-    }
-
-    public Optional<UserGame> getByIgdbId(Long igdbId) {
-        return userGameRepository.findUserGameByGame_IgdbId(igdbId);
+    public UserGame getByIgdbId(Long igdbId, User user) {
+        return userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()).orElseThrow(() ->
+                new EntityNotFoundException("Game with igdbId " + igdbId + " not found"));
     }
 
     @Transactional
@@ -88,7 +73,7 @@ public class UserGameService {
         Optional<UserGame> userGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
         if (userGame.isPresent()) {
             log.warn("Game with igdbId={} is already added for user '{}'", igdbId, author.getUsername());
-            throw new EntityExistsException("Game already added");
+            return userGame.get();
         }
         Optional<Game> game = gameRepository.findById(igdbId);
         if (game.isEmpty()) {
@@ -96,7 +81,7 @@ public class UserGameService {
             game = Optional.ofNullable(gameService.add(igdbId));
             if (game.isEmpty()) {
                 log.error("Game with igdbId={} could not be found locally or via GameService", igdbId);
-                throw new IllegalArgumentException("Game not found");
+                return null;
             }
             else {
                 log.info("Game with igdbId={} successfully fetched via GameService", igdbId);
@@ -109,49 +94,123 @@ public class UserGameService {
     }
 
     @Transactional
-    public UserGame update(Long igdbId, User author, UserGameUpdateDTO userGameUpdateDTO) {
+    public UserGame add(Long igdbId, UUID userId) {
+        Optional<User> user = userService.getUser(userId);
+        if (user.isPresent()) {
+            return add(igdbId, user.get());
+        }
+        else {
+            log.warn("User with UUID '{}' is not exists.", userId);
+            throw new IllegalArgumentException();
+        }
+    }
+
+    @Transactional
+    public UserGame update(Long igdbId, User user, UserGameUpdateForm userGameUpdateForm) {
         log.info("Attempting to update UserGame with id={} using data: status={}, rating={}, notes={}",
                 igdbId,
-                userGameUpdateDTO.status().orElse(null),
-                userGameUpdateDTO.userRating().orElse(null),
-                userGameUpdateDTO.notes().map(List::size).orElse(0));
+                userGameUpdateForm.status(),
+                userGameUpdateForm.userRating(),
+                userGameUpdateForm.note());
 
-        UserGame userGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, author.getUsername())
-                .orElseThrow(() -> {
-                    log.error("UserGame with id={} not found", igdbId);
-                    return new EntityNotFoundException("UserGame not found with igdbId: " + igdbId);
-                });
+        UserGame userGame = findByUserUsernameAndIgdbId(igdbId, user);
 
         log.info("Found UserGame with id={} for user '{}', game title='{}'",
                 userGame.getId(),
                 userGame.getUser().getUsername(),
                 userGame.getGame().getTitle());
 
-        userGame.setStatus(userGameUpdateDTO.status().orElse(userGame.getStatus()));
-        userGame.setUserRating(userGameUpdateDTO.userRating().orElse(userGame.getUserRating()));
+        userGame.updateDto(userGameUpdateForm);
+
+        UserGame saved = userGameRepository.save(userGame);
+        log.info("Successfully updated UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        if (saved.getStatus().equals(Enums.status.Completed)) {
+            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public UserGame updateStatus(Long igdbId, User user, Enums.status status) {
+        UserGame userGame = findByUserUsernameAndIgdbId(igdbId, user);
+        userGame.setStatus(status);
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         userGame.setUpdatedAt(offsetDateTime.toInstant());
 
-        userGameUpdateDTO.notes().ifPresent(notes -> {
-            for (Note note : notes) {
-                note.setUserGame(userGame);
-                userGame.getNotes().add(note);
-                log.info("Added note for UserGame id={}: {}", userGame.getId(), note.getContent());
-            }
-        });
+        UserGame saved = userGameRepository.save(userGame);
+        log.info("Successfully updated status for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        if (saved.getStatus().equals(Enums.status.Completed)) {
+            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public UserGame updateFullyCompleted(Long gameId, User user, Boolean fullyCompleted) {
+        UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
+        userGame.setFullyCompleted(fullyCompleted);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        userGame.setUpdatedAt(offsetDateTime.toInstant());
 
         UserGame saved = userGameRepository.save(userGame);
-        log.info("Successfully updated UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+        log.info("Successfully updated isFullyCompleted for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        if (saved.getStatus().equals(Enums.status.Completed)) {
+            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public UserGame updateRating(Long gameId, User user, Double rating) {
+        UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
+        userGame.setUserRating(rating);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        userGame.setUpdatedAt(offsetDateTime.toInstant());
+
+        UserGame saved = userGameRepository.save(userGame);
+        log.info("Successfully updated rating for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        if (saved.getStatus().equals(Enums.status.Completed)) {
+            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public UserGame updateReview(Long gameId, User user, String review) {
+        UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
+        userGame.setReview(review);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        userGame.setUpdatedAt(offsetDateTime.toInstant());
+
+        UserGame saved = userGameRepository.save(userGame);
+        log.info("Successfully updated review for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        if (saved.getStatus().equals(Enums.status.Completed)) {
+            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
+        }
 
         return saved;
     }
 
     @Transactional
     public void delete(Long igdbId, User author) {
-        Optional<UserGame> userGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
-        log.info("Found: {}", userGame.isPresent());
+        UserGame userGame = findByUserUsernameAndIgdbId(igdbId, author);
         log.info("Deleting UserGame with IGDB ID {} for user '{}'", igdbId, author.getUsername());
         int deleted = userGameRepository.deleteUserGameByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
 
@@ -159,23 +218,19 @@ public class UserGameService {
             log.info("Successfully deleted UserGame with IGDB ID {} for user '{}'", igdbId, author.getUsername());
         } else {
             log.warn("No UserGame found to delete with IGDB ID {} for user '{}'", igdbId, author.getUsername());
-            throw new IllegalArgumentException("UserGame not found. Check your IgdbId or User");
+            throw new IllegalArgumentException("UserGame not found.");
         }
     }
 
+    private UserGame findByUserUsernameAndIgdbId(Long igdbId, User user) {
+        return userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername())
+                .orElseThrow(() -> {
+                    log.error("UserGame with id={} not found", igdbId);
+                    return new EntityNotFoundException("UserGame not found");
+                });
+    }
 
     public boolean isContains(Long igdbId, User author) {
         return userGameRepository.existsByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
-    }
-
-    public UserStatisticsInfo userStatistics() {
-        UserStatisticsInfo userInfo = new UserStatisticsInfo();
-        userInfo.setTotalGames(userGameRepository.count());
-        userInfo.setCompletedGames(userGameRepository.countGamesByStatus(Enums.status.Completed));
-        userInfo.setPlayingGames(userGameRepository.countGamesByStatus(Enums.status.Playing));
-        userInfo.setPlannedGames(userGameRepository.countGamesByStatus(Enums.status.Planned));
-        userInfo.setAbandonedGames(userGameRepository.countGamesByStatus(Enums.status.Abandoned));
-        userInfo.setNoneStatusGames(userGameRepository.countGamesByStatus(Enums.status.None));
-        return userInfo;
     }
 }

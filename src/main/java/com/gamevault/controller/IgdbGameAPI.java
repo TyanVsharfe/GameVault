@@ -1,12 +1,11 @@
 package com.gamevault.controller;
 
-import com.gamevault.data_template.SteamGameTitle;
 import com.gamevault.service.IgdbGameService;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/igdb")
+@RequestMapping("${api.prefix}/igdb")
 public class IgdbGameAPI {
     private final IgdbGameService igdbGameService;
 
@@ -34,13 +33,8 @@ public class IgdbGameAPI {
         return igdbGameService.gameSeries(seriesTitle);
     }
 
-    @GetMapping("/games/release_dates")
+    @GetMapping("/games/release-dates")
     public String gamesReleaseDates() throws UnirestException {
         return igdbGameService.gamesReleaseDates();
-    }
-
-    @PostMapping("/steam-import")
-    public String steamImportGamesIGDB(@RequestBody SteamGameTitle[] gameTitles) throws UnirestException {
-        return igdbGameService.steamImportGamesIGDB(gameTitles);
     }
 }
