@@ -1,7 +1,7 @@
 package com.gamevault.listener;
 
 import com.gamevault.events.UserGameCompletedEvent;
-import com.gamevault.service.AchievementProcessorService;
+import com.gamevault.service.achievement.AchievementProcessorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

@@ -1,9 +1,9 @@
 package com.gamevault.service;
 
-import com.gamevault.data_template.Enums;
+import com.gamevault.enums.Enums;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.repository.UserGameRepository;
-import com.gamevault.dto.UserStatsDTO;
+import com.gamevault.dto.output.UserStatsDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

@@ -1,6 +1,6 @@
 package com.gamevault.db.model;
 
-import com.gamevault.form.GameForm;
+import com.gamevault.dto.input.GameForm;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

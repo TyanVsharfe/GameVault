@@ -1,7 +1,6 @@
 package com.gamevault.domain;
 
 import com.gamevault.component.ApiProperties;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

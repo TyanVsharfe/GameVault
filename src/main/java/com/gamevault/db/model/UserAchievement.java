@@ -34,13 +34,13 @@ public class UserAchievement {
     private int currentProgress;
 
     @Column(nullable = false)
-    private Boolean completed;
+    private Boolean isCompleted;
 
     public UserAchievement(User user, Achievement achievement) {
         this.user = user;
         this.achievement = achievement;
         this.achievedAt = null;
         this.currentProgress = 0;
-        this.completed = false;
+        this.isCompleted = false;
     }
 }

@@ -1,10 +1,13 @@
 package com.gamevault.db.model;
 
-import com.gamevault.data_template.Enums;
+import com.gamevault.enums.Enums;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "achievements")
@@ -16,11 +19,6 @@ public class Achievement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
-    @Column(length = 1000)
-    private String description;
-
     @Enumerated(EnumType.STRING)
     private Enums.AchievementCategory category;
 
@@ -31,10 +29,11 @@ public class Achievement {
 
     private int experiencePoints;
 
-    public Achievement(String name, String description, Enums.AchievementCategory category,
+    @OneToMany(mappedBy = "achievement", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AchievementTranslation> translations = new ArrayList<>();
+
+    public Achievement(Enums.AchievementCategory category,
                        int requiredCount, String iconUrl, int experiencePoints) {
-        this.name = name;
-        this.description = description;
         this.category = category;
         this.requiredCount = requiredCount;
         this.iconUrl = iconUrl;

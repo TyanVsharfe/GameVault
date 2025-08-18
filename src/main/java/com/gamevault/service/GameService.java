@@ -8,7 +8,7 @@ import com.gamevault.db.repository.GameRepository;
 import com.gamevault.exception.GameNotFoundInIgdbException;
 import com.gamevault.exception.IgdbFetchException;
 import com.gamevault.exception.IgdbParsingException;
-import com.gamevault.dto.igdb.IgdbGameDTO;
+import com.gamevault.dto.output.igdb.IgdbGameDTO;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class GameService {
             IgdbGameDTO igdbGameDto = games.get(0);
 
             Game game = new Game();
-            game.setIgdbId((long) igdbGameDto.id());
+            game.setIgdbId(igdbGameDto.id());
             game.setTitle(igdbGameDto.name());
             game.setDescription(igdbGameDto.summary());
             game.setCoverUrl(igdbGameDto.cover().url());

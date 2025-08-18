@@ -2,7 +2,7 @@ package com.gamevault.db.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gamevault.form.NoteForm;
+import com.gamevault.dto.input.NoteForm;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

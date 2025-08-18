@@ -2,8 +2,8 @@ package com.gamevault.controller;
 
 import com.gamevault.db.model.Note;
 import com.gamevault.db.model.User;
-import com.gamevault.form.NoteForm;
-import com.gamevault.form.update.NoteUpdateForm;
+import com.gamevault.dto.input.NoteForm;
+import com.gamevault.dto.input.update.NoteUpdateForm;
 import com.gamevault.service.NoteService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

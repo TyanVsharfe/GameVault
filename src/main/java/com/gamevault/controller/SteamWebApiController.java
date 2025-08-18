@@ -1,7 +1,7 @@
 package com.gamevault.controller;
 
-import com.gamevault.data_template.SteamGame;
-import com.gamevault.service.SteamWebApiService;
+import com.gamevault.dto.input.steam.SteamGame;
+import com.gamevault.service.steam.SteamWebApiService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

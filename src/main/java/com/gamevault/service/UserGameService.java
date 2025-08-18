@@ -1,15 +1,14 @@
 package com.gamevault.service;
 
-import com.gamevault.data_template.Enums;
+import com.gamevault.enums.Enums;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.events.UserGameCompletedEvent;
-import com.gamevault.form.update.UserGameUpdateForm;
-import com.gamevault.dto.UserReviewsDTO;
-import jakarta.persistence.EntityExistsException;
+import com.gamevault.dto.input.update.UserGameUpdateForm;
+import com.gamevault.dto.output.UserReviewsDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -20,18 +19,21 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
 public class UserGameService {
     private final UserGameRepository userGameRepository;
+    private final UserService userService;
     private final GameRepository gameRepository;
     private final GameService gameService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public UserGameService(UserGameRepository userGameRepository, GameRepository gameRepository,
+    public UserGameService(UserGameRepository userGameRepository, UserService userService, GameRepository gameRepository,
                            GameService gameService, ApplicationEventPublisher eventPublisher) {
         this.userGameRepository = userGameRepository;
+        this.userService = userService;
         this.gameRepository = gameRepository;
         this.gameService = gameService;
         this.eventPublisher = eventPublisher;
@@ -71,7 +73,7 @@ public class UserGameService {
         Optional<UserGame> userGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
         if (userGame.isPresent()) {
             log.warn("Game with igdbId={} is already added for user '{}'", igdbId, author.getUsername());
-            throw new EntityExistsException("Game already added");
+            return userGame.get();
         }
         Optional<Game> game = gameRepository.findById(igdbId);
         if (game.isEmpty()) {
@@ -79,7 +81,7 @@ public class UserGameService {
             game = Optional.ofNullable(gameService.add(igdbId));
             if (game.isEmpty()) {
                 log.error("Game with igdbId={} could not be found locally or via GameService", igdbId);
-                throw new IllegalArgumentException("Game not found");
+                return null;
             }
             else {
                 log.info("Game with igdbId={} successfully fetched via GameService", igdbId);
@@ -89,6 +91,18 @@ public class UserGameService {
         UserGame saved = userGameRepository.save(new UserGame(author, game.get()));
         log.info("Game with igdbId={} successfully added for user '{}'", igdbId, author.getUsername());
         return saved;
+    }
+
+    @Transactional
+    public UserGame add(Long igdbId, UUID userId) {
+        Optional<User> user = userService.getUser(userId);
+        if (user.isPresent()) {
+            return add(igdbId, user.get());
+        }
+        else {
+            log.warn("User with UUID '{}' is not exists.", userId);
+            throw new IllegalArgumentException();
+        }
     }
 
     @Transactional

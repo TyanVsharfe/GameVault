@@ -1,15 +1,16 @@
 package com.gamevault.service;
 
 import com.gamevault.component.IgdbTokenManager;
-import com.gamevault.data_template.SteamGameTitle;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import java.util.List;
 
+@Slf4j
 @Service
 public class IgdbGameService {
     private final IgdbTokenManager apiClient;
@@ -98,12 +99,12 @@ public class IgdbGameService {
         return jsonResponse.getBody().toString();
     }
 
-    public String steamImportGamesIGDB(SteamGameTitle[] gameTitles) throws UnirestException {
+    public String steamImportGamesIGDB(List<String> steamGamesTitles) throws UnirestException {
 
         StringBuilder titlesString = new StringBuilder("(");
-        Arrays.stream(gameTitles).limit(200).forEach(title -> titlesString.append("\"").append(title.getName()).append("\"").append(","));
+        steamGamesTitles.stream().limit(200).forEach(title -> titlesString.append("\"").append(title).append("\"").append(","));
+
         titlesString.replace(titlesString.length() - 1, titlesString.length(), ")");
-        System.out.println("Titles string " + titlesString);
 
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", apiClient.getClient_id())

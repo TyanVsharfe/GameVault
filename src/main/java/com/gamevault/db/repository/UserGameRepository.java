@@ -1,6 +1,6 @@
 package com.gamevault.db.repository;
 
-import com.gamevault.data_template.Enums;
+import com.gamevault.enums.Enums;
 import com.gamevault.db.model.UserGame;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -14,6 +14,7 @@ public interface UserGameRepository extends CrudRepository<UserGame, Long> {
     boolean existsByGame_IgdbIdAndUser_Username(Long IgdbId, String username);
     Optional<UserGame> findUserGameByGame_IgdbId(Long IgdbId);
     Optional<UserGame> findUserGameByGame_IgdbIdAndUser_Username(Long IgdbId, String username);
+    Optional<UserGame> findUserGameByGame_IgdbIdAndUser_Id(Long IgdbId, UUID userId);
     Iterable<UserGame> findGamesByStatus(Enums.status status);
     Iterable<UserGame> findGamesByStatusAndUser_Username(Enums.status status, String username);
     Iterable<UserGame> findGamesByUser_Username(String username);

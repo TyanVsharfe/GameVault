@@ -2,8 +2,8 @@ package com.gamevault.db.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.gamevault.data_template.Enums;
-import com.gamevault.form.update.UserGameUpdateForm;
+import com.gamevault.enums.Enums;
+import com.gamevault.dto.input.update.UserGameUpdateForm;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

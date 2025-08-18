@@ -11,6 +11,12 @@ spring:
     username: root
     password: root
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 server:
   servlet:
     session:
@@ -20,6 +26,11 @@ server:
 
 springdoc:
   packages-to-scan: com.gamevault.controller
+
+app:
+  kafka:
+    topics:
+      steam-save: steam-save-topic
 
 igdb:
   client:

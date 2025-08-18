@@ -2,7 +2,7 @@ package com.gamevault.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamevault.data_template.IgdbTokenResponse;
+import com.gamevault.dto.input.IgdbTokenResponse;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
 @Getter
+@Component
 public class IgdbTokenManager {
     @Value("${igdb.client.id}")
     private String client_id;

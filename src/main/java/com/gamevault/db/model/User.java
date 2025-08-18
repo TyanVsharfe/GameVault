@@ -1,6 +1,6 @@
 package com.gamevault.db.model;
 
-import com.gamevault.data_template.Enums;
+import com.gamevault.enums.Enums;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
