@@ -1,7 +1,7 @@
 package com.gamevault.db.repository.achievement;
 
 import com.gamevault.enums.Enums;
-import com.gamevault.db.model.Achievement;
+import com.gamevault.db.model.achievement.Achievement;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

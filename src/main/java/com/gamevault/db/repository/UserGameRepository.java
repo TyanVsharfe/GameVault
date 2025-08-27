@@ -2,11 +2,13 @@ package com.gamevault.db.repository;
 
 import com.gamevault.enums.Enums;
 import com.gamevault.db.model.UserGame;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -24,4 +26,7 @@ public interface UserGameRepository extends CrudRepository<UserGame, Long> {
     long countGamesByStatusAndUser_Username(Enums.status status, String username);
     long countGamesByStatusAndUser_Id(Enums.status status, UUID userId);
     int deleteUserGameByGame_IgdbIdAndUser_Username(Long IgdbId, String username);
+
+    @Query("SELECT ug.game.igdbId FROM UserGame ug WHERE ug.user.id = :userId AND ug.status = com.gamevault.enums.Enums.status.Completed")
+    Set<Long> findCompletedGameIdsByUserId(UUID userId);
 }

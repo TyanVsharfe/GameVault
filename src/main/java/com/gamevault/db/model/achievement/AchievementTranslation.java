@@ -1,5 +1,6 @@
-package com.gamevault.db.model;
+package com.gamevault.db.model.achievement;
 
+import com.gamevault.dto.input.achievement.AchievementTranslationForm;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,13 @@ public class AchievementTranslation {
         this.language = language;
         this.name = name;
         this.description = description;
+        this.achievement = achievement;
+    }
+
+    public AchievementTranslation(AchievementTranslationForm translation, Achievement achievement) {
+        this.language = translation.language();
+        this.name = translation.name();
+        this.description = translation.description();
         this.achievement = achievement;
     }
 }

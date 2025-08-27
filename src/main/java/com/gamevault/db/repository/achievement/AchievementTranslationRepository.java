@@ -1,6 +1,6 @@
 package com.gamevault.db.repository.achievement;
 
-import com.gamevault.db.model.AchievementTranslation;
+import com.gamevault.db.model.achievement.AchievementTranslation;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

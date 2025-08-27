@@ -60,7 +60,8 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, "
-                        + "game_type, summary, genres.name, first_release_date, platforms.abbreviation,"
+                        + "game_type, summary, genres.name, first_release_date, platforms.abbreviation, "
+                        + "collections.name, collections.games.name, collections.games.slug, collections.games.cover.url, "
                         + "franchises.name, franchises.slug, franchises.games.name, franchises.games.cover.url, "
                         + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y, "
                         + "involved_companies.company.name, involved_companies.developer, involved_companies.publisher; "

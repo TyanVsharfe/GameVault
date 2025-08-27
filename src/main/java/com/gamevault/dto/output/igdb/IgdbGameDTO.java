@@ -15,6 +15,7 @@ public record IgdbGameDTO(
         List<Genre> genres,
         List<Platform> platforms,
         List<InvolvedCompany> involved_companies,
-        List<Franchise> franchises
+        List<Franchise> franchises,
+        List<Series> collections
 ) {}
 

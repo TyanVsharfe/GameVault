@@ -82,5 +82,62 @@
       "name": "Game Monster",
       "description": "Complete 100 games"
     }
+  },
+  {
+    "category": "SERIES_COMPLETED",
+    "requiredGameIds": [
+      [1270, 25081],
+      [1269, 20048, 216196],
+      [28380, 38657, 119079],
+      [119244, 121201, 135979],
+      [358770]
+    ],
+    "iconUrl": "/icons/darksiders.png",
+    "exp": 250,
+    "ru": {
+      "name": "Всадник апокалипсиса",
+      "description": "Пройдите все игры серии Darksiders"
+    },
+    "en": {
+      "name": "Horseman of the Apocalypse",
+      "description": "Complete all the games in the Darksiders series"
+    }
+  },
+  {
+    "category": "SERIES_COMPLETED",
+    "requiredGameIds": [
+      [2003,43020, 83899],
+      [500, 43018],
+      [501, 43019],
+      [5503, 52440, 41640, 42929]
+    ],
+    "iconUrl": "/icons/batman_arkham.png",
+    "exp": 250,
+    "ru": {
+      "name": "Настоящий детектив",
+      "description": "Пройдите все игры серии Batman: Arkham"
+    },
+    "en": {
+      "name": "The real detective",
+      "description": "Complete all the games in the Batman: Arkham series"
+    }
+  },
+  {
+    "category": "SERIES_COMPLETED",
+    "requiredGameIds": [
+      [2155, 81085],
+      [2368, 8222],
+      [11133]
+    ],
+    "iconUrl": "/icons/dark_souls.png",
+    "exp": 250,
+    "ru": {
+      "name": "Темная душа",
+      "description": "Пройдите все игры серии Dark souls"
+    },
+    "en": {
+      "name": "Dark soul",
+      "description": "Complete all the games in the Dark souls series"
+    }
   }
 ]
