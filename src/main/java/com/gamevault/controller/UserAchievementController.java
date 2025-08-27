@@ -1,12 +1,14 @@
 package com.gamevault.controller;
 
+import com.gamevault.dto.input.achievement.AchievementForm;
 import com.gamevault.enums.Enums;
-import com.gamevault.db.model.Achievement;
+import com.gamevault.db.model.achievement.Achievement;
 import com.gamevault.db.model.User;
 import com.gamevault.dto.output.achievement.UserAchievementDTO;
 import com.gamevault.service.achievement.AchievementService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +36,9 @@ public class UserAchievementController {
         return ResponseEntity.ok(achievementService.getUserAchievements(user.getId(), lang));
     }
 
-    @PostMapping("")
-    public ResponseEntity<Achievement> createAchievement(@RequestBody Achievement achievement) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping
+    public ResponseEntity<Achievement> createAchievement(@RequestBody AchievementForm achievement) {
         return ResponseEntity.ok(achievementService.createAchievement(achievement));
     }
 }

@@ -5,5 +5,7 @@ import com.gamevault.db.model.UserGame;
 
 public record UserGameCompletedEvent(
         User user,
-        UserGame userGame) {
-}
+        UserGame userGame
+) {}
+
+

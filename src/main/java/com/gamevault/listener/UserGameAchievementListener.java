@@ -18,7 +18,8 @@ public class UserGameAchievementListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserGameCompleted(UserGameCompletedEvent event) {
-        log.info("UserGameCompletedEvent received for user: {}", event.user().getUsername());
-        achievementProcessorService.processBookCompletion(event.user(), event.userGame());
+        log.info("UserGameCompletedEvent received for user: {}, game: {}",
+                event.user().getUsername(), event.userGame().getGame().getTitle());
+        achievementProcessorService.processAchievementCompletion(event.user());
     }
 }

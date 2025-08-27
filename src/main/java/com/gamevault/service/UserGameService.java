@@ -163,10 +163,6 @@ public class UserGameService {
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated isFullyCompleted for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
 
-        if (saved.getStatus().equals(Enums.status.Completed)) {
-            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
-        }
-
         return saved;
     }
 
@@ -181,10 +177,6 @@ public class UserGameService {
 
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated rating for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
-
-        if (saved.getStatus().equals(Enums.status.Completed)) {
-            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
-        }
 
         return saved;
     }
@@ -201,23 +193,19 @@ public class UserGameService {
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated review for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
 
-        if (saved.getStatus().equals(Enums.status.Completed)) {
-            eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
-        }
-
         return saved;
     }
 
     @Transactional
-    public void delete(Long igdbId, User author) {
-        UserGame userGame = findByUserUsernameAndIgdbId(igdbId, author);
-        log.info("Deleting UserGame with IGDB ID {} for user '{}'", igdbId, author.getUsername());
-        int deleted = userGameRepository.deleteUserGameByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
+    public void delete(Long igdbId, User user) {
+        UserGame userGame = findByUserUsernameAndIgdbId(igdbId, user);
+        log.info("Deleting UserGame with IGDB ID {} for user '{}'", igdbId, user.getUsername());
+        int deleted = userGameRepository.deleteUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername());
 
         if (deleted == 1) {
-            log.info("Successfully deleted UserGame with IGDB ID {} for user '{}'", igdbId, author.getUsername());
+            log.info("Successfully deleted UserGame with IGDB ID {} for user '{}'", igdbId, user.getUsername());
         } else {
-            log.warn("No UserGame found to delete with IGDB ID {} for user '{}'", igdbId, author.getUsername());
+            log.warn("No UserGame found to delete with IGDB ID {} for user '{}'", igdbId, user.getUsername());
             throw new IllegalArgumentException("UserGame not found.");
         }
     }
@@ -230,7 +218,7 @@ public class UserGameService {
                 });
     }
 
-    public boolean isContains(Long igdbId, User author) {
-        return userGameRepository.existsByGame_IgdbIdAndUser_Username(igdbId, author.getUsername());
+    public boolean isContains(Long igdbId, User user) {
+        return userGameRepository.existsByGame_IgdbIdAndUser_Username(igdbId, user.getUsername());
     }
 }

@@ -8,5 +8,4 @@ public record AchievementDTO (
         int experiencePoints,
         int requiredCount,
         String iconUrl
-
 ){}

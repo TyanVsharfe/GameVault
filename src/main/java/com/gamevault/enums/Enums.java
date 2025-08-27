@@ -68,5 +68,4 @@ public class Enums {
         SERIES_COMPLETED,
         REVIEWS_WRITTEN
     }
-
 }

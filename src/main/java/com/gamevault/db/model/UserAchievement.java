@@ -1,6 +1,7 @@
 package com.gamevault.db.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gamevault.db.model.achievement.Achievement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
