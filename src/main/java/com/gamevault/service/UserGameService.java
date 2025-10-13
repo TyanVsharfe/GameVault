@@ -87,8 +87,24 @@ public class UserGameService {
                 log.info("Game with igdbId={} successfully fetched via GameService", igdbId);
             }
         }
+        Game presentGame = game.get();
 
-        UserGame saved = userGameRepository.save(new UserGame(author, game.get()));
+        UserGame saved;
+        if (presentGame.getCategory() == Enums.categoryIGDB.dlc || presentGame.getCategory() == Enums.categoryIGDB.expansion) {
+            Optional<UserGame> parentGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(presentGame.getParentGame().getIgdbId(), author.getUsername());
+            if (parentGame.isPresent()) {
+                saved = userGameRepository.save(new UserGame(author, game.get(), parentGame.get()));
+                log.warn("Game with igdbId={} is already added for user '{}'", igdbId, author.getUsername());
+            }
+            else {
+                log.warn("DLC with igdbId={} not added because the user={} does not have a parent game", igdbId, author.getUsername());
+                throw new EntityNotFoundException("DLC cannot be added if the parent game is not added");
+            }
+        }
+        else {
+            saved = userGameRepository.save(new UserGame(author, game.get()));
+        }
+
         log.info("Game with igdbId={} successfully added for user '{}'", igdbId, author.getUsername());
         return saved;
     }
