@@ -1,5 +1,6 @@
 package com.gamevault.db.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gamevault.enums.Enums;
@@ -31,6 +32,15 @@ public class UserGame {
     @ManyToOne
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_game_id")
+    @JsonBackReference
+    private UserGame parentGame;
+
+    @OneToMany(mappedBy = "parentGame", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private final List<UserGame> dlcs = new ArrayList<>();
 
     @Setter
     @OneToMany(mappedBy = "userGame", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -72,6 +82,18 @@ public class UserGame {
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         this.createdAt = offsetDateTime.toInstant();
         this.game = game;
+    }
+
+    public UserGame(User user, Game game, UserGame parent) {
+        this.user = user;
+        this.userCoverUrl = game.getCoverUrl();
+        this.status = Enums.status.None;
+        this.isFullyCompleted = false;
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        this.createdAt = offsetDateTime.toInstant();
+        this.game = game;
+        this.parentGame = parent;
     }
 
     public void updateDto(UserGameUpdateForm dto) {

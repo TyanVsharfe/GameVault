@@ -25,9 +25,11 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating,"
-                        + "game_type, first_release_date, category;"
+                        + "game_type.id, game_type.type, first_release_date, game_type,"
+                        + "dlcs.name, dlcs.cover.url, dlcs.game_type.id, dlcs.game_type.type, dlcs.game_status.status, dlcs.game_modes.name, standalone_expansions,"
+                        + "expansions.name, expansions.game_type.*, expansions.game_status.status, expansions.cover.url, expansions.game_modes.name;"
                         + "search *\"" + searchGame + "*\";"
-                        + "where category = (0,8,9) & "
+                        + "where game_type = (0,1,4,8,9) &"
                         //+ "platforms = (0,8) & "
                         + "version_parent = null;"
                         + "limit 200;")
@@ -47,7 +49,8 @@ public class IgdbGameService {
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/games")
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
+                .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation,"
+                        + "aggregated_rating, first_release_date, game_type;"
                         + "where id = " + stringBuilder + "); limit 50;")
                 .asJson();
 
@@ -60,11 +63,13 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, "
-                        + "game_type, summary, genres.name, first_release_date, platforms.abbreviation, "
-                        + "collections.name, collections.games.name, collections.games.slug, collections.games.cover.url, "
-                        + "franchises.name, franchises.slug, franchises.games.name, franchises.games.cover.url, "
-                        + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y, "
-                        + "involved_companies.company.name, involved_companies.developer, involved_companies.publisher; "
+                        + "game_type.id, game_type.type, summary, genres.name, first_release_date, platforms.abbreviation,"
+                        + "collections.name, collections.games.name, collections.games.slug, collections.games.cover.url,"
+                        + "franchises.name, franchises.slug, franchises.games.name, franchises.games.cover.url,"
+                        + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y,"
+                        + "involved_companies.company.name, involved_companies.developer, involved_companies.publisher,"
+                        + "dlcs.name, dlcs.cover.url, dlcs.game_type.id, dlcs.game_type.type, dlcs.game_status.status, dlcs.summary, dlcs.game_modes.name, standalone_expansions,"
+                        + "expansions.name, expansions.game_type.type, expansions.game_status.status, expansions.cover.url, expansions.summary, expansions.game_modes.name;"
                         + " where id = " + gameId + "; sort franchises.games.release_dates.y desc;")
                 .asJson();
 
@@ -91,7 +96,7 @@ public class IgdbGameService {
         HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/release_dates/")
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
-                .body("fields *, game.name, game.category, game.cover.url, game.platforms.abbreviation, game.hypes; "
+                .body("fields *, game.name, game.category, game.cover.url, game.platforms.abbreviation, game.hypes;"
                         + " where date > " + actualDate + " & region = 8;"
                         + "sort date asc;"
                         + "limit 50;")

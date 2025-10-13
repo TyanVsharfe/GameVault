@@ -16,7 +16,7 @@ public class SteamImportConsumer {
     }
 
     @KafkaListener(topics = "${app.kafka.topics.steam-save}", groupId = "steam-save", containerFactory = "steamSaveKafkaListenerContainerFactory")
-    public void consumeImportTask(SteamImportTask steamImportTask) {
+    public void processImportTask(SteamImportTask steamImportTask) {
         try {
             log.info("Received SteamImportTask: {}", steamImportTask);
 

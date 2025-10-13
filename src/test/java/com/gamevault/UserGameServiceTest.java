@@ -5,6 +5,8 @@ import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.db.repository.UserGameRepository;
+import com.gamevault.dto.input.GameForm;
+import com.gamevault.enums.Enums;
 import com.gamevault.service.GameService;
 import com.gamevault.service.UserGameService;
 import jakarta.persistence.EntityExistsException;
@@ -46,11 +48,10 @@ public class UserGameServiceTest {
     @Test
     public void add_shouldSaveUserGame_whenGameIsNew() {
         Long igdbId = 1979L;
-        Game game = new Game();
-        game.setIgdbId(igdbId);
-        game.setTitle("Battlefield 4");
-        game.setDescription("Battlefield 4 is the genre-defining action blockbuster created by Dice");
-        game.setCoverUrl("//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg");
+        Game game = new Game(new GameForm(
+                igdbId, "Battlefield 4", "//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg",
+                "Battlefield 4 is the genre-defining action blockbuster created by Dice", Enums.categoryIGDB.main_game
+        ));
 
         when(userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()))
                 .thenReturn(Optional.empty());
@@ -78,11 +79,10 @@ public class UserGameServiceTest {
     @Test
     public void add_shouldCallGameServiceAdd_whenGameNotInRepository() {
         Long igdbId = 1979L;
-        Game newGame = new Game();
-        newGame.setIgdbId(igdbId);
-        newGame.setTitle("Battlefield 4");
-        newGame.setDescription("Battlefield 4 is the genre-defining action blockbuster created by Dice");
-        newGame.setCoverUrl("//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg");
+        Game newGame = new Game(new GameForm(
+                igdbId, "Battlefield 4", "//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg",
+                "Battlefield 4 is the genre-defining action blockbuster created by Dice", Enums.categoryIGDB.main_game
+        ));
 
         when(userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()))
                 .thenReturn(Optional.empty());
