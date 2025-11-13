@@ -3,16 +3,16 @@ package com.gamevault.db.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gamevault.dto.input.GameForm;
-import com.gamevault.dto.output.igdb.IgdbGameDTO;
 import com.gamevault.enums.Enums;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -28,7 +28,7 @@ public class Game {
     private String coverUrl;
     @Lob
     private String description;
-    private Enums.categoryIGDB category;
+    private Enums.CategoryIGDB category;
 
     @ManyToOne
     @JoinColumn(name = "parent_game_id")
@@ -39,12 +39,19 @@ public class Game {
     @JsonManagedReference
     private final List<Game> dlcs = new ArrayList<>();
 
+    @ElementCollection(targetClass = Enums.GameModesIGDB.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "game_modes", joinColumns = @JoinColumn(name = "game_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode", nullable = false, length = 50)
+    private Set<Enums.GameModesIGDB> gameModes = new HashSet<>();
+
     public Game(GameForm gameForm) {
         this.igdbId = gameForm.igdbId();
         this.title = gameForm.title();
         this.coverUrl = gameForm.coverUrl();
         this.description = gameForm.description();
         this.category = gameForm.category();
+        this.gameModes.addAll(gameForm.gameModes());
     }
 
     public Game(GameForm gameForm, Game game) {
@@ -53,6 +60,7 @@ public class Game {
         this.coverUrl = gameForm.coverUrl();
         this.description = gameForm.description();
         this.category = gameForm.category();
+        this.gameModes.addAll(gameForm.gameModes());
         this.parentGame = game;
     }
 

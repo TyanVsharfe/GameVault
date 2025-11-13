@@ -1,5 +1,6 @@
 package com.gamevault.service;
 
+import com.gamevault.dto.input.update.UserGameModeUpdateForm;
 import com.gamevault.enums.Enums;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.model.User;
@@ -45,7 +46,7 @@ public class UserGameService {
         }
         else {
             try {
-                Enums.status statusEnum = Enums.status.valueOf(status);
+                Enums.Status statusEnum = Enums.Status.fromJson(status);
                 return userGameRepository.findGamesByStatusAndUser_Username(statusEnum, author.getUsername());
             }
             catch (IllegalArgumentException e) {
@@ -90,7 +91,7 @@ public class UserGameService {
         Game presentGame = game.get();
 
         UserGame saved;
-        if (presentGame.getCategory() == Enums.categoryIGDB.dlc || presentGame.getCategory() == Enums.categoryIGDB.expansion) {
+        if (presentGame.getCategory() == Enums.CategoryIGDB.DLC || presentGame.getCategory() == Enums.CategoryIGDB.EXPANSION) {
             Optional<UserGame> parentGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(presentGame.getParentGame().getIgdbId(), author.getUsername());
             if (parentGame.isPresent()) {
                 saved = userGameRepository.save(new UserGame(author, game.get(), parentGame.get()));
@@ -141,7 +142,7 @@ public class UserGameService {
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
 
-        if (saved.getStatus().equals(Enums.status.Completed)) {
+        if (saved.getStatus().equals(Enums.Status.COMPLETED)) {
             eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
         }
 
@@ -149,7 +150,24 @@ public class UserGameService {
     }
 
     @Transactional
-    public UserGame updateStatus(Long igdbId, User user, Enums.status status) {
+    public UserGame updateMode(Long gameId, User user, Enums.GameModesIGDB mode, UserGameModeUpdateForm updateForm) {
+        UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
+
+        if (!userGame.getGame().getGameModes().contains(mode)) {
+            throw new IllegalArgumentException("The game has no mode: " + mode.name());
+        }
+
+        userGame.updateMode(mode, updateForm);
+
+        UserGame saved = userGameRepository.save(userGame);
+        log.info("Successfully updated rating for mode {} in UserGame with id={} for user '{}'",
+                mode.name(), saved.getId(), saved.getUser().getUsername());
+
+        return saved;
+    }
+
+    @Transactional
+    public UserGame updateStatus(Long igdbId, User user, Enums.Status status) {
         UserGame userGame = findByUserUsernameAndIgdbId(igdbId, user);
         userGame.setStatus(status);
 
@@ -160,7 +178,7 @@ public class UserGameService {
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated status for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
 
-        if (saved.getStatus().equals(Enums.status.Completed)) {
+        if (saved.getStatus().equals(Enums.Status.COMPLETED)) {
             eventPublisher.publishEvent(new UserGameCompletedEvent(user, userGame));
         }
 
@@ -183,9 +201,9 @@ public class UserGameService {
     }
 
     @Transactional
-    public UserGame updateRating(Long gameId, User user, Double rating) {
+    public UserGame updateOverallRating(Long gameId, User user, Double rating) {
         UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
-        userGame.setUserRating(rating);
+        userGame.setOverallRating(rating);
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
@@ -193,6 +211,27 @@ public class UserGameService {
 
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated rating for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
+
+        return saved;
+    }
+
+    @Transactional
+    public UserGame updateModeRating(Long gameId, User user, Enums.GameModesIGDB mode, Double rating) {
+        UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
+
+        if (!userGame.getGame().getGameModes().contains(mode)) {
+            throw new IllegalArgumentException("The game has no mode: " + mode.name());
+        }
+
+        userGame.setModeRating(mode, rating);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        userGame.setUpdatedAt(offsetDateTime.toInstant());
+
+        UserGame saved = userGameRepository.save(userGame);
+        log.info("Successfully updated info for mode {} in UserGame with id={} for user '{}'",
+                mode.name(), saved.getId(), saved.getUser().getUsername());
 
         return saved;
     }
@@ -236,5 +275,20 @@ public class UserGameService {
 
     public boolean isContains(Long igdbId, User user) {
         return userGameRepository.existsByGame_IgdbIdAndUser_Username(igdbId, user.getUsername());
+    }
+
+    private void validateStatusForMode(Enums.GameModesIGDB mode, Enums.Status status) {
+        if (mode == Enums.GameModesIGDB.SINGLE_PLAYER) {
+            if (status == Enums.Status.PLAYED) {
+                throw new IllegalArgumentException(
+                        "This status is unacceptable for SINGLE PLAYER mode. Acceptable: Completed, Playing, Planned, Abandoned");
+            }
+        }
+        if (mode == Enums.GameModesIGDB.MULTIPLAYER) {
+            if (status == Enums.Status.COMPLETED) {
+                throw new IllegalArgumentException(
+                        "This status is unacceptable for MULTIPLAYER mode. Acceptable: Played, Playing, Planned, Abandoned");
+            }
+        }
     }
 }

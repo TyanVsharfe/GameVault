@@ -20,8 +20,13 @@ public class UserStatsController {
     }
 
     @GetMapping("/{username}/stats")
-    private ResponseEntity<UserStatsDTO> getUserStats(@PathVariable("username") String username,
-                                                      @AuthenticationPrincipal User user) {
+    private ResponseEntity<UserStatsDTO> getUserStat(@PathVariable("username") String username,
+                                                     @AuthenticationPrincipal User user) {
         return ResponseEntity.ok().body(userStatsService.getUserStats(username));
+    }
+
+    @GetMapping("/me/stats")
+    private ResponseEntity<UserStatsDTO> getOwnUserStat(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok().body(userStatsService.getUserStats(user.getUsername()));
     }
 }

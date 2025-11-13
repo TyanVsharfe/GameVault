@@ -9,9 +9,10 @@ import jakarta.validation.constraints.*;
 import org.springframework.lang.Nullable;
 
 public record UserGameUpdateForm(
-        @Nullable @Enumerated(EnumType.STRING) Enums.status status,
+        @Nullable @Enumerated(EnumType.STRING) Enums.Status status,
         @Nullable Boolean isFullyCompleted,
         @Nullable @DecimalMin("0.0") @DecimalMax("100.0") Double userRating,
+        @Nullable Boolean resetUserRating,
         @Nullable @Size(max = 10000) String review,
         @Nullable @Valid Note note
 ) {}

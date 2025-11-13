@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.repository.GameRepository;
 import com.gamevault.dto.input.GameForm;
+import com.gamevault.dto.output.igdb.GameMode;
 import com.gamevault.enums.Enums;
 import com.gamevault.exception.GameNotFoundInIgdbException;
 import com.gamevault.exception.IgdbFetchException;
@@ -48,9 +49,18 @@ public class GameService {
 
             IgdbGameDTO igdbGameDto = games.get(0);
 
+            if (igdbGameDto.game_modes() == null) {
+                log.info("Game with igdbId={} cannot be added to database because haven't game modes", igdbGameDto.id());
+                throw new IllegalArgumentException("Game with igdbId=" + igdbGameDto.id() + " cannot be added to database because haven't game modes");
+            }
+            List<Enums.GameModesIGDB> modes = new ArrayList<>();
+            for (GameMode mode: igdbGameDto.game_modes()) {
+                modes.add(Enums.GameModesIGDB.fromJson(mode.slug()));
+            }
+
             Game game = new Game(new GameForm(
                     igdbGameDto.id(), igdbGameDto.name(), igdbGameDto.cover().url(),
-                    igdbGameDto.summary(), Enums.categoryIGDB.fromNumber(igdbGameDto.game_type().id())));
+                    igdbGameDto.summary(), Enums.CategoryIGDB.fromNumber(igdbGameDto.game_type().id()), modes));
             Game saved = gameRepository.save(game);
             log.info("Game with igdbId={} successfully added", igdbId);
 
@@ -63,11 +73,20 @@ public class GameService {
                         log.warn("DLC with igdbId={} is already added in the local database", igdbDlc.id());
                         continue;
                     }
+                    log.info("DLC with igdbId={} not found in the local database, attempting to add via GameService", igdbDlc.id());
 
-                    log.info("DLC with igdbId={} not found in the local database, attempting to fetch via GameService", igdbDlc.id());
+                    modes.clear();
+                    if (igdbDlc.game_modes() == null) {
+                        log.info("DLC with igdbId={} cannot be added to database because haven't game modes", igdbDlc.id());
+                        continue;
+                    }
+                    for (GameMode mode: igdbDlc.game_modes()) {
+                        modes.add(Enums.GameModesIGDB.fromJson(mode.slug()));
+                    }
+
                     Game dlc = new Game(new GameForm(
                             igdbDlc.id(), igdbDlc.name(), igdbDlc.cover().url(),
-                            igdbDlc.summary(), Enums.categoryIGDB.fromNumber(igdbDlc.game_type().id())));
+                            igdbDlc.summary(), Enums.CategoryIGDB.fromNumber(igdbDlc.game_type().id()), modes), saved);
                     Game savedDlc = gameRepository.save(dlc);
                     dlcs.add(savedDlc);
                     log.info("DLC with igdbId={} successfully added", igdbDlc.id());
@@ -83,11 +102,20 @@ public class GameService {
                         log.warn("Expansion with igdbId={} is already added in the local database", igdbExp.id());
                         continue;
                     }
+                    log.info("Expansion with igdbId={} not found in the local database, attempting to add via GameService", igdbExp.id());
 
-                    log.info("Expansion with igdbId={} not found in the local database, attempting to fetch via GameService", igdbExp.id());
+                    modes.clear();
+                    if (igdbExp.game_modes() == null) {
+                        log.info("Expansion with igdbId={} cannot be added to database because haven't game modes", igdbExp.id());
+                        continue;
+                    }
+                    for (GameMode mode: igdbExp.game_modes()) {
+                        modes.add(Enums.GameModesIGDB.fromJson(mode.slug()));
+                    }
+
                     Game expansion = new Game(new GameForm(
                             igdbExp.id(), igdbExp.name(), igdbExp.cover().url(),
-                            igdbExp.summary(), Enums.categoryIGDB.fromNumber(igdbExp.game_type().id())), saved);
+                            igdbExp.summary(), Enums.CategoryIGDB.fromNumber(igdbExp.game_type().id()), modes), saved);
                     Game savedExp = gameRepository.save(expansion);
                     expansions.add(savedExp);
                     log.info("Expansion with igdbId={} successfully added", igdbExp.id());

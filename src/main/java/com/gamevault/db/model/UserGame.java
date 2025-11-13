@@ -3,6 +3,7 @@ package com.gamevault.db.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.gamevault.dto.input.update.UserGameModeUpdateForm;
 import com.gamevault.enums.Enums;
 import com.gamevault.dto.input.update.UserGameUpdateForm;
 import jakarta.persistence.*;
@@ -47,6 +48,10 @@ public class UserGame {
     @JsonManagedReference
     private List<Note> notes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "userGame", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<UserGameMode> userModes = new ArrayList<>();
+
     @Setter
     @Column(columnDefinition = "TEXT")
     private String review;
@@ -54,13 +59,15 @@ public class UserGame {
     @Setter
     private boolean isFullyCompleted;
 
-    @Lob
-    private byte[] userScreenshots;
+    @Setter
+    private Enums.Status status = Enums.Status.NONE;
+
+    private Double userRating;
 
     @Setter
-    private Enums.status status;
-    @Setter
-    private Double userRating;
+    @Column(nullable = false)
+    private boolean isOverallRatingManual = false;
+
     @Setter
     @Column(length = 512)
     private String userCoverUrl;
@@ -76,34 +83,94 @@ public class UserGame {
     public UserGame(User user, Game game) {
         this.user = user;
         this.userCoverUrl = game.getCoverUrl();
-        this.status = Enums.status.None;
         this.isFullyCompleted = false;
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         this.createdAt = offsetDateTime.toInstant();
         this.game = game;
+        initializeUserModesFromGame();
     }
 
     public UserGame(User user, Game game, UserGame parent) {
         this.user = user;
         this.userCoverUrl = game.getCoverUrl();
-        this.status = Enums.status.None;
         this.isFullyCompleted = false;
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         this.createdAt = offsetDateTime.toInstant();
         this.game = game;
+        initializeUserModesFromGame();
         this.parentGame = parent;
+    }
+
+    public void initializeUserModesFromGame() {
+        if (this.game != null && this.game.getGameModes() != null) {
+            for (Enums.GameModesIGDB gm : this.game.getGameModes()) {
+                this.userModes.add(new UserGameMode(this, gm));
+            }
+        }
     }
 
     public void updateDto(UserGameUpdateForm dto) {
         if (dto.status() != null) this.status = dto.status();
-        if (dto.userRating() != null) this.userRating = dto.userRating();
+        if (dto.resetUserRating() != null && dto.resetUserRating())
+            this.userRating = null;
+        else if (dto.userRating() != null)
+            this.userRating = dto.userRating();
         if (dto.review() != null) this.review = dto.review();
         if (dto.isFullyCompleted() != null) this.isFullyCompleted = dto.isFullyCompleted();
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
         this.updatedAt = offsetDateTime.toInstant();
+    }
+
+    public void updateMode(Enums.GameModesIGDB mode, UserGameModeUpdateForm dto) {
+        if (dto.status() != null) setModeStatus(mode, dto.status());
+        if (dto.isOverallRatingManual() != null) setOverallRatingManual(dto.isOverallRatingManual());
+        if (dto.userRating() != null) setModeRating(mode, dto.userRating());
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
+        this.updatedAt = offsetDateTime.toInstant();
+    }
+
+    public void setOverallRating(Double rating) {
+        this.userRating = rating;
+        this.isOverallRatingManual = true;
+    }
+
+    public void setModeRating(Enums.GameModesIGDB mode, Double rating) {
+        for (UserGameMode m : userModes) {
+            if (m.getMode() == mode) {
+                m.setUserRating(rating);
+                if (!isOverallRatingManual) {
+                    computeOverallRating();
+                }
+                return;
+            }
+        }
+    }
+
+    public void setModeStatus(Enums.GameModesIGDB mode, Enums.Status status) {
+        this.userRating = null;
+        for (UserGameMode m : userModes) {
+            if (m.getMode() == mode) {
+                m.setStatus(status);
+                return;
+            }
+        }
+    }
+
+    public void computeOverallRating() {
+        List<Double> ratings = new ArrayList<>();
+        for (UserGameMode m : userModes) {
+            if (m.getUserRating() != null) {
+                ratings.add(m.getUserRating());
+            }
+        }
+        if (ratings.isEmpty()) return;
+        Double overallRating = ratings.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+        setOverallRating(overallRating);
     }
 }

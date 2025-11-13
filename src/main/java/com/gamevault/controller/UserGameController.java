@@ -4,6 +4,7 @@ import com.gamevault.db.model.UserGame;
 import com.gamevault.db.model.User;
 import com.gamevault.dto.input.update.*;
 import com.gamevault.dto.output.UserReviewsDTO;
+import com.gamevault.enums.Enums;
 import com.gamevault.service.UserGameService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -83,11 +84,28 @@ public class UserGameController {
         return ResponseEntity.ok(userGameService.updateFullyCompleted(igdbId, user, dto.fullyCompleted()));
     }
 
+    @PutMapping("/{igdb-id}/modes/{mode}")
+    public ResponseEntity<UserGame> updateMode(@PathVariable("igdb-id") Long igdbId,
+                                               @PathVariable("mode") String modeString,
+                                               @Valid @RequestBody UserGameModeUpdateForm dto,
+                                               @AuthenticationPrincipal User user) {
+        Enums.GameModesIGDB mode = Enums.GameModesIGDB.fromJson(modeString);
+        return ResponseEntity.ok(userGameService.updateMode(igdbId, user, mode, dto));
+    }
+
+    @PatchMapping("/{igdb-id}/modes/{mode}/rating")
+    public ResponseEntity<UserGame> updateModeRating(@PathVariable("igdb-id") Long igdbId,
+                                                     @PathVariable Enums.GameModesIGDB mode,
+                                                     @Valid @RequestBody UserRatingUpdateForm dto,
+                                                     @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(userGameService.updateModeRating(igdbId, user, mode, dto.userRating()));
+    }
+
     @PatchMapping("/{igdb-id}/rating")
     public ResponseEntity<UserGame> updateRating(@PathVariable("igdb-id") Long igdbId,
                                                  @Valid @RequestBody UserRatingUpdateForm dto,
                                                  @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userGameService.updateRating(igdbId, user, dto.userRating()));
+        return ResponseEntity.ok(userGameService.updateOverallRating(igdbId, user, dto.userRating()));
     }
 
     @PatchMapping("/{igdb-id}/review")

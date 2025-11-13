@@ -13,7 +13,7 @@ import java.util.Map;
 public class UserStatsDTO {
     private String username;
     private long totalGames;
-    private Map<Enums.status, Long> gamesByStatus;
+    private Map<Enums.Status, Long> gamesByStatus;
     private Double averageRating;
     private long totalNotes;
 }

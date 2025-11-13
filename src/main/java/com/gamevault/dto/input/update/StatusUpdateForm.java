@@ -6,5 +6,5 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 
 public record StatusUpdateForm(
-        @NotNull @Enumerated(EnumType.STRING) Enums.status status
+        @NotNull @Enumerated(EnumType.STRING) Enums.Status status
 ) {}
