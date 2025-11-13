@@ -22,7 +22,7 @@ public class UserStatsService {
     public UserStatsDTO getUserStats(String username) {
         Iterable<UserGame> userGames = userGameRepository.findGamesByUser_Username(username);
 
-        Map<Enums.status, Long> gamesByStatus = Arrays.stream(Enums.status.values())
+        Map<Enums.Status, Long> gamesByStatus = Arrays.stream(Enums.Status.values())
                 .collect(Collectors.toMap(
                         status -> status,
                         status -> userGameRepository.countGamesByStatusAndUser_Username(status, username)

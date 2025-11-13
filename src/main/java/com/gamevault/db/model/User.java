@@ -31,7 +31,7 @@ public class User implements UserDetails {
     @Setter
     private String email;
     @Setter
-    private Enums.subscription subscription;
+    private Enums.Subscription subscription;
     @Setter
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
@@ -40,7 +40,7 @@ public class User implements UserDetails {
         this.username = username;
         this.password = password;
         this.roles = roles;
-        this.subscription = Enums.subscription.Free;
+        this.subscription = Enums.Subscription.FREE;
     }
 
     @Override

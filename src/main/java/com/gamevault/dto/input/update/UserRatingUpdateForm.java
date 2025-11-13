@@ -5,5 +5,5 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 public record UserRatingUpdateForm(
-        @NotNull @DecimalMin("0.0") @DecimalMax("10.0") Double userRating
+        @NotNull @DecimalMin("0.0") @DecimalMax("100.0") Double userRating
 ) {}

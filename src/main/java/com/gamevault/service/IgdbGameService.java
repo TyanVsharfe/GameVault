@@ -25,7 +25,7 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating,"
-                        + "game_type.id, game_type.type, first_release_date, game_type,"
+                        + "game_type.id, game_type.type, game_modes.name, first_release_date, game_type,"
                         + "dlcs.name, dlcs.cover.url, dlcs.game_type.id, dlcs.game_type.type, dlcs.game_status.status, dlcs.game_modes.name, standalone_expansions,"
                         + "expansions.name, expansions.game_type.*, expansions.game_status.status, expansions.cover.url, expansions.game_modes.name;"
                         + "search *\"" + searchGame + "*\";"
@@ -63,13 +63,13 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, "
-                        + "game_type.id, game_type.type, summary, genres.name, first_release_date, platforms.abbreviation,"
-                        + "collections.name, collections.games.name, collections.games.slug, collections.games.cover.url,"
+                        + "game_type.id, game_type.type, parent_game, parent_game.name, game_modes.name, game_modes.slug, summary, genres.name, first_release_date, platforms.abbreviation,"
+                        + "collections.name, collections.slug, collections.games.name, collections.games.slug, collections.games.cover.url, collections.games.game_type.type,"
                         + "franchises.name, franchises.slug, franchises.games.name, franchises.games.cover.url,"
                         + "franchises.games.platforms.abbreviation, franchises.games.release_dates.y,"
                         + "involved_companies.company.name, involved_companies.developer, involved_companies.publisher,"
-                        + "dlcs.name, dlcs.cover.url, dlcs.game_type.id, dlcs.game_type.type, dlcs.game_status.status, dlcs.summary, dlcs.game_modes.name, standalone_expansions,"
-                        + "expansions.name, expansions.game_type.type, expansions.game_status.status, expansions.cover.url, expansions.summary, expansions.game_modes.name;"
+                        + "dlcs.name, dlcs.cover.url, dlcs.game_type.id, dlcs.game_type.type, dlcs.game_status.status, dlcs.summary, dlcs.game_modes.name, dlcs.game_modes.slug, standalone_expansions,"
+                        + "expansions.name, expansions.game_type.type, expansions.game_status.status, expansions.cover.url, expansions.summary, expansions.game_modes.name, expansions.game_modes.slug;"
                         + " where id = " + gameId + "; sort franchises.games.release_dates.y desc;")
                 .asJson();
 
@@ -78,10 +78,11 @@ public class IgdbGameService {
 
     public String gameSeries(String seriesTitle) throws UnirestException {
 
-        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/franchises")
+        HttpResponse<JsonNode> jsonResponse = Unirest.post("https://api.igdb.com/v4/collections")
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name, games, slug,"
+                        + "games.game_type.type, games.parent_game,"
                         + "games.name, games.cover.url, games.platforms.abbreviation, games.first_release_date;"
                         + " where slug = \"" + seriesTitle + "\"; sort games.first_release_date desc;")
                 .asJson();

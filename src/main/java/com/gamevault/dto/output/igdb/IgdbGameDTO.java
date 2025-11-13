@@ -9,6 +9,7 @@ public record IgdbGameDTO(
         String name,
         String summary,
         GameType game_type,
+        List<GameMode> game_modes,
         long first_release_date,
         Company.Cover cover,
         List<IgdbGameDTO> dlcs,

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,7 +51,8 @@ public class UserGameServiceTest {
         Long igdbId = 1979L;
         Game game = new Game(new GameForm(
                 igdbId, "Battlefield 4", "//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg",
-                "Battlefield 4 is the genre-defining action blockbuster created by Dice", Enums.categoryIGDB.main_game
+                "Battlefield 4 is the genre-defining action blockbuster created by Dice",
+                Enums.CategoryIGDB.MAIN_GAME, Arrays.asList(Enums.GameModesIGDB.SINGLE_PLAYER, Enums.GameModesIGDB.MULTIPLAYER)
         ));
 
         when(userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()))
@@ -81,7 +83,8 @@ public class UserGameServiceTest {
         Long igdbId = 1979L;
         Game newGame = new Game(new GameForm(
                 igdbId, "Battlefield 4", "//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg",
-                "Battlefield 4 is the genre-defining action blockbuster created by Dice", Enums.categoryIGDB.main_game
+                "Battlefield 4 is the genre-defining action blockbuster created by Dice",
+                Enums.CategoryIGDB.MAIN_GAME, Arrays.asList(Enums.GameModesIGDB.SINGLE_PLAYER, Enums.GameModesIGDB.MULTIPLAYER)
         ));
 
         when(userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()))

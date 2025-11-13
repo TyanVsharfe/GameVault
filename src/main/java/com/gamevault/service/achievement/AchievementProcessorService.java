@@ -24,7 +24,7 @@ public class AchievementProcessorService {
     }
 
     private void checkTotalGamesCompleted(User user) {
-        long totalCompleted = userGameRepository.countGamesByStatusAndUser_Id(Enums.status.Completed, user.getId());
+        long totalCompleted = userGameRepository.countGamesByStatusAndUser_Id(Enums.Status.COMPLETED, user.getId());
 
         Iterable<Achievement> totalGamesAchievements =
                 achievementService.getAchievementsByCategory(Enums.AchievementCategory.TOTAL_GAMES_COMPLETED);
