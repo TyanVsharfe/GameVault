@@ -14,6 +14,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -40,14 +42,14 @@ public class UserGameService {
         this.eventPublisher = eventPublisher;
     }
 
-    public Iterable<UserGame> getAll(String status, User author) {
+    public Page<UserGame> getAll(String status, User author, Pageable pageable) {
         if (status == null || status.isEmpty()) {
-            return userGameRepository.findGamesByUser_Username(author.getUsername());
+            return userGameRepository.findGamesByUser_Username(author.getUsername(), pageable);
         }
         else {
             try {
                 Enums.Status statusEnum = Enums.Status.fromJson(status);
-                return userGameRepository.findGamesByStatusAndUser_Username(statusEnum, author.getUsername());
+                return userGameRepository.findGamesByStatusAndUser_Username(statusEnum, author.getUsername(), pageable);
             }
             catch (IllegalArgumentException e) {
                 throw new EntityNotFoundException("Invalid game status " + e.getMessage());
