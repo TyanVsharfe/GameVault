@@ -70,7 +70,7 @@ public class IgdbGameService {
                         + "involved_companies.company.name, involved_companies.developer, involved_companies.publisher,"
                         + "dlcs.name, dlcs.cover.url, dlcs.game_type.id, dlcs.game_type.type, dlcs.game_status.status, dlcs.summary, dlcs.game_modes.name, dlcs.game_modes.slug, standalone_expansions,"
                         + "expansions.name, expansions.game_type.type, expansions.game_status.status, expansions.cover.url, expansions.summary, expansions.game_modes.name, expansions.game_modes.slug;"
-                        + " where id = " + gameId + "; sort franchises.games.release_dates.y desc;")
+                        + "where id = " + gameId + "; sort franchises.games.release_dates.y desc;")
                 .asJson();
 
         return jsonResponse.getBody().toString();
@@ -84,7 +84,7 @@ public class IgdbGameService {
                 .body("fields name, games, slug,"
                         + "games.game_type.type, games.parent_game,"
                         + "games.name, games.cover.url, games.platforms.abbreviation, games.first_release_date;"
-                        + " where slug = \"" + seriesTitle + "\"; sort games.first_release_date desc;")
+                        + "where slug = \"" + seriesTitle + "\"; sort games.first_release_date desc;")
                 .asJson();
 
         return jsonResponse.getBody().toString();
@@ -98,7 +98,7 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields *, game.name, game.category, game.cover.url, game.platforms.abbreviation, game.hypes;"
-                        + " where date > " + actualDate + " & region = 8;"
+                        + " where date > " + actualDate + " & release_region = 8;"
                         + "sort date asc;"
                         + "limit 50;")
                 .asJson();
@@ -117,8 +117,9 @@ public class IgdbGameService {
                 .header("Client-ID", apiClient.getClient_id())
                 .header("Authorization", "Bearer " + apiClient.getAccess_token())
                 .body("fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
-                        + "where (name = " + titlesString + " | alternative_names.name = " + titlesString + ")"
-                        + " & platforms.abbreviation = \"" + "PC" + "\";"
+                        + "where (name = " + titlesString + " | alternative_names.name = " + titlesString + ") & "
+                        + "game_type = (0,1,4,5,8,9) & "
+                        + "platforms.abbreviation = \"" + "PC" + "\";"
                         + "limit 300;"
                 ).asJson();
 

@@ -112,13 +112,23 @@ public class UserGame {
     }
 
     public void updateDto(UserGameUpdateForm dto) {
-        if (dto.status() != null) this.status = dto.status();
-        if (dto.resetUserRating() != null && dto.resetUserRating())
+        if (dto.status() != null) {
+            this.status = dto.status();
+        }
+        if (dto.resetUserRating() != null && dto.resetUserRating()) {
             this.userRating = null;
-        else if (dto.userRating() != null)
+        }
+        else if (dto.userRating() != null) {
             this.userRating = dto.userRating();
-        if (dto.review() != null) this.review = dto.review();
-        if (dto.isFullyCompleted() != null) this.isFullyCompleted = dto.isFullyCompleted();
+            this.isOverallRatingManual = true;
+            clearModeRating();
+        }
+        if (dto.review() != null) {
+            this.review = dto.review();
+        }
+        if (dto.isFullyCompleted() != null) {
+            this.isFullyCompleted = dto.isFullyCompleted();
+        }
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
@@ -127,8 +137,8 @@ public class UserGame {
 
     public void updateMode(Enums.GameModesIGDB mode, UserGameModeUpdateForm dto) {
         if (dto.status() != null) setModeStatus(mode, dto.status());
-        if (dto.isOverallRatingManual() != null) setOverallRatingManual(dto.isOverallRatingManual());
         if (dto.userRating() != null) setModeRating(mode, dto.userRating());
+        this.isOverallRatingManual = false;
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
@@ -144,15 +154,13 @@ public class UserGame {
         for (UserGameMode m : userModes) {
             if (m.getMode() == mode) {
                 m.setUserRating(rating);
-                if (!isOverallRatingManual) {
-                    computeOverallRating();
-                }
+                computeOverallRating();
                 return;
             }
         }
     }
 
-    public void setModeStatus(Enums.GameModesIGDB mode, Enums.Status status) {
+    private void setModeStatus(Enums.GameModesIGDB mode, Enums.Status status) {
         this.userRating = null;
         for (UserGameMode m : userModes) {
             if (m.getMode() == mode) {
@@ -162,7 +170,15 @@ public class UserGame {
         }
     }
 
-    public void computeOverallRating() {
+    private void clearModeRating() {
+        for (UserGameMode m : userModes) {
+            if (m.getUserRating() != null) {
+                m.setUserRating(null);
+            }
+        }
+    }
+
+    private void computeOverallRating() {
         List<Double> ratings = new ArrayList<>();
         for (UserGameMode m : userModes) {
             if (m.getUserRating() != null) {

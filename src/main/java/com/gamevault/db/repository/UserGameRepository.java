@@ -2,6 +2,8 @@ package com.gamevault.db.repository;
 
 import com.gamevault.enums.Enums;
 import com.gamevault.db.model.UserGame;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -18,8 +20,8 @@ public interface UserGameRepository extends CrudRepository<UserGame, Long> {
     Optional<UserGame> findUserGameByGame_IgdbIdAndUser_Username(Long IgdbId, String username);
     Optional<UserGame> findUserGameByGame_IgdbIdAndUser_Id(Long IgdbId, UUID userId);
     Iterable<UserGame> findGamesByStatus(Enums.Status status);
-    Iterable<UserGame> findGamesByStatusAndUser_Username(Enums.Status status, String username);
-    Iterable<UserGame> findGamesByUser_Username(String username);
+    Page<UserGame> findGamesByStatusAndUser_Username(Enums.Status status, String username, Pageable pageable);
+    Page<UserGame> findGamesByUser_Username(String username, Pageable pageable);
     List<UserGame> findByGameIgdbIdAndReviewIsNotNull(Long IgdbId);
     long countGamesByStatus(Enums.Status status);
     long countGamesByUser_Username(String username);
@@ -29,4 +31,10 @@ public interface UserGameRepository extends CrudRepository<UserGame, Long> {
 
     @Query("SELECT ug.game.igdbId FROM UserGame ug WHERE ug.user.id = :userId AND ug.status = com.gamevault.enums.Enums.Status.COMPLETED")
     Set<Long> findCompletedGameIdsByUserId(UUID userId);
+
+    @Query("SELECT AVG(ug.userRating) FROM UserGame ug WHERE ug.user.username = :username AND ug.userRating IS NOT NULL")
+    Double calculateAverageRatingByUsername(String username);
+
+    @Query("SELECT COUNT(n) FROM Note n WHERE n.user.username = :username")
+    long countNotesByUsername(String username);
 }

@@ -7,6 +7,9 @@ import com.gamevault.dto.output.UserReviewsDTO;
 import com.gamevault.enums.Enums;
 import com.gamevault.service.UserGameService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +39,13 @@ public class UserGameController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<UserGame>> getAll(@RequestParam(value = "status", required = false) String status,
+    public ResponseEntity<Page<UserGame>> getAll(@RequestParam(value = "status", required = false) String status,
+                                                     @RequestParam(value = "page", defaultValue = "0") int page,
+                                                     @RequestParam(value = "size", defaultValue = "50") int size,
                                                      @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok().body(userGameService.getAll(status, user));
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserGame> games = userGameService.getAll(status, user, pageable);
+        return ResponseEntity.ok().body(games);
     }
 
     @PostMapping("/{igdb-id}")

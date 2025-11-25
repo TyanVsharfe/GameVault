@@ -9,6 +9,5 @@ import org.springframework.lang.Nullable;
 
 public record UserGameModeUpdateForm(
         @Nullable @Enumerated(EnumType.STRING) Enums.Status status,
-        @Nullable Boolean isOverallRatingManual,
         @Nullable @DecimalMin("0.0") @DecimalMax("100.0") Double userRating
 ) {}
