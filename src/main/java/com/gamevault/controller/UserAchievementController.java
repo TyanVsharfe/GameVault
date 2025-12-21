@@ -4,7 +4,7 @@ import com.gamevault.dto.input.achievement.AchievementForm;
 import com.gamevault.enums.Enums;
 import com.gamevault.db.model.achievement.Achievement;
 import com.gamevault.db.model.User;
-import com.gamevault.dto.output.achievement.UserAchievementDTO;
+import com.gamevault.dto.output.achievement.UserAchievementDto;
 import com.gamevault.service.achievement.AchievementService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class UserAchievementController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<UserAchievementDTO>> getUserAchievements(HttpServletRequest request,
+    public ResponseEntity<Iterable<UserAchievementDto>> getUserAchievements(HttpServletRequest request,
                                                                             @AuthenticationPrincipal User user) {
         Locale locale = request.getLocale();
         String lang = locale.getLanguage();

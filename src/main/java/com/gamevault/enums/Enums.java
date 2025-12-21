@@ -45,7 +45,7 @@ public class Enums {
         MULTIPLAYER("multiplayer"),
         CO_OPERATIVE("co-operative"),
         SPLIT_SCREEN("split-screen"),
-        MMO("mmo"),
+        MMO("massively-multiplayer-online-mmo"),
         BATTLE_ROYALE("battle-royale");
 
         private final String slug;

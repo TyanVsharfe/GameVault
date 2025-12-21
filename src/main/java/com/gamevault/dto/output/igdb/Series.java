@@ -5,5 +5,5 @@ public record Series(
         int id,
         String name,
         String slug,
-        List<IgdbGameDTO> games
+        List<IgdbGameDto> games
 ) {}

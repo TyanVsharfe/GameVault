@@ -1,8 +1,6 @@
 package com.gamevault.db.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import com.gamevault.dto.input.update.UserGameModeUpdateForm;
 import com.gamevault.enums.Enums;
 import com.gamevault.dto.input.update.UserGameUpdateForm;
@@ -69,6 +67,10 @@ public class UserGame {
     private boolean isOverallRatingManual = false;
 
     @Setter
+    @Column(nullable = false)
+    private boolean isOverallStatus = false;
+
+    @Setter
     @Column(length = 512)
     private String userCoverUrl;
 
@@ -114,6 +116,10 @@ public class UserGame {
     public void updateDto(UserGameUpdateForm dto) {
         if (dto.status() != null) {
             this.status = dto.status();
+            this.isOverallStatus = true;
+            if (this.game.getGameModes().size() == 1) {
+                this.getUserModes().get(0).setStatus(dto.status());
+            }
         }
         if (dto.resetUserRating() != null && dto.resetUserRating()) {
             this.userRating = null;
@@ -136,9 +142,14 @@ public class UserGame {
     }
 
     public void updateMode(Enums.GameModesIGDB mode, UserGameModeUpdateForm dto) {
-        if (dto.status() != null) setModeStatus(mode, dto.status());
-        if (dto.userRating() != null) setModeRating(mode, dto.userRating());
-        this.isOverallRatingManual = false;
+        if (dto.status() != null) {
+            setModeStatus(mode, dto.status());
+            this.isOverallStatus = false;
+        }
+        if (dto.userRating() != null) {
+            setModeRating(mode, dto.userRating());
+            this.isOverallRatingManual = false;
+        }
 
         ZoneId zoneId = ZoneId.systemDefault();
         OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
@@ -161,11 +172,12 @@ public class UserGame {
     }
 
     private void setModeStatus(Enums.GameModesIGDB mode, Enums.Status status) {
-        this.userRating = null;
-        for (UserGameMode m : userModes) {
-            if (m.getMode() == mode) {
-                m.setStatus(status);
-                return;
+        if (this.getUserModes().size() > 1) {
+            for (UserGameMode m : userModes) {
+                if (m.getMode() == mode) {
+                    m.setStatus(status);
+                    return;
+                }
             }
         }
     }

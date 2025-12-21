@@ -20,6 +20,6 @@ public interface UserAchievementRepository extends CrudRepository<UserAchievemen
 
     Optional<UserAchievement> findByUserIdAndAchievementId(UUID userId, Long achievementId);
 
-    @Query("SELECT COUNT(ua) FROM UserAchievement ua WHERE ua.user.id = :userId AND ua.isCompleted = true")
-    Integer countCompletedAchievements(Long userId);
+    @Query("SELECT COUNT(ua) FROM UserAchievement ua WHERE ua.user.username = :username AND ua.isCompleted = true")
+    Integer countCompletedAchievements(String username);
 }

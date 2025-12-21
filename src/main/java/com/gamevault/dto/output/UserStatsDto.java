@@ -10,10 +10,11 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserStatsDTO {
+public class UserStatsDto {
     private String username;
     private long totalGames;
     private Map<Enums.Status, Long> gamesByStatus;
     private Double averageRating;
     private long totalNotes;
+    private long totalCompletedAchievements;
 }

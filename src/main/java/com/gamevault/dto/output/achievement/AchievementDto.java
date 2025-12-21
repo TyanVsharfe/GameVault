@@ -1,6 +1,6 @@
 package com.gamevault.dto.output.achievement;
 
-public record AchievementDTO (
+public record AchievementDto(
         Long id,
         String name,
         String description,

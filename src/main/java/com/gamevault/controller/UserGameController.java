@@ -3,7 +3,7 @@ package com.gamevault.controller;
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.model.User;
 import com.gamevault.dto.input.update.*;
-import com.gamevault.dto.output.UserReviewsDTO;
+import com.gamevault.dto.output.UserReviewsDto;
 import com.gamevault.enums.Enums;
 import com.gamevault.service.UserGameService;
 import jakarta.validation.Valid;
@@ -34,7 +34,7 @@ public class UserGameController {
     }
 
     @GetMapping("/{igdb-id}/reviews")
-    public ResponseEntity<List<UserReviewsDTO>> getUserReviews(@PathVariable("igdb-id") Long igdbId) {
+    public ResponseEntity<List<UserReviewsDto>> getUserReviews(@PathVariable("igdb-id") Long igdbId) {
         return ResponseEntity.ok().body(userGameService.getGameReviews(igdbId));
     }
 

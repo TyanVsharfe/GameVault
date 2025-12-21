@@ -9,7 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("${api.prefix}/games/notes")
+@RequestMapping("${api.prefix}/games")
 public class NoteController {
     private final NoteService noteService;
 
@@ -17,26 +17,26 @@ public class NoteController {
         this.noteService = noteService;
     }
 
-    @GetMapping("/{igdbId}")
+    @GetMapping("/{igdbId}/notes")
     public Iterable<Note> getAllByIgdbId(@PathVariable("igdbId") Long igdbId,
                                          @AuthenticationPrincipal User user) {
         return noteService.getAllNotesByIgdbId(igdbId, user);
     }
 
-    @PostMapping("/{igdbId}")
+    @PostMapping("/{igdbId}/notes")
     public Note add(@RequestBody NoteForm noteForm, @PathVariable("igdbId") Long igdbId,
                     @AuthenticationPrincipal User user) {
         return noteService.addNote(noteForm, igdbId, user);
     }
 
-    @PutMapping("/{note_id}")
+    @PutMapping("/notes/{note_id}")
     public void put(@PathVariable("note_id") Long id, @RequestBody NoteUpdateForm noteUpdateForm,
                     @AuthenticationPrincipal User user) {
         noteService.updateNote(id, noteUpdateForm, user);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") Long id,
+    @DeleteMapping("/notes/{note_id}")
+    public void delete(@PathVariable("note_id") Long id,
                        @AuthenticationPrincipal User user) {
         noteService.deleteNote(id, user);
     }

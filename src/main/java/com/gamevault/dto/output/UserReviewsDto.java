@@ -2,13 +2,13 @@ package com.gamevault.dto.output;
 
 import com.gamevault.db.model.UserGame;
 
-public record UserReviewsDTO(
+public record UserReviewsDto(
         Long id,
         String username,
         String review,
         Double userRating
 ) {
-    public UserReviewsDTO(UserGame userGame) {
+    public UserReviewsDto(UserGame userGame) {
         this (
                 userGame.getId(),
                 userGame.getUser().getUsername(),

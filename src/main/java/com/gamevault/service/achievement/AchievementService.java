@@ -11,8 +11,8 @@ import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserAchievement;
 import com.gamevault.db.repository.achievement.AchievementRepository;
 import com.gamevault.db.repository.achievement.UserAchievementRepository;
-import com.gamevault.dto.output.achievement.AchievementDTO;
-import com.gamevault.dto.output.achievement.UserAchievementDTO;
+import com.gamevault.dto.output.achievement.AchievementDto;
+import com.gamevault.dto.output.achievement.UserAchievementDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,7 +43,7 @@ public class AchievementService {
         return achievementRepository.findByCategory(category);
     }
 
-    public Iterable<UserAchievementDTO> getUserAchievements(UUID userId, String lang) {
+    public Iterable<UserAchievementDto> getUserAchievements(UUID userId, String lang) {
         List<UserAchievement> userAchievements = userAchievementRepository.findUserAchievementsByUser_Id(userId);
 
         return userAchievements.stream().map(a -> {
@@ -59,9 +59,9 @@ public class AchievementService {
                             .orElse(translations.get(0))
             );
 
-            AchievementDTO achievementDTO = null;
+            AchievementDto achievementDTO = null;
             if (a.getAchievement() instanceof CountAchievement countAchievement) {
-                achievementDTO = new AchievementDTO(
+                achievementDTO = new AchievementDto(
                         a.getAchievement().getId(),
                         tr.getName(),
                         tr.getDescription(),
@@ -72,7 +72,7 @@ public class AchievementService {
                 );
             }
             if (a.getAchievement() instanceof SeriesAchievement seriesAchievement) {
-                achievementDTO = new AchievementDTO(
+                achievementDTO = new AchievementDto(
                         a.getAchievement().getId(),
                         tr.getName(),
                         tr.getDescription(),
@@ -83,7 +83,7 @@ public class AchievementService {
                 );
             }
 
-            return new UserAchievementDTO(
+            return new UserAchievementDto(
                     a.getId(),
                     achievementDTO,
                     a.getCurrentProgress(),
