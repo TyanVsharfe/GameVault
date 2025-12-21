@@ -1,8 +1,9 @@
 package com.gamevault.service;
 
+import com.gamevault.db.repository.achievement.UserAchievementRepository;
 import com.gamevault.enums.Enums;
 import com.gamevault.db.repository.UserGameRepository;
-import com.gamevault.dto.output.UserStatsDTO;
+import com.gamevault.dto.output.UserStatsDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -13,12 +14,14 @@ import java.util.stream.Collectors;
 public class UserStatsService {
 
     private final UserGameRepository userGameRepository;
+    private final UserAchievementRepository userAchievementRepository;
 
-    public UserStatsService(UserGameRepository userGameRepository) {
+    public UserStatsService(UserGameRepository userGameRepository, UserAchievementRepository userAchievementRepository) {
         this.userGameRepository = userGameRepository;
+        this.userAchievementRepository = userAchievementRepository;
     }
 
-    public UserStatsDTO getUserStats(String username) {
+    public UserStatsDto getUserStats(String username) {
         Map<Enums.Status, Long> gamesByStatus = Arrays.stream(Enums.Status.values())
                 .collect(Collectors.toMap(
                         status -> status,
@@ -26,6 +29,7 @@ public class UserStatsService {
                 ));
 
         long totalGames = userGameRepository.countGamesByUser_Username(username);
+        long totalAchievementsCompleted = userAchievementRepository.countCompletedAchievements(username);
 
         Double averageRating = userGameRepository.calculateAverageRatingByUsername(username);
         if (averageRating != null ) {
@@ -34,9 +38,10 @@ public class UserStatsService {
 
         long totalNotes = userGameRepository.countNotesByUsername(username);
 
-        UserStatsDTO stats = new UserStatsDTO();
+        UserStatsDto stats = new UserStatsDto();
         stats.setUsername(username);
         stats.setTotalGames(totalGames);
+        stats.setTotalCompletedAchievements(totalAchievementsCompleted);
         stats.setGamesByStatus(gamesByStatus);
         stats.setAverageRating(averageRating);
         stats.setTotalNotes(totalNotes);

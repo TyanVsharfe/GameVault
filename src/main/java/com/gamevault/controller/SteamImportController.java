@@ -1,15 +1,14 @@
 package com.gamevault.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gamevault.db.model.User;
 import com.gamevault.dto.input.SteamImportTask;
-import com.gamevault.dto.output.igdb.IgdbGameDTO;
+import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.service.steam.SteamImportProducer;
 import com.gamevault.service.steam.SteamImportService;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -33,9 +32,9 @@ public class SteamImportController {
     }
 
     @GetMapping("/{steam-id}")
-    public ResponseEntity<List<IgdbGameDTO>> getSteamGames(@PathVariable("steam-id") Long steamId,
-                                                           @AuthenticationPrincipal User user) throws UnirestException, JsonProcessingException {
-        List<IgdbGameDTO> games = steamImportService.importSteamGames(steamId, user);
+    public ResponseEntity<Mono<List<IgdbGameDto>>> getSteamGames(@PathVariable("steam-id") Long steamId,
+                                                                 @AuthenticationPrincipal User user) {
+        Mono<List<IgdbGameDto>> games = steamImportService.importSteamGames(steamId, user);
         return ResponseEntity.ok(games);
     }
 }

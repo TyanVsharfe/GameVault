@@ -1,6 +1,7 @@
 package com.gamevault.controller;
 
 import com.gamevault.dto.input.UserForm;
+import com.gamevault.dto.input.UserFormLogin;
 import com.gamevault.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,12 +44,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String username,
-                                                     @RequestParam String password,
-                                                     @RequestParam(value = "remember-me", required = false) String rememberMe,
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserFormLogin formLogin,
                                                      HttpServletRequest request,
                                                      HttpServletResponse response) {
         Map<String, String> responseBody = new HashMap<>();
+        String username = formLogin.username();
+        String password = formLogin.password();
+        String rememberMe = formLogin.rememberMe();
 
         try {
             if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {

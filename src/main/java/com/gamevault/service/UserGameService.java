@@ -5,11 +5,10 @@ import com.gamevault.enums.Enums;
 import com.gamevault.db.model.Game;
 import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGame;
-import com.gamevault.db.repository.GameRepository;
 import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.events.UserGameCompletedEvent;
 import com.gamevault.dto.input.update.UserGameUpdateForm;
-import com.gamevault.dto.output.UserReviewsDTO;
+import com.gamevault.dto.output.UserReviewsDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +28,13 @@ import java.util.UUID;
 public class UserGameService {
     private final UserGameRepository userGameRepository;
     private final UserService userService;
-    private final GameRepository gameRepository;
     private final GameService gameService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public UserGameService(UserGameRepository userGameRepository, UserService userService, GameRepository gameRepository,
+    public UserGameService(UserGameRepository userGameRepository, UserService userService,
                            GameService gameService, ApplicationEventPublisher eventPublisher) {
         this.userGameRepository = userGameRepository;
         this.userService = userService;
-        this.gameRepository = gameRepository;
         this.gameService = gameService;
         this.eventPublisher = eventPublisher;
     }
@@ -57,11 +54,11 @@ public class UserGameService {
         }
     }
 
-    public List<UserReviewsDTO> getGameReviews(Long igdbId) {
+    public List<UserReviewsDto> getGameReviews(Long igdbId) {
         List<UserGame> reviews = userGameRepository.findByGameIgdbIdAndReviewIsNotNull(igdbId);
         return reviews.stream()
                 .filter(review -> !review.getReview().isEmpty())
-                .map(UserReviewsDTO::new)
+                .map(UserReviewsDto::new)
                 .toList();
     }
 
@@ -78,25 +75,14 @@ public class UserGameService {
             log.warn("Game with igdbId={} is already added for user '{}'", igdbId, author.getUsername());
             return userGame.get();
         }
-        Optional<Game> game = gameRepository.findById(igdbId);
-        if (game.isEmpty()) {
-            log.info("Game with igdbId={} not found in the local database, attempting to fetch via GameService", igdbId);
-            game = Optional.ofNullable(gameService.add(igdbId));
-            if (game.isEmpty()) {
-                log.error("Game with igdbId={} could not be found locally or via GameService", igdbId);
-                return null;
-            }
-            else {
-                log.info("Game with igdbId={} successfully fetched via GameService", igdbId);
-            }
-        }
-        Game presentGame = game.get();
+
+        Game game = gameService.getOrCreate(igdbId);
 
         UserGame saved;
-        if (presentGame.getCategory() == Enums.CategoryIGDB.DLC || presentGame.getCategory() == Enums.CategoryIGDB.EXPANSION) {
-            Optional<UserGame> parentGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(presentGame.getParentGame().getIgdbId(), author.getUsername());
+        if (game.getCategory() == Enums.CategoryIGDB.DLC || game.getCategory() == Enums.CategoryIGDB.EXPANSION) {
+            Optional<UserGame> parentGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(game.getParentGame().getIgdbId(), author.getUsername());
             if (parentGame.isPresent()) {
-                saved = userGameRepository.save(new UserGame(author, game.get(), parentGame.get()));
+                saved = userGameRepository.save(new UserGame(author, game, parentGame.get()));
                 log.warn("Game with igdbId={} is already added for user '{}'", igdbId, author.getUsername());
             }
             else {
@@ -105,7 +91,7 @@ public class UserGameService {
             }
         }
         else {
-            saved = userGameRepository.save(new UserGame(author, game.get()));
+            saved = userGameRepository.save(new UserGame(author, game));
         }
 
         log.info("Game with igdbId={} successfully added for user '{}'", igdbId, author.getUsername());

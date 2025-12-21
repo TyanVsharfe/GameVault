@@ -1,8 +1,8 @@
 package com.gamevault.dto.output.achievement;
 
-public record UserAchievementDTO (
+public record UserAchievementDto(
         Long id,
-        AchievementDTO achievement,
+        AchievementDto achievement,
         int currentProgress,
         boolean isCompleted
 ){}

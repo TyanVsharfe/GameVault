@@ -1,15 +1,12 @@
 package com.gamevault.service.steam;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.gamevault.dto.input.steam.SteamGame;
 import com.gamevault.db.model.User;
-import com.gamevault.dto.output.igdb.IgdbGameDTO;
+import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.service.IgdbGameService;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -32,7 +29,7 @@ public class SteamImportService {
                 .trim();
     }
 
-    public List<IgdbGameDTO> importSteamGames(Long steamId, User user) throws UnirestException, JsonProcessingException {
+    public Mono<List<IgdbGameDto>> importSteamGames(Long steamId, User user) {
         List<String> steamGamesTitles = steamWebApiService.getGamesTitles(steamId).stream().map(SteamGame::getName).toList();
         steamGamesTitles = steamGamesTitles.stream()
                 .limit(200)
@@ -40,6 +37,6 @@ public class SteamImportService {
                 .toList();
         log.info("Imported {} games from Steam for SteamID={}", steamGamesTitles.size(), steamId);
 
-        return new ObjectMapper().readValue(igdbGameService.steamImportGamesIGDB(steamGamesTitles), new TypeReference<>() {});
+        return igdbGameService.importSteamGames(steamGamesTitles);
     }
 }
