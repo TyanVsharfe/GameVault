@@ -42,6 +42,10 @@ public class KafkaConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.gamevault.dto");
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, SteamImportTask.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, 1000);
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 30000);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -67,6 +71,10 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, 1000);
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 30000);
         return new DefaultKafkaProducerFactory<>(props);
     }
 
@@ -81,6 +89,10 @@ public class KafkaConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, 1000);
+        props.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 30000);
         return new DefaultKafkaProducerFactory<>(props);
     }
 

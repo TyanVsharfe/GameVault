@@ -29,7 +29,7 @@ public class SteamImportService {
                 .trim();
     }
 
-    public Mono<List<IgdbGameDto>> importSteamGames(Long steamId, User user) {
+    public List<IgdbGameDto> importSteamGames(Long steamId, User user) {
         List<String> steamGamesTitles = steamWebApiService.getGamesTitles(steamId).stream().map(SteamGame::getName).toList();
         steamGamesTitles = steamGamesTitles.stream()
                 .limit(200)

@@ -1,5 +1,6 @@
 package com.gamevault.service;
 
+import com.gamevault.db.repository.UserGameCustomRepository;
 import com.gamevault.db.repository.achievement.UserAchievementRepository;
 import com.gamevault.enums.Enums;
 import com.gamevault.db.repository.UserGameRepository;
@@ -14,10 +15,12 @@ import java.util.stream.Collectors;
 public class UserStatsService {
 
     private final UserGameRepository userGameRepository;
+    private final UserGameCustomRepository userGameCustomRepository;
     private final UserAchievementRepository userAchievementRepository;
 
-    public UserStatsService(UserGameRepository userGameRepository, UserAchievementRepository userAchievementRepository) {
+    public UserStatsService(UserGameRepository userGameRepository, UserGameCustomRepository userGameCustomRepository, UserAchievementRepository userAchievementRepository) {
         this.userGameRepository = userGameRepository;
+        this.userGameCustomRepository = userGameCustomRepository;
         this.userAchievementRepository = userAchievementRepository;
     }
 
@@ -31,7 +34,7 @@ public class UserStatsService {
         long totalGames = userGameRepository.countGamesByUser_Username(username);
         long totalAchievementsCompleted = userAchievementRepository.countCompletedAchievements(username);
 
-        Double averageRating = userGameRepository.calculateAverageRatingByUsername(username);
+        Double averageRating = userGameCustomRepository.calculateAverageRating(username);
         if (averageRating != null ) {
             averageRating = Math.round(averageRating * 10.0) / 10.0;
         }

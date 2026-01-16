@@ -5,10 +5,10 @@ import com.gamevault.dto.output.enriched.EnrichedGameDto;
 import com.gamevault.dto.output.enriched.EnrichedGameList;
 import com.gamevault.dto.output.enriched.EnrichedGameSearchDto;
 import com.gamevault.service.GameAggregationService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,36 +26,41 @@ public class EnrichedGameController {
     }
 
     @GetMapping("/search")
-    public Mono<ResponseEntity<List<EnrichedGameSearchDto>>> searchGames(
+    public ResponseEntity<List<EnrichedGameSearchDto>> searchGames(
             @RequestParam String query,
             @AuthenticationPrincipal User user) {
+        List<EnrichedGameSearchDto> result = gameAggregationService.searchGamesWithUserData(query, user);
 
-        return gameAggregationService
-                .searchGamesWithUserData(query, user)
-                .map(ResponseEntity::ok)
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+        if (result == null || result.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     // TODO Сделать агрегацию списков
     @GetMapping("/game-lists/{list-id}")
-    public Mono<ResponseEntity<EnrichedGameList>> getGameList(
+    public ResponseEntity<EnrichedGameList> getGameList(
             @PathVariable("list-id") UUID listId,
             @AuthenticationPrincipal User user) {
-
-        return gameAggregationService
-                .getGameListWithUserData(listId, user)
-                .map(ResponseEntity::ok)
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+        try {
+            EnrichedGameList gameList = gameAggregationService.getGameListWithUserData(listId, user);
+            return ResponseEntity.ok(gameList);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{igdbId}")
-    public Mono<ResponseEntity<EnrichedGameDto>> getGame(
+    public ResponseEntity<EnrichedGameDto> getGame(
             @PathVariable Long igdbId,
             @AuthenticationPrincipal User user) {
+        EnrichedGameDto game = gameAggregationService.getGameWithUserData(igdbId, user);
 
-        return gameAggregationService
-                .getGameWithUserData(igdbId, user)
-                .map(ResponseEntity::ok)
-                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+        if (game == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(game);
     }
 }

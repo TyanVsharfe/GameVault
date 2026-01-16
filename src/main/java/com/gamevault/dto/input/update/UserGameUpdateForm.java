@@ -14,6 +14,7 @@ public record UserGameUpdateForm(
         @Nullable @DecimalMin("0.0") @DecimalMax("100.0") Double userRating,
         @Nullable Boolean resetUserRating,
         @Nullable @Size(max = 10000) String review,
-        @Nullable @Valid Note note
+        @Nullable @Valid Note note,
+        @Nullable String platform
 ) {}
 

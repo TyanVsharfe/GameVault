@@ -26,6 +26,10 @@ public class ControllerNames {
         return getApiPrefix() + USERS_URI_PART + LOGIN_URI_PART;
     }
 
+    public String getUserReviewsUrl() {
+        return getApiPrefix() + USERS_URI_PART + "/games/*/reviews";
+    }
+
     public String getIgdbPattern() {
         return getApiPrefix() + "/igdb/**";
     }

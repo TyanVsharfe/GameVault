@@ -6,6 +6,7 @@ import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserGameListItemRepository;
 import com.gamevault.db.repository.UserGameListRepository;
 import com.gamevault.dto.input.UserGameListForm;
+import com.gamevault.dto.input.update.UpdateOrderDto;
 import com.gamevault.dto.input.update.UserGameListUpdateForm;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -100,8 +101,19 @@ public class UserGameListService {
             addGamesToList(userGameList, form.games());
         }
 
+        if (form.newOrder() != null && !form.newOrder().isEmpty()) {
+            updateGamesOrder(listId, form.newOrder(),user);
+        }
+
         userGameList.updateTimestamp();
         return userGameListRepository.save(userGameList);
+    }
+
+    public UserGameList updateGamesOrder(UUID listId, List<UpdateOrderDto> order, User user) {
+        validateOwnershipByListId(listId, user);
+        userGameListItemRepository.updateOrderBatch(listId, order);
+        return userGameListRepository.findById(listId)
+                .orElseThrow(() -> new EntityNotFoundException("Game list not found"));
     }
 
     @Transactional
@@ -151,6 +163,12 @@ public class UserGameListService {
 
     private void validateOwnership(UserGameList userGameList, User user) {
         if (!userGameList.isOwnedBy(user)) {
+            throw new AccessDeniedException("You don't have permission to modify this list");
+        }
+    }
+
+    private void validateOwnershipByListId(UUID listId, User user) {
+        if (!userGameListRepository.existsByUuidAndAuthor(listId, user)) {
             throw new AccessDeniedException("You don't have permission to modify this list");
         }
     }

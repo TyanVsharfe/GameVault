@@ -8,7 +8,6 @@ import com.gamevault.service.steam.SteamImportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -32,9 +31,9 @@ public class SteamImportController {
     }
 
     @GetMapping("/{steam-id}")
-    public ResponseEntity<Mono<List<IgdbGameDto>>> getSteamGames(@PathVariable("steam-id") Long steamId,
+    public ResponseEntity<List<IgdbGameDto>> getSteamGames(@PathVariable("steam-id") Long steamId,
                                                                  @AuthenticationPrincipal User user) {
-        Mono<List<IgdbGameDto>> games = steamImportService.importSteamGames(steamId, user);
+        List<IgdbGameDto> games = steamImportService.importSteamGames(steamId, user);
         return ResponseEntity.ok(games);
     }
 }

@@ -74,7 +74,7 @@ public class GameService {
 
     @Transactional
     public Game add(Long igdbId) {
-        IgdbGameDto igdbGameDto = igdbGameService.getGame(igdbId).block(Duration.ofSeconds(10));
+        IgdbGameDto igdbGameDto = igdbGameService.getGame(igdbId);
 
         if (igdbGameDto == null) {
             throw new GameNotFoundInIgdbException("Game with id " + igdbId + " not found in IGDB.");

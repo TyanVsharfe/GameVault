@@ -4,6 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 public class Enums {
     @Getter
     public enum CategoryIGDB {
@@ -24,18 +29,27 @@ public class Enums {
         UPDATE(14);
 
         private final int number;
+        private static final Map<Integer, CategoryIGDB> BY_NUMBER;
+
+        static {
+            BY_NUMBER = Arrays.stream(values())
+                    .collect(Collectors
+                            .toUnmodifiableMap(
+                                    CategoryIGDB::getNumber,
+                                    Function.identity())
+                    );
+        }
 
         CategoryIGDB(int number) {
             this.number = number;
         }
 
-        public static CategoryIGDB fromNumber(int number) {
-            for (CategoryIGDB category : CategoryIGDB.values()) {
-                if (category.getNumber() == number) {
-                    return category;
-                }
+        public static CategoryIGDB fromNumber(Integer number) {
+            CategoryIGDB category = BY_NUMBER.get(number);
+            if (category == null) {
+                throw new IllegalArgumentException("Unknown IGDB category number: " + number);
             }
-            throw new IllegalArgumentException("No category found for number: " + number);
+            return category;
         }
     }
 
@@ -49,6 +63,16 @@ public class Enums {
         BATTLE_ROYALE("battle-royale");
 
         private final String slug;
+        private static final Map<String, GameModesIGDB> BY_SLUG;
+
+        static {
+            BY_SLUG = Arrays.stream(values())
+                    .collect(Collectors
+                            .toUnmodifiableMap(
+                                    GameModesIGDB::getSlug,
+                                    Function.identity())
+                    );
+        }
 
         GameModesIGDB(String slug) {
             this.slug = slug;
@@ -61,16 +85,15 @@ public class Enums {
 
         @JsonCreator
         public static GameModesIGDB fromJson(String value) {
-            for (GameModesIGDB mode : values()) {
-                if (mode.slug.equalsIgnoreCase(value)) {
-                    return mode;
-                }
+            GameModesIGDB gameMode = BY_SLUG.get(value.toLowerCase());
+            if (gameMode == null) {
+                throw new IllegalArgumentException("Unknown mode: " + value);
             }
-            throw new IllegalArgumentException("Unknown mode: " + value);
+            return gameMode;
         }
     }
 
-    public enum StatusIGDB {
+    public enum ReleaseStatus {
         RELEASED,
         UNRELEASED,
         ALPHA,
@@ -82,6 +105,7 @@ public class Enums {
         DELISTED
     }
 
+    @Getter
     public enum Status {
         COMPLETED("completed"),
         PLAYING("playing"),
@@ -91,6 +115,16 @@ public class Enums {
         NONE("none");
 
         private final String slug;
+        private static final Map<String, Status> BY_SLUG;
+
+        static {
+            BY_SLUG = Arrays.stream(values())
+                    .collect(Collectors
+                            .toUnmodifiableMap(
+                                    Status::getSlug,
+                                    Function.identity())
+                    );
+        }
 
         Status(String slug) {
             this.slug = slug;
@@ -103,12 +137,11 @@ public class Enums {
 
         @JsonCreator
         public static Status fromJson(String value) {
-            for (Status status : values()) {
-                if (status.slug.equalsIgnoreCase(value)) {
-                    return status;
-                }
+            Status status = BY_SLUG.get(value.toLowerCase());
+            if (status == null) {
+                throw new IllegalArgumentException("Invalid game status: " + value);
             }
-            throw new IllegalArgumentException("Invalid game status: " + value);
+            return status;
         }
     }
 
