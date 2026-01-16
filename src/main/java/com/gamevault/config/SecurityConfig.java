@@ -49,7 +49,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
-                    .requestMatchers(controllerNames.getIgdbPattern()).permitAll()
+                    .requestMatchers(controllerNames.getIgdbPattern(), controllerNames.getUserReviewsUrl()).permitAll()
                     .requestMatchers(controllerNames.getRegistrationUrl(), controllerNames.getLoginUrl()).permitAll()
                     .anyRequest().authenticated())
             .csrf(AbstractHttpConfigurer::disable)

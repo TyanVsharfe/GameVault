@@ -58,17 +58,18 @@ public class UserGame {
     private boolean isFullyCompleted;
 
     @Setter
+    private String platform;
+
+    @Setter
     private Enums.Status status = Enums.Status.NONE;
 
     private Double userRating;
 
-    @Setter
     @Column(nullable = false)
-    private boolean isOverallRatingManual = false;
+    private boolean isOverallRating = true;
 
-    @Setter
     @Column(nullable = false)
-    private boolean isOverallStatus = false;
+    private boolean isOverallStatus = true;
 
     @Setter
     @Column(length = 512)
@@ -117,17 +118,19 @@ public class UserGame {
         if (dto.status() != null) {
             this.status = dto.status();
             this.isOverallStatus = true;
-            if (this.game.getGameModes().size() == 1) {
-                this.getUserModes().get(0).setStatus(dto.status());
-            }
+            setOverallModeStatus(this.status);
         }
         if (dto.resetUserRating() != null && dto.resetUserRating()) {
             this.userRating = null;
         }
         else if (dto.userRating() != null) {
             this.userRating = dto.userRating();
-            this.isOverallRatingManual = true;
-            clearModeRating();
+            this.isOverallRating = true;
+            System.out.println(dto.userRating());
+            setOverallModeRating(dto.userRating());
+        }
+        if (dto.platform() != null) {
+            this.platform = dto.platform();
         }
         if (dto.review() != null) {
             this.review = dto.review();
@@ -148,7 +151,7 @@ public class UserGame {
         }
         if (dto.userRating() != null) {
             setModeRating(mode, dto.userRating());
-            this.isOverallRatingManual = false;
+            this.isOverallRating = false;
         }
 
         ZoneId zoneId = ZoneId.systemDefault();
@@ -158,7 +161,7 @@ public class UserGame {
 
     public void setOverallRating(Double rating) {
         this.userRating = rating;
-        this.isOverallRatingManual = true;
+        this.isOverallRating = true;
     }
 
     public void setModeRating(Enums.GameModesIGDB mode, Double rating) {
@@ -179,6 +182,20 @@ public class UserGame {
                     return;
                 }
             }
+        }
+    }
+
+    private void setOverallModeStatus(Enums.Status status) {
+        for (UserGameMode m : userModes) {
+            if (m.getStatus() != null) {
+                m.setStatus(status);
+            }
+        }
+    }
+
+    private void setOverallModeRating(Double userRating) {
+        for (UserGameMode m : userModes) {
+            m.setUserRating(userRating);
         }
     }
 

@@ -17,12 +17,14 @@ public record UserGameData(
         Double userRating,
         String review,
         boolean isFullyCompleted,
-        boolean isOverallRatingManual,
+        boolean isOverallRating,
         boolean isOverallStatus,
         String userCoverUrl,
         Instant createdAt,
         Instant updatedAt,
         Long notesCount,
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         List<UserModeDto> userModes,
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -35,7 +37,16 @@ public record UserGameData(
         List<GameListReference> inLists
 ) {
     public static UserGameData fromUserGame(UserGame userGame) {
-        if (userGame == null) return null;
+        if (userGame == null) {
+            return null;
+        }
+        List<UserModeDto> userModes;
+        if (userGame.isOverallRating() && userGame.isOverallStatus()) {
+            userModes = null;
+        }
+        else {
+            userModes = convertUserModes(userGame.getUserModes());
+        }
 
         return new UserGameData(
                 userGame.getId(),
@@ -43,13 +54,13 @@ public record UserGameData(
                 userGame.getUserRating(),
                 userGame.getReview(),
                 userGame.isFullyCompleted(),
-                userGame.isOverallRatingManual(),
+                userGame.isOverallRating(),
                 userGame.isOverallStatus(),
                 userGame.getUserCoverUrl(),
                 userGame.getCreatedAt(),
                 userGame.getUpdatedAt(),
                 (long) (userGame.getNotes() != null ? userGame.getNotes().size() : 0),
-                convertUserModes(userGame.getUserModes()),
+                userModes,
                 convertDlcsToMap(userGame.getDlcs()),
                 null,
                 null
@@ -66,7 +77,7 @@ public record UserGameData(
                 base.userRating(),
                 base.review(),
                 base.isFullyCompleted(),
-                base.isOverallRatingManual(),
+                base.isOverallRating(),
                 base.isOverallStatus(),
                 base.userCoverUrl(),
                 base.createdAt(),
@@ -93,5 +104,36 @@ public record UserGameData(
                         dlc -> dlc.getGame().getIgdbId(),
                         UserGameData::fromUserGame
                 ));
+    }
+
+    public static UserGameData fromUserGameBase(UserGameBaseData base, List<UserModeDto> modes) {
+        if (base == null) {
+            return null;
+        }
+        List<UserModeDto> userModes;
+        if (base.isOverallRating() && base.isOverallStatus()) {
+            userModes = null;
+        }
+        else {
+            userModes = modes;
+        }
+
+        return new UserGameData(
+                base.userGameId(),
+                base.status(),
+                base.userRating(),
+                base.review(),
+                base.isFullyCompleted(),
+                base.isOverallRating(),
+                base.isOverallStatus(),
+                base.userCoverUrl(),
+                base.createdAt(),
+                base.updatedAt(),
+                base.notesCount(),
+                userModes,
+                null,
+                null,
+                null
+        );
     }
 }

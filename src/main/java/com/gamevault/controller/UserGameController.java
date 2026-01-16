@@ -2,14 +2,16 @@ package com.gamevault.controller;
 
 import com.gamevault.db.model.UserGame;
 import com.gamevault.db.model.User;
+import com.gamevault.dto.input.UserGamesFilterParams;
 import com.gamevault.dto.input.update.*;
 import com.gamevault.dto.output.UserReviewsDto;
 import com.gamevault.enums.Enums;
 import com.gamevault.service.UserGameService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -39,12 +41,11 @@ public class UserGameController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<UserGame>> getAll(@RequestParam(value = "status", required = false) String status,
-                                                     @RequestParam(value = "page", defaultValue = "0") int page,
-                                                     @RequestParam(value = "size", defaultValue = "50") int size,
-                                                     @AuthenticationPrincipal User user) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<UserGame> games = userGameService.getAll(status, user, pageable);
+    public ResponseEntity<Page<UserGame>> getAll(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.ASC)
+                                                     Pageable pageable,
+                                                 @ModelAttribute UserGamesFilterParams filterParams,
+                                                 @AuthenticationPrincipal User user) {
+        Page<UserGame> games = userGameService.getAll(user, pageable, filterParams);
         return ResponseEntity.ok().body(games);
     }
 

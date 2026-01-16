@@ -43,6 +43,7 @@ public class UserGameList {
     private String authorUsername;
 
     @OneToMany(mappedBy = "userGameList", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("order ASC")
     private List<UserGameListItem> items = new ArrayList<>();
 
     @Setter

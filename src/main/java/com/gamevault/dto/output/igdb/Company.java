@@ -2,9 +2,10 @@ package com.gamevault.dto.output.igdb;
 
 public record Company(
         int id,
-        String name
+        String name,
+        String slug
 ) {
-    public static record Cover(
+    public record Cover(
             int id,
             String url
     ) {}

@@ -1,6 +1,6 @@
 package com.gamevault.dto.output.igdb;
 
 public record ParentGame(
-        int id,
+        long id,
         String name
 ) {}

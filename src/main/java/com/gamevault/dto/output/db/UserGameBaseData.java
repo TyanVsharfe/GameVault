@@ -10,7 +10,7 @@ public record UserGameBaseData(
         Double userRating,
         String review,
         boolean isFullyCompleted,
-        boolean isOverallRatingManual,
+        boolean isOverallRating,
         boolean isOverallStatus,
         String userCoverUrl,
         Instant createdAt,

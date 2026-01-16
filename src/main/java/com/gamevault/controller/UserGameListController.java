@@ -3,6 +3,7 @@ package com.gamevault.controller;
 import com.gamevault.db.model.UserGameList;
 import com.gamevault.db.model.User;
 import com.gamevault.dto.input.UserGameListForm;
+import com.gamevault.dto.input.update.UpdateOrderDto;
 import com.gamevault.dto.input.update.UserGameListUpdateForm;
 import com.gamevault.dto.output.UserGameListOutput;
 import com.gamevault.service.UserGameListService;
@@ -76,6 +77,14 @@ public class UserGameListController {
                                             @Valid @RequestBody UserGameListUpdateForm userGameListUpdateForm,
                                             @AuthenticationPrincipal User user) {
         UserGameList updated = userGameListService.updateGameList(listId, userGameListUpdateForm, user);
+        return ResponseEntity.ok(updated.toOutput(user));
+    }
+
+    @PutMapping("/{list-id}/order")
+    public ResponseEntity<UserGameListOutput> updateGamesOrder(@PathVariable("list-id") UUID listId,
+                                                  @Valid @RequestBody List<UpdateOrderDto> order,
+                                                  @AuthenticationPrincipal User user) {
+        UserGameList updated = userGameListService.updateGamesOrder(listId, order, user);
         return ResponseEntity.ok(updated.toOutput(user));
     }
 

@@ -1,5 +1,7 @@
 package com.gamevault.service;
 
+import com.gamevault.db.repository.UserGameCustomRepository;
+import com.gamevault.dto.input.UserGamesFilterParams;
 import com.gamevault.dto.input.update.UserGameModeUpdateForm;
 import com.gamevault.enums.Enums;
 import com.gamevault.db.model.Game;
@@ -30,28 +32,19 @@ public class UserGameService {
     private final UserService userService;
     private final GameService gameService;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserGameCustomRepository userGameCustomRepository;
 
     public UserGameService(UserGameRepository userGameRepository, UserService userService,
-                           GameService gameService, ApplicationEventPublisher eventPublisher) {
+                           GameService gameService, ApplicationEventPublisher eventPublisher, UserGameCustomRepository userGameCustomRepository) {
         this.userGameRepository = userGameRepository;
         this.userService = userService;
         this.gameService = gameService;
         this.eventPublisher = eventPublisher;
+        this.userGameCustomRepository = userGameCustomRepository;
     }
 
-    public Page<UserGame> getAll(String status, User author, Pageable pageable) {
-        if (status == null || status.isEmpty()) {
-            return userGameRepository.findGamesByUser_Username(author.getUsername(), pageable);
-        }
-        else {
-            try {
-                Enums.Status statusEnum = Enums.Status.fromJson(status);
-                return userGameRepository.findGamesByStatusAndUser_Username(statusEnum, author.getUsername(), pageable);
-            }
-            catch (IllegalArgumentException e) {
-                throw new EntityNotFoundException("Invalid game status " + e.getMessage());
-            }
-        }
+    public Page<UserGame> getAll(User author, Pageable pageable, UserGamesFilterParams filterParams) {
+        return userGameCustomRepository.findGamesWithFilters(filterParams, author.getUsername(), pageable);
     }
 
     public List<UserReviewsDto> getGameReviews(Long igdbId) {
@@ -112,10 +105,11 @@ public class UserGameService {
 
     @Transactional
     public UserGame update(Long igdbId, User user, UserGameUpdateForm userGameUpdateForm) {
-        log.info("Attempting to update UserGame with id={} using data: status={}, rating={}, notes={}",
+        log.info("Attempting to update UserGame with id={} using data: status={}, rating={}, platform={}, notes={}",
                 igdbId,
                 userGameUpdateForm.status(),
                 userGameUpdateForm.userRating(),
+                userGameUpdateForm.platform(),
                 userGameUpdateForm.note());
 
         UserGame userGame = findByUserUsernameAndIgdbId(igdbId, user);
