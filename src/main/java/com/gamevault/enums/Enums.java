@@ -174,4 +174,9 @@ public class Enums {
         SERIES_COMPLETED,
         REVIEWS_WRITTEN
     }
+
+    public enum SteamSync {
+        WEEKLY,
+        MONTHLY
+    }
 }

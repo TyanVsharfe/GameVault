@@ -42,7 +42,7 @@ public class AchievementProcessorService {
 
         for (Achievement achievement : totalGamesAchievements) {
             if (achievement instanceof SeriesAchievement seriesAchievement) {
-                List<SeriesPart> requiredGameIds = seriesAchievement.getRequiredGameIds();
+                List<SeriesPart> requiredGameIds = seriesAchievement.getRequiredGames();
                 long seriesProgress = requiredGameIds.stream()
                         .filter(part -> part.getGameIds()
                                 .stream().anyMatch(completedGameIds::contains)).count();

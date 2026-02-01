@@ -7,11 +7,11 @@ import com.gamevault.dto.output.igdb.GameMode;
 import com.gamevault.enums.Enums;
 import com.gamevault.exception.GameNotFoundInIgdbException;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
+import com.gamevault.service.integration.IgdbGameService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

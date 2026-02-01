@@ -1,4 +1,4 @@
-package com.gamevault.service;
+package com.gamevault.service.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,7 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,18 +43,30 @@ public class IgdbGameService {
         return executeRequest("games", body, new TypeReference<>() {});
     }
 
-    public List<IgdbGameDto> getGamesByIds(Iterable<Long> igdbIds) {
-        StringBuilder stringBuilder = new StringBuilder("(");
-        for (Long id: igdbIds) {
-            stringBuilder.append(id).append(",");
-        }
-        stringBuilder = new StringBuilder(stringBuilder.substring(0, stringBuilder.length() - 1));
+    public List<JsonNode> getGamesByIds(List<Long> igdbIds) {
+        String idsString = igdbIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
 
         String body = "fields name,cover.url, release_dates.y, platforms, platforms.abbreviation,"
                         + "aggregated_rating, first_release_date, game_type;"
-                        + "where id = " + stringBuilder + "); limit 50;";
+                        + "where id = (" + idsString + "); limit 50; sort id asc;";
 
         return executeRequest("games", body, new TypeReference<>() {});
+    }
+
+    public Map<Long, JsonNode> getGamesByIdsBatch(Set<Long> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+
+        List<JsonNode> games = getGamesByIds(new ArrayList<>(ids));
+
+        return games.stream()
+                .collect(Collectors.toMap(
+                        g -> g.get("id").asLong(),
+                        Function.identity()
+                ));
     }
 
     public IgdbGameDto getGame(Long gameId) {

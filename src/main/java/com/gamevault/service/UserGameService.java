@@ -11,6 +11,7 @@ import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.events.UserGameCompletedEvent;
 import com.gamevault.dto.input.update.UserGameUpdateForm;
 import com.gamevault.dto.output.UserReviewsDto;
+import com.gamevault.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.gamevault.service;
+package com.gamevault.service.user;
 
 import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserRepository;

@@ -3,7 +3,6 @@ package com.gamevault.db.model.achievement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +10,6 @@ import java.util.Set;
 @Entity
 @Table(name = "series_part")
 @Getter
-@Setter
 @NoArgsConstructor
 public class SeriesPart {
     @Id

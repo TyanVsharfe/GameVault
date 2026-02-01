@@ -1,4 +1,4 @@
-package com.gamevault.service;
+package com.gamevault.service.user;
 
 import com.gamevault.db.repository.UserGameCustomRepository;
 import com.gamevault.db.repository.achievement.UserAchievementRepository;

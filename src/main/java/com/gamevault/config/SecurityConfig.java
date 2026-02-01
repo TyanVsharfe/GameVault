@@ -2,7 +2,7 @@ package com.gamevault.config;
 
 import com.gamevault.domain.ControllerNames;
 import com.gamevault.security.SecurityContextLoggingFilter;
-import com.gamevault.service.UserService;
+import com.gamevault.service.user.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;

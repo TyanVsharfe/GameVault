@@ -2,7 +2,7 @@ package com.gamevault.controller;
 
 import com.gamevault.db.model.User;
 import com.gamevault.dto.output.UserStatsDto;
-import com.gamevault.service.UserStatsService;
+import com.gamevault.service.user.UserStatsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

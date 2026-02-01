@@ -1,5 +1,9 @@
 package com.gamevault.dto.output.achievement;
 
+import org.springframework.lang.Nullable;
+
+import java.util.List;
+
 public record AchievementDto(
         Long id,
         String name,
@@ -7,5 +11,6 @@ public record AchievementDto(
         String category,
         int experiencePoints,
         int requiredCount,
-        String iconUrl
+        String iconUrl,
+        @Nullable List<SeriesPartDto> seriesParts
 ){}

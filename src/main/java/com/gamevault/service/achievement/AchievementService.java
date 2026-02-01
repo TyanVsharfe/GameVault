@@ -1,27 +1,25 @@
 package com.gamevault.service.achievement;
 
-import com.gamevault.db.model.achievement.CountAchievement;
-import com.gamevault.db.model.achievement.SeriesAchievement;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.gamevault.db.model.achievement.*;
+import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.dto.input.achievement.AchievementForm;
 import com.gamevault.dto.input.achievement.AchievementTranslationForm;
 import com.gamevault.enums.Enums;
-import com.gamevault.db.model.achievement.Achievement;
-import com.gamevault.db.model.achievement.AchievementTranslation;
 import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserAchievement;
 import com.gamevault.db.repository.achievement.AchievementRepository;
 import com.gamevault.db.repository.achievement.UserAchievementRepository;
 import com.gamevault.dto.output.achievement.AchievementDto;
 import com.gamevault.dto.output.achievement.UserAchievementDto;
+import com.gamevault.service.integration.IgdbGameService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,10 +27,16 @@ import java.util.stream.Collectors;
 public class AchievementService {
     private final AchievementRepository achievementRepository;
     private final UserAchievementRepository userAchievementRepository;
+    private final AchievementMapper achievementMapper;
+    private final IgdbGameService igdbGameService;
+    private final UserGameRepository userGameRepository;
 
-    public AchievementService(AchievementRepository achievementRepository, UserAchievementRepository userAchievementRepository) {
+    public AchievementService(AchievementRepository achievementRepository, UserAchievementRepository userAchievementRepository, AchievementMapper achievementMapper, IgdbGameService igdbGameService, UserGameRepository userGameRepository) {
         this.achievementRepository = achievementRepository;
         this.userAchievementRepository = userAchievementRepository;
+        this.achievementMapper = achievementMapper;
+        this.igdbGameService = igdbGameService;
+        this.userGameRepository = userGameRepository;
     }
 
     public Iterable<Achievement> getAllAchievements() {
@@ -45,9 +49,13 @@ public class AchievementService {
 
     public Iterable<UserAchievementDto> getUserAchievements(UUID userId, String lang) {
         List<UserAchievement> userAchievements = userAchievementRepository.findUserAchievementsByUser_Id(userId);
+        Set<Long> allGameIds = achievementMapper.collectAllGameIds(
+                userAchievements.stream().map(UserAchievement::getAchievement).collect(Collectors.toList()));
+        Set<Long> completedGameIds = userGameRepository.findCompletedGameIdsByUserId(userId);
+        Map<Long, JsonNode> gamesById = igdbGameService.getGamesByIdsBatch(allGameIds);
 
-        return userAchievements.stream().map(a -> {
-            List<AchievementTranslation> translations = a.getAchievement().getTranslations();
+        return userAchievements.stream().map(userAchievement -> {
+            List<AchievementTranslation> translations = userAchievement.getAchievement().getTranslations();
             Optional<AchievementTranslation> optionalTranslation = translations.stream()
                     .filter(tr -> tr.getLanguage().equals(lang))
                     .findFirst();
@@ -59,35 +67,13 @@ public class AchievementService {
                             .orElse(translations.get(0))
             );
 
-            AchievementDto achievementDTO = null;
-            if (a.getAchievement() instanceof CountAchievement countAchievement) {
-                achievementDTO = new AchievementDto(
-                        a.getAchievement().getId(),
-                        tr.getName(),
-                        tr.getDescription(),
-                        a.getAchievement().getCategory().name(),
-                        a.getAchievement().getExperiencePoints(),
-                        countAchievement.getRequiredCount(),
-                        a.getAchievement().getIconUrl()
-                );
-            }
-            if (a.getAchievement() instanceof SeriesAchievement seriesAchievement) {
-                achievementDTO = new AchievementDto(
-                        a.getAchievement().getId(),
-                        tr.getName(),
-                        tr.getDescription(),
-                        a.getAchievement().getCategory().name(),
-                        a.getAchievement().getExperiencePoints(),
-                        seriesAchievement.getRequiredGameIds().size(),
-                        a.getAchievement().getIconUrl()
-                );
-            }
+            AchievementDto achievementDto = achievementMapper.toDto(userAchievement.getAchievement(), tr, completedGameIds, gamesById);
 
             return new UserAchievementDto(
-                    a.getId(),
-                    achievementDTO,
-                    a.getCurrentProgress(),
-                    a.getIsCompleted()
+                    userAchievement.getId(),
+                    achievementDto,
+                    userAchievement.getCurrentProgress(),
+                    userAchievement.getIsCompleted()
             );
         }).collect(Collectors.toList());
     }
@@ -148,7 +134,7 @@ public class AchievementService {
                 }
             }
             if (achievement instanceof SeriesAchievement seriesAchievement) {
-                if (progress >= seriesAchievement.getRequiredGameIds().size() && !userAchievement.getIsCompleted()) {
+                if (progress >= seriesAchievement.getRequiredGames().size() && !userAchievement.getIsCompleted()) {
                     userAchievement.setIsCompleted(true);
                     userAchievement.setAchievedAt(Instant.now());
                 }

@@ -1,12 +1,11 @@
-package com.gamevault.service.steam;
+package com.gamevault.service.integration.steam;
 
 import com.gamevault.dto.input.steam.SteamGame;
 import com.gamevault.db.model.User;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
-import com.gamevault.service.IgdbGameService;
+import com.gamevault.service.integration.IgdbGameService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
