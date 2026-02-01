@@ -18,12 +18,12 @@ public class SeriesAchievement extends Achievement {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "series_id")
-    private List<SeriesPart> requiredGameIds = new ArrayList<>();
+    private List<SeriesPart> requiredGames = new ArrayList<>();
 
     public SeriesAchievement(Enums.AchievementCategory category,
-                             List<SeriesPart> requiredGameIds, String iconUrl, int experiencePoints) {
+                             List<SeriesPart> requiredGames, String iconUrl, int experiencePoints) {
         setCategory(category);
-        this.requiredGameIds = requiredGameIds;
+        this.requiredGames = requiredGames;
         setIconUrl(iconUrl);
         setExperiencePoints(experiencePoints);
     }

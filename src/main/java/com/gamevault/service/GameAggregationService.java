@@ -4,11 +4,11 @@ import com.gamevault.db.model.User;
 import com.gamevault.db.model.UserGameList;
 import com.gamevault.db.repository.UserGameCustomRepository;
 import com.gamevault.db.repository.UserGameListRepository;
-import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.dto.output.db.UserGameBaseData;
 import com.gamevault.dto.output.db.UserGameBatchData;
 import com.gamevault.dto.output.enriched.*;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
+import com.gamevault.service.integration.IgdbGameService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,11 @@ import java.util.stream.Collectors;
 public class GameAggregationService {
 
     private final IgdbGameService igdbService;
-    private final UserGameRepository userGameRepository;
     private final UserGameCustomRepository userGameCustomRepository;
     private final UserGameListRepository userGameListRepository;
 
-    public GameAggregationService(IgdbGameService igdbService, UserGameRepository userGameRepository, UserGameCustomRepository userGameCustomRepository, UserGameListRepository userGameListRepository) {
+    public GameAggregationService(IgdbGameService igdbService, UserGameCustomRepository userGameCustomRepository, UserGameListRepository userGameListRepository) {
         this.igdbService = igdbService;
-        this.userGameRepository = userGameRepository;
         this.userGameCustomRepository = userGameCustomRepository;
         this.userGameListRepository = userGameListRepository;
     }

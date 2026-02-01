@@ -5,10 +5,13 @@ import com.gamevault.dto.input.UserGamesFilterParams;
 import com.gamevault.dto.output.db.UserGameBaseData;
 import com.gamevault.dto.output.db.UserGameBatchData;
 import com.gamevault.dto.output.enriched.UserModeDto;
-import com.querydsl.core.BooleanBuilder;
+import com.gamevault.service.filter.SpecificationComposer;
+import com.gamevault.service.filter.UserGameFilterFactory;
+import com.gamevault.service.filter.UserGameFilterSpecification;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,16 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.*;
 
 @Repository
 public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final UserGameFilterFactory filterFactory;
 
-    public UserGameCustomRepositoryImpl(JPAQueryFactory queryFactory) {
+    public UserGameCustomRepositoryImpl(JPAQueryFactory queryFactory, UserGameFilterFactory filterFactory) {
         this.queryFactory = queryFactory;
+        this.filterFactory = filterFactory;
     }
 
     @Override
@@ -33,62 +36,20 @@ public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
         QUserGame ug = QUserGame.userGame;
         QGame game = QGame.game;
 
-        BooleanBuilder where = new BooleanBuilder();
+        List<UserGameFilterSpecification> specs = filterFactory.createFilters(params, username);
 
-        if (username != null) {
-            where.and(ug.user.username.eq(username));
-        }
-
-        if (params.getStatus() != null) {
-            where.and(ug.status.eq(params.getStatus()));
-        }
-
-        if (params.getMinRating() != null) {
-            where.and(ug.userRating.goe(params.getMinRating()));
-        }
-
-        if (params.getMaxRating() != null) {
-            where.and(ug.userRating.loe(params.getMaxRating()));
-        }
-
-        if (params.getHasReview() != null) {
-            if (params.getHasReview()) {
-                where.and(ug.review.isNotNull());
-            } else {
-                where.and(ug.review.isNull());
-            }
-        }
-
-        if (params.getIsFullyCompleted() != null) {
-            where.and(ug.isFullyCompleted.eq(params.getIsFullyCompleted()));
-        }
-
-        if (params.getGameType() != null) {
-            where.and(ug.game.category.eq(params.getGameType()));
-        }
-
-        if (params.getTitle() != null) {
-            where.and(game.title.containsIgnoreCase(params.getTitle()));
-        }
-
-        if (params.getCreatedAfter() != null) {
-            where.and(ug.createdAt.goe(Instant.from(params.getCreatedAfter().atStartOfDay(ZoneId.systemDefault()))));
-        }
-
-        if (params.getCreatedBefore() != null) {
-            where.and(ug.createdAt.loe(Instant.from(params.getCreatedBefore().atStartOfDay(ZoneId.systemDefault()))));
-        }
+        BooleanExpression expression = SpecificationComposer.compose(ug, game, specs);
 
         long total = queryFactory
                 .selectFrom(ug)
                 .leftJoin(ug.game, game)
-                .where(where)
+                .where(expression)
                 .stream().count();
 
         List<UserGame> content = queryFactory
                 .selectFrom(ug)
                 .leftJoin(ug.game, game).fetchJoin()
-                .where(where)
+                .where(expression)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(buildOrderSpecifier(pageable.getSort(), ug))

@@ -1,8 +1,9 @@
 package com.gamevault.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.dto.output.igdb.Series;
-import com.gamevault.service.IgdbGameService;
+import com.gamevault.service.integration.IgdbGameService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,8 @@ public class IgdbGameApiController {
     }
 
     @PostMapping("/games/ids")
-    public List<IgdbGameDto> gamesIGDBids(@RequestBody Iterable<Long> igdbIds) {
+    public List<JsonNode> gamesIGDBids(@RequestBody List<Long> igdbIds) {
+        System.out.println(igdbIds);
         return igdbGameService.getGamesByIds(igdbIds);
     }
 

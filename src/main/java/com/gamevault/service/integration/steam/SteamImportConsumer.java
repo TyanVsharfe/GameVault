@@ -1,4 +1,4 @@
-package com.gamevault.service.steam;
+package com.gamevault.service.integration.steam;
 
 import com.gamevault.dto.input.SteamImportTask;
 import com.gamevault.service.UserGameService;

@@ -1,4 +1,4 @@
-package com.gamevault.service.steam;
+package com.gamevault.service.integration.steam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.component.SteamTokenManager;
