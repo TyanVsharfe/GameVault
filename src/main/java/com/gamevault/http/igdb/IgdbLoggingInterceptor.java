@@ -1,4 +1,4 @@
-package com.gamevault.config.interceptor;
+package com.gamevault.http.igdb;
 
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;

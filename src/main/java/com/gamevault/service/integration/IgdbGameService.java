@@ -1,33 +1,27 @@
 package com.gamevault.service.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.dto.output.igdb.Series;
-import com.gamevault.exception.IgdbApiException;
-import okhttp3.*;
+import com.gamevault.http.igdb.interceptor.IgdbHttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class IgdbGameService {
-    private static final String IGDB_API_URL = "https://api.igdb.com/v4/";
-    private final OkHttpClient client;
-    private static final MediaType TEXT = MediaType.get("text/plain; charset=utf-8");
+    private final IgdbHttpClient igdbHttpClient;
     private final ObjectMapper objectMapper;
     
-    public IgdbGameService(OkHttpClient client, ObjectMapper objectMapper) {
-        this.client = client;
+    public IgdbGameService(IgdbHttpClient igdbHttpClient, ObjectMapper objectMapper) {
+        this.igdbHttpClient = igdbHttpClient;
         this.objectMapper = objectMapper;
     }
 
@@ -128,41 +122,15 @@ public class IgdbGameService {
         return executeRequest("companies", body, new TypeReference<>() {});
     }
 
-    private <T> T executeRequest(String url, String body, TypeReference<T> typeReference) {
-        Request request = new Request.Builder()
-                .url(IGDB_API_URL + url)
-                .post(RequestBody.create(body, TEXT))
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-
-            if (!response.isSuccessful()) {
-                logIgdbApiError(response, response.code());
-            }
-
-            ResponseBody responseBody = response.body();
-
-            if (responseBody == null) {
-                throw new IgdbApiException("IGDB API response body is empty");
-            }
-
-            String json = responseBody.string();
-
-            return objectMapper.readValue(json, typeReference);
-        } catch (IOException e) {
-            throw new IgdbApiException("Failed to call IGDB API: " + e.getMessage());
+    private <T> T executeRequest(String endpoint, String body, TypeReference<T> typeReference) {
+        T igdbObject;
+        try {
+            String json = igdbHttpClient.post(endpoint, body);
+            igdbObject = objectMapper.readValue(json, typeReference);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-    }
 
-    private void logIgdbApiError(Response response, int code) throws IOException {
-        String error = response.body() != null
-                ? response.body().string()
-                : "<empty>";
-
-        log.error("IGDB API error: status={}, body={}", code, error);
-
-        throw new IgdbApiException(
-                "IGDB API returned error: " + code
-        );
+        return igdbObject;
     }
 }
