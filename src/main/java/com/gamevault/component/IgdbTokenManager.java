@@ -1,44 +1,111 @@
 package com.gamevault.component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.dto.input.IgdbTokenResponse;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import com.gamevault.exception.IgdbApiException;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Getter
 @Component
+@Slf4j
 public class IgdbTokenManager {
+    @Getter
     @Value("${igdb.client.id}")
-    private String client_id;
+    private String clientId;
     @Value("${igdb.client.secret}")
-    private String client_secret;
-    private String access_token;
-    private Integer expires_in;
-    private String token_type;
+    private String clientSecret;
+    private String accessToken;
+    private String tokenType;
 
-    // TODO Переписать автопродление access_token через refresh token
-    @Scheduled(fixedRate = 4500000)
-    public void getAPIKey() throws UnirestException, JsonProcessingException {
-        HttpResponse<JsonNode> jsonRequest = Unirest.post("https://id.twitch.tv/oauth2/token")
-                .field("client_id", client_id)
-                .field("client_secret", client_secret)
-                .field("grant_type","client_credentials")
-                .asJson();
-        IgdbTokenResponse igdbTokenResponse = new ObjectMapper().readValue(jsonRequest.getBody().toString(), IgdbTokenResponse.class);
+    private final OkHttpClient tokenClient;
 
-        System.out.println("Access Token: " + igdbTokenResponse.getAccess_token());
-        System.out.println("Expires In: " + igdbTokenResponse.getExpires_in());
-        System.out.println("Token Type: " + igdbTokenResponse.getToken_type());
+    private final AtomicReference<CompletableFuture<Void>> pendingRefresh = new AtomicReference<>(null);
 
-        this.access_token = igdbTokenResponse.getAccess_token();
-        this.expires_in = igdbTokenResponse.getExpires_in();
-        this.token_type = igdbTokenResponse.getToken_type();
+    public IgdbTokenManager(@Qualifier("baseOkHttpClient") OkHttpClient tokenClient) {
+        this.tokenClient = tokenClient;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("Initializing IGDB token on startup...");
+        try {
+            refreshToken();
+        } catch (Exception e) {
+            log.error("Failed to initialize IGDB token", e);
+        }
+    }
+
+    public void getApiKey() {
+        log.info("Refreshing IGDB access token...");
+
+        RequestBody body = new FormBody.Builder()
+                .add("client_id", clientId)
+                .add("client_secret", clientSecret)
+                .add("grant_type", "client_credentials")
+                .build();
+
+        Request request = new Request.Builder()
+                .url("https://id.twitch.tv/oauth2/token")
+                .post(body)
+                .build();
+
+        try (Response response = tokenClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new RuntimeException("Token refresh returned HTTP " + response.code());
+            }
+
+            if (response.body() == null) {
+                throw new IgdbApiException("IGDB API response body is empty");
+            }
+
+            IgdbTokenResponse tokenResponse = new ObjectMapper()
+                    .readValue(response.body().string(), IgdbTokenResponse.class);
+
+            this.accessToken = tokenResponse.getAccess_token();
+            this.tokenType = tokenResponse.getToken_type();
+
+            log.info("Access token refreshed. Expires in: {} sec", tokenResponse.getExpires_in());
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to refresh token", e);
+        }
+    }
+
+    public void refreshToken() {
+        CompletableFuture<Void> myFuture = new CompletableFuture<>();
+
+        boolean isOwner = pendingRefresh.compareAndSet(null, myFuture);
+
+        CompletableFuture<Void> activeFuture = isOwner
+                ? myFuture
+                : pendingRefresh.get();
+
+        if (isOwner) {
+            try {
+                getApiKey();
+                myFuture.complete(null);
+            } catch (Exception e) {
+                myFuture.completeExceptionally(e);
+            } finally {
+                pendingRefresh.compareAndSet(myFuture, null);
+            }
+        }
+
+        try {
+            activeFuture.join();
+        } catch (CompletionException e) {
+            throw new RuntimeException("Token refresh failed", e.getCause());
+        }
     }
 }

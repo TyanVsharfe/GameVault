@@ -4,7 +4,6 @@ import com.gamevault.db.model.achievement.*;
 import com.gamevault.dto.output.achievement.AchievementDto;
 import com.gamevault.dto.output.achievement.AchievementGameDto;
 import com.gamevault.dto.output.achievement.SeriesPartDto;
-import com.gamevault.service.integration.IgdbGameService;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -16,9 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @Component
 public class AchievementMapper {
-
-    public AchievementMapper(IgdbGameService igdbGameService) {
-    }
 
     public AchievementDto toDto(
             Achievement achievement,
@@ -85,25 +81,14 @@ public class AchievementMapper {
                 .map(gamesById::get)
                 .filter(Objects::nonNull)
                 .map(this::toGameDto)
+                .sorted(Comparator.comparingLong(AchievementGameDto::id))
                 .toList();
-
-//        List<AchievementGameDto> games =
-//                igdbGameService.getGamesByIds(part.getGameIds().stream().toList())
-//                        .stream()
-//                        .map(this::toGameDto)
-//                        .toList();
-
-        System.out.println("part.getGameIds(): " + part.getGameIds());
-        System.out.println("completedGameIds: " + completedGameIds);
-        for (Long id : completedGameIds) {
-            System.out.println("Checking " + id + ": " + part.getGameIds().contains(id));
-        }
 
         boolean completed = completedGameIds.stream().anyMatch(x -> part.getGameIds().contains(x));
 
         return new SeriesPartDto(
                 part.getId(),
-                new HashSet<>(games),
+                new LinkedHashSet<>(games),
                 completed
         );
     }

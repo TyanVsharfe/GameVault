@@ -8,5 +8,5 @@ import org.springframework.stereotype.Component;
 @Getter
 public class SteamTokenManager {
     @Value("${steam.api.key}")
-    private String steam_api_key;
+    private String steamApiKey;
 }
