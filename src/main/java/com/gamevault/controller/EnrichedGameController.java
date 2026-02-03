@@ -19,8 +19,6 @@ public class EnrichedGameController {
 
     private final GameAggregationService gameAggregationService;
 
-    // TODO агрегация UserGameController и IgdbGameApi сюда на url "${api.prefix}/games"
-    // TODO сделать агрегацию с UserGameList UserGameModes и DLC
     public EnrichedGameController(GameAggregationService gameAggregationService) {
         this.gameAggregationService = gameAggregationService;
     }
@@ -38,7 +36,6 @@ public class EnrichedGameController {
         return ResponseEntity.ok(result);
     }
 
-    // TODO Сделать агрегацию списков
     @GetMapping("/game-lists/{list-id}")
     public ResponseEntity<EnrichedGameList> getGameList(
             @PathVariable("list-id") UUID listId,

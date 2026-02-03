@@ -4,14 +4,17 @@ import com.gamevault.db.model.*;
 import com.gamevault.dto.input.UserGamesFilterParams;
 import com.gamevault.dto.output.db.UserGameBaseData;
 import com.gamevault.dto.output.db.UserGameBatchData;
+import com.gamevault.dto.output.enriched.GameListReference;
 import com.gamevault.dto.output.enriched.UserModeDto;
 import com.gamevault.service.filter.SpecificationComposer;
 import com.gamevault.service.filter.UserGameFilterFactory;
 import com.gamevault.service.filter.UserGameFilterSpecification;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
@@ -111,13 +115,12 @@ public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
     public List<UserGameBatchData> getUserGamesBaseDataBatch(String username, Set<Long> igdbIds) {
         QUserGame ug = QUserGame.userGame;
         QGame game = QGame.game;
-        QNote note = QNote.note;
 
         return queryFactory
                 .select(Projections.constructor(
                         UserGameBatchData.class,
-                        ug.id,
                         game.igdbId,
+                        ug.id,
                         ug.status,
                         ug.userRating,
                         ug.review,
@@ -127,17 +130,42 @@ public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
                         ug.userCoverUrl,
                         ug.createdAt,
                         ug.updatedAt,
-                        note.countDistinct()
+                        Expressions.constant(Collections.emptyList())
                 ))
                 .from(ug)
                 .join(ug.game, game)
-                .leftJoin(ug.notes, note)
-                .where(
-                        ug.user.username.eq(username),
-                        game.igdbId.in(igdbIds)
-                )
-                .groupBy(ug.id, game.igdbId)
+                .where(ug.user.username.eq(username), game.igdbId.in(igdbIds))
                 .fetch();
+    }
+
+    public Map<Long, List<GameListReference>> getGameListsMap(String username, Set<Long> igdbIds) {
+        QUserGameListItem listItem = QUserGameListItem.userGameListItem;
+        QUserGameList userList = QUserGameList.userGameList;
+
+        List<Tuple> results = queryFactory
+                .select(
+                        listItem.game.igdbId,
+                        userList.uuid,
+                        userList.name,
+                        userList.isPublic
+                )
+                .from(listItem)
+                .join(listItem.userGameList, userList)
+                .where(
+                        userList.author.username.eq(username),
+                        listItem.game.igdbId.in(igdbIds)
+                )
+                .fetch();
+
+        return results.stream()
+                .collect(Collectors.groupingBy(
+                        t -> t.get(listItem.game.igdbId),
+                        Collectors.mapping(t -> new GameListReference(
+                                t.get(userList.uuid),
+                                t.get(userList.name),
+                                t.get(userList.isPublic)
+                        ), Collectors.toList())
+                ));
     }
 
     @Override
