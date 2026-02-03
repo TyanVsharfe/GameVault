@@ -11,21 +11,11 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 public interface UserGameListRepository extends CrudRepository<UserGameList, UUID> {
     Page<UserGameList> findByAuthor(User user, Pageable pageable);
     List<UserGameList> findByIsPublicTrueAndAuthorUsername(String username);
-    @Query("""
-           SELECT ugli.game.igdbId, ugl.uuid, ugl.name, ugl.isPublic
-           FROM UserGameListItem ugli
-           JOIN ugli.userGameList ugl
-           WHERE ugli.game.igdbId IN :userGameIds
-           AND ugl.author.username = :username
-           ORDER BY ugli.order ASC
-           """)
-    List<Object[]> findListsByUserGameIdsAndAuthorUsername(Set<Long> userGameIds, String username);
     @Query("""
            SELECT NEW com.gamevault.dto.output.enriched.GameListReference(
                ugl.uuid,

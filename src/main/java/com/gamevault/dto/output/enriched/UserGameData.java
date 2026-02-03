@@ -67,46 +67,7 @@ public record UserGameData(
         );
     }
 
-    public static UserGameData fromUserGame(UserGame userGame, List<GameListReference> lists) {
-        if (userGame == null) return null;
-
-        UserGameData base = fromUserGame(userGame);
-        return new UserGameData(
-                base.userGameId(),
-                base.status(),
-                base.userRating(),
-                base.review(),
-                base.isFullyCompleted(),
-                base.isOverallRating(),
-                base.isOverallStatus(),
-                base.userCoverUrl(),
-                base.createdAt(),
-                base.updatedAt(),
-                base.notesCount(),
-                base.userModes(),
-                base.dlcs(),
-                base.expansions(),
-                lists
-        );
-    }
-
-    private static List<UserModeDto> convertUserModes(List<UserGameMode> modes) {
-        if (modes == null) return List.of();
-        return modes.stream()
-                .map(UserModeDto::fromUserGameMode)
-                .toList();
-    }
-
-    private static Map<Long, UserGameData> convertDlcsToMap(List<UserGame> dlcs) {
-        if (dlcs == null || dlcs.isEmpty()) return null;
-        return dlcs.stream()
-                .collect(Collectors.toMap(
-                        dlc -> dlc.getGame().getIgdbId(),
-                        UserGameData::fromUserGame
-                ));
-    }
-
-    public static UserGameData fromUserGameBase(UserGameBaseData base, List<UserModeDto> modes) {
+    public static UserGameData fromUserGameBase(UserGameBaseData base, List<UserModeDto> modes, List<GameListReference> lists) {
         if (base == null) {
             return null;
         }
@@ -133,7 +94,23 @@ public record UserGameData(
                 userModes,
                 null,
                 null,
-                null
+                lists
         );
+    }
+
+    private static List<UserModeDto> convertUserModes(List<UserGameMode> modes) {
+        if (modes == null) return List.of();
+        return modes.stream()
+                .map(UserModeDto::fromUserGameMode)
+                .toList();
+    }
+
+    private static Map<Long, UserGameData> convertDlcsToMap(List<UserGame> dlcs) {
+        if (dlcs == null || dlcs.isEmpty()) return null;
+        return dlcs.stream()
+                .collect(Collectors.toMap(
+                        dlc -> dlc.getGame().getIgdbId(),
+                        UserGameData::fromUserGame
+                ));
     }
 }

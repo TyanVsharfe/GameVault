@@ -6,5 +6,4 @@ public record GameListReference(
         UUID listId,
         String listName,
         Boolean isPublic
-) {
-}
+) {}

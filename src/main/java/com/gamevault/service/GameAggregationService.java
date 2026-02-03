@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +29,10 @@ public class GameAggregationService {
         this.igdbService = igdbService;
         this.userGameCustomRepository = userGameCustomRepository;
         this.userGameListRepository = userGameListRepository;
+    }
+
+    public List<EnrichedGameSearchDto> searchGamesWithUserData(String query, User user) {
+        return searchGamesWithUserDataAsync(query, user).join();
     }
 
     public CompletableFuture<List<EnrichedGameSearchDto>> searchGamesWithUserDataAsync(String query, User user) {
@@ -58,8 +63,30 @@ public class GameAggregationService {
                 });
     }
 
-    public List<EnrichedGameSearchDto> searchGamesWithUserData(String query, User user) {
-        return searchGamesWithUserDataAsync(query, user).join();
+    private Map<Long, UserGameBatchData> loadUserGameDataBatch(User user, Set<Long> igdbIds) {
+        List<UserGameBatchData> baseData = userGameCustomRepository.getUserGamesBaseDataBatch(user.getUsername(), igdbIds);
+
+        if (baseData.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<Long, UserGameBatchData> gamesMap = baseData.stream()
+                .collect(Collectors.toMap(
+                        UserGameBatchData::getIgdbId,
+                        Function.identity(),
+                        (existing, replacement) -> existing
+                ));
+
+        Map<Long, List<GameListReference>> listsMap = userGameCustomRepository.getGameListsMap(user.getUsername(), igdbIds);
+
+        listsMap.forEach((igdbId, references) -> {
+            UserGameBatchData data = gamesMap.get(igdbId);
+            if (data != null) {
+                data.setInLists(references);
+            }
+        });
+
+        return gamesMap;
     }
 
     public EnrichedGameDto getGameWithUserData(Long igdbId, User user) {
@@ -74,34 +101,11 @@ public class GameAggregationService {
         return EnrichedGameDto.fromIgdb(igdbGame, userGameDataMono);
     }
 
-    private Map<Long, UserGameBatchData> loadUserGameDataBatch(User user, Set<Long> igdbGameIds) {
-        List<UserGameBatchData> baseData = userGameCustomRepository.getUserGamesBaseDataBatch(user.getUsername(), igdbGameIds);
-
-        if (baseData.isEmpty()) {
-            return Map.of();
-        }
-
-        Set<Long> userGameIds = baseData.stream()
-                .map(UserGameBatchData::userGameId)
-                .collect(Collectors.toSet());
-
-        //Map<Long, List<GameListReference>> listsMap = loadGameListsBatch(userGameIds);
-
-        return baseData.stream()
-                .collect(Collectors.toMap(
-                        UserGameBatchData::igdbId,
-                        game -> game,
-                        (existing, replacement) -> existing
-                ));
-    }
-
     private UserGameData loadUserGameData(User user, Long igdbGameId) {
 
         UserGameBaseData base = userGameCustomRepository
                 .getUserGameBaseData(igdbGameId, user.getUsername())
                 .orElse(null);
-
-        // TODO Сделать список со всеми списками пользователя, но еще делать метки где игра уже добавлена
 
         if (base == null) {
             return null;
@@ -109,26 +113,8 @@ public class GameAggregationService {
 
         List<UserModeDto> modes = userGameCustomRepository.findUserModes(base.userGameId());
 
-//        List<GameListReference> lists = loadGameLists(igdbGameId);
-        return UserGameData.fromUserGameBase(base, modes);
-    }
-
-    private Map<Long, List<GameListReference>> loadGameListsBatch(Set<Long> userGameIds, User user) {
-        List<Object[]> results = userGameListRepository
-                .findListsByUserGameIdsAndAuthorUsername(userGameIds, user.getUsername());
-
-        return results.stream()
-                .collect(Collectors.groupingBy(
-                        row -> (Long) row[0],
-                        Collectors.mapping(
-                                row -> new GameListReference(
-                                        (UUID) row[1],
-                                        (String) row[2],
-                                        (Boolean) row[3]
-                                ),
-                                Collectors.toList()
-                        )
-                ));
+        List<GameListReference> lists = loadGameLists(igdbGameId, user);
+        return UserGameData.fromUserGameBase(base, modes, lists);
     }
 
     private List<GameListReference> loadGameLists(Long userGameId, User user) {
