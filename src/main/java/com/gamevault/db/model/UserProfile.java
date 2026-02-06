@@ -40,6 +40,10 @@ public class UserProfile {
     @ElementCollection
     private final Set<Long> ignoredGameIds = new HashSet<>();
 
+    public UserProfile(User user) {
+        this.user = user;
+    }
+
     public void updateUserProfile(UserSteamSettings steamSettings) {
         if (steamSettings.steamId() != null) {
             this.steamId = steamSettings.steamId();

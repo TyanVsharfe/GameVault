@@ -2,7 +2,6 @@ package com.gamevault.db.model;
 
 import com.gamevault.enums.Enums;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,10 +34,14 @@ public class User implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile profile;
+
     public User(String username, String password, List<String> roles) {
         this.username = username;
         this.password = password;
         this.roles = roles;
+        this.profile = new UserProfile(this);
         this.subscription = Enums.Subscription.FREE;
     }
 
