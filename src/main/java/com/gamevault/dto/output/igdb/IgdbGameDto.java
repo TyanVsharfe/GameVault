@@ -21,5 +21,11 @@ public record IgdbGameDto(
         List<InvolvedCompany> involved_companies,
         List<Franchise> franchises,
         List<Series> collections
-) {}
+) {
+    public IgdbGameDto {
+        if (dlcs == null) dlcs = List.of();
+        if (expansions == null) expansions = List.of();
+        if (game_modes == null) game_modes = List.of();
+    }
+}
 

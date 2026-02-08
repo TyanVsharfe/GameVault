@@ -80,7 +80,7 @@ public class GameService {
             throw new GameNotFoundInIgdbException("Game with id " + igdbId + " not found in IGDB.");
         }
 
-        if (igdbGameDto.game_modes() == null) {
+        if (igdbGameDto.game_modes().isEmpty()) {
             log.info("Game with igdbId={} cannot be added to database because haven't game modes", igdbGameDto.id());
             throw new IllegalArgumentException("Game with igdbId=" + igdbGameDto.id() + " cannot be added to database because haven't game modes");
         }
@@ -96,19 +96,27 @@ public class GameService {
         Game saved = gameRepository.save(game);
         log.info("Game with igdbId={} successfully added", igdbId);
 
-        log.info("Game with igdbId={} have dlcs:{}", igdbId, igdbGameDto.dlcs());
-        if (igdbGameDto.dlcs() != null && !igdbGameDto.dlcs().isEmpty()) {
+        log.info("Game with igdbId={} have dlcs: {}", igdbId, igdbGameDto.dlcs().size());
+        if (!igdbGameDto.dlcs().isEmpty()) {
             List<Game> dlcs = processAdditionalContent(igdbGameDto.dlcs(), saved, "DLC");
             saved.addDlcs(dlcs);
         }
 
-        log.info("Game with igdbId={} have expansions:{}", igdbId, igdbGameDto.expansions());
-        if (igdbGameDto.expansions() != null && !igdbGameDto.expansions().isEmpty()) {
+        log.info("Game with igdbId={} have expansions: {}", igdbId, igdbGameDto.expansions().size());
+        if (!igdbGameDto.expansions().isEmpty()) {
             List<Game> expansions = processAdditionalContent(igdbGameDto.expansions(), saved, "Expansion");
             saved.addDlcs(expansions);
         }
 
         return gameRepository.save(saved);
+    }
+
+    private List<Enums.GameModesIGDB> extractGameModes(List<GameMode> gameModes) {
+        List<Enums.GameModesIGDB> modes = new ArrayList<>();
+        for (GameMode mode : gameModes) {
+            modes.add(Enums.GameModesIGDB.fromJson(mode.slug()));
+        }
+        return modes;
     }
 
     private List<Game> processAdditionalContent(List<IgdbGameDto> items, Game parentGame, String type) {
@@ -145,14 +153,6 @@ public class GameService {
         }
 
         return result;
-    }
-
-    private List<Enums.GameModesIGDB> extractGameModes(List<GameMode> gameModes) {
-        List<Enums.GameModesIGDB> modes = new ArrayList<>();
-        for (GameMode mode : gameModes) {
-            modes.add(Enums.GameModesIGDB.fromJson(mode.slug()));
-        }
-        return modes;
     }
 
     @Transactional
