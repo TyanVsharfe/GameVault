@@ -28,7 +28,7 @@ public class Game {
     private String coverUrl;
     @Column(name = "description", length = 10000)
     private String description;
-    private Enums.CategoryIGDB category;
+    private Enums.IgdbGameType category;
 
     @ManyToOne
     @JoinColumn(name = "parent_game_id")

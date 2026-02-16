@@ -13,7 +13,7 @@ public class UserGamesFilterParams {
     private Integer maxRating;
     private Boolean hasReview;
     private Boolean isFullyCompleted;
-    private Enums.CategoryIGDB gameType;
+    private Enums.IgdbGameType gameType;
     private String title;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate createdAfter;

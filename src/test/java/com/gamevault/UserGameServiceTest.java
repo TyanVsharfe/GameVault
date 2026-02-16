@@ -52,7 +52,7 @@ public class UserGameServiceTest {
         Game game = new Game(new GameForm(
                 igdbId, "Battlefield 4", "//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg",
                 "Battlefield 4 is the genre-defining action blockbuster created by Dice",
-                Enums.CategoryIGDB.MAIN_GAME, Arrays.asList(Enums.GameModesIGDB.SINGLE_PLAYER, Enums.GameModesIGDB.MULTIPLAYER)
+                Enums.IgdbGameType.MAIN_GAME, Arrays.asList(Enums.GameModesIGDB.SINGLE_PLAYER, Enums.GameModesIGDB.MULTIPLAYER)
         ));
 
         when(userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()))
@@ -84,7 +84,7 @@ public class UserGameServiceTest {
         Game newGame = new Game(new GameForm(
                 igdbId, "Battlefield 4", "//images.igdb.com/igdb/image/upload/t_thumb/co1nmf.jpg",
                 "Battlefield 4 is the genre-defining action blockbuster created by Dice",
-                Enums.CategoryIGDB.MAIN_GAME, Arrays.asList(Enums.GameModesIGDB.SINGLE_PLAYER, Enums.GameModesIGDB.MULTIPLAYER)
+                Enums.IgdbGameType.MAIN_GAME, Arrays.asList(Enums.GameModesIGDB.SINGLE_PLAYER, Enums.GameModesIGDB.MULTIPLAYER)
         ));
 
         when(userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(igdbId, user.getUsername()))

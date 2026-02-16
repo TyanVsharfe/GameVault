@@ -17,9 +17,9 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "user_games")
-public class UserGame {
+public class UserGame extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -75,21 +75,10 @@ public class UserGame {
     @Column(length = 512)
     private String userCoverUrl;
 
-    @Setter
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
-
-    @Setter
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
     public UserGame(User user, Game game) {
         this.user = user;
         this.userCoverUrl = game.getCoverUrl();
         this.isFullyCompleted = false;
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        this.createdAt = offsetDateTime.toInstant();
         this.game = game;
         initializeUserModesFromGame();
     }
@@ -98,9 +87,6 @@ public class UserGame {
         this.user = user;
         this.userCoverUrl = game.getCoverUrl();
         this.isFullyCompleted = false;
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        this.createdAt = offsetDateTime.toInstant();
         this.game = game;
         initializeUserModesFromGame();
         this.parentGame = parent;
@@ -138,10 +124,6 @@ public class UserGame {
         if (dto.isFullyCompleted() != null) {
             this.isFullyCompleted = dto.isFullyCompleted();
         }
-
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        this.updatedAt = offsetDateTime.toInstant();
     }
 
     public void updateMode(Enums.GameModesIGDB mode, UserGameModeUpdateForm dto) {
@@ -153,10 +135,6 @@ public class UserGame {
             setModeRating(mode, dto.userRating());
             this.isOverallRating = false;
         }
-
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        this.updatedAt = offsetDateTime.toInstant();
     }
 
     public void setOverallRating(Double rating) {

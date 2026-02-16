@@ -14,7 +14,7 @@ public record GameForm(
         @NotNull @Size(max = 1000) String title,
         @NotNull @Size(max = 2000) String coverUrl,
         @NotNull @Size(max = 10000) String description,
-        @NotNull @Enumerated(EnumType.ORDINAL) Enums.CategoryIGDB category,
+        @NotNull @Enumerated(EnumType.ORDINAL) Enums.IgdbGameType category,
         @NotNull @Enumerated(EnumType.ORDINAL) List<Enums.GameModesIGDB> gameModes
 ) {}
 

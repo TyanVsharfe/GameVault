@@ -92,7 +92,7 @@ public class GameService {
                 igdbGameDto.name(),
                 igdbGameDto.cover().url(),
                 igdbGameDto.summary(),
-                Enums.CategoryIGDB.fromNumber(igdbGameDto.game_type().id()), modes));
+                Enums.IgdbGameType.fromNumber(igdbGameDto.game_type().id()), modes));
         Game saved = gameRepository.save(game);
         log.info("Game with igdbId={} successfully added", igdbId);
 
@@ -143,7 +143,7 @@ public class GameService {
                     item.name(),
                     item.cover().url(),
                     item.summary(),
-                    Enums.CategoryIGDB.fromNumber(item.game_type().id()),
+                    Enums.IgdbGameType.fromNumber(item.game_type().id()),
                     modes),
                     parentGame);
 

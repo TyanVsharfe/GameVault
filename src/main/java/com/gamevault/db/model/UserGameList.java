@@ -19,9 +19,9 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "USER_GAME_LISTS")
-public class UserGameList {
+public class UserGameList extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid;

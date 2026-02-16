@@ -17,32 +17,32 @@ public class NoteController {
         this.noteService = noteService;
     }
 
-    @GetMapping("/{igdbId}/notes")
-    public Iterable<Note> getAllByIgdbId(@PathVariable("igdbId") Long igdbId,
+    @GetMapping("/{igdb-id}/notes")
+    public Iterable<Note> getAllByIgdbId(@PathVariable("igdb-id") Long igdbId,
                                          @AuthenticationPrincipal User user) {
         return noteService.getAllNotesByIgdbId(igdbId, user);
     }
 
-    @PostMapping("/{igdbId}/notes")
-    public Note add(@RequestBody NoteForm noteForm, @PathVariable("igdbId") Long igdbId,
+    @PostMapping("/{igdb-id}/notes")
+    public Note add(@RequestBody NoteForm noteForm, @PathVariable("igdb-id") Long igdbId,
                     @AuthenticationPrincipal User user) {
         return noteService.addNote(noteForm, igdbId, user);
     }
 
-    @PutMapping("/notes/{note_id}")
-    public void put(@PathVariable("note_id") Long id, @RequestBody NoteUpdateForm noteUpdateForm,
+    @PutMapping("/notes/{note-id}")
+    public void put(@PathVariable("note-id") Long id, @RequestBody NoteUpdateForm noteUpdateForm,
                     @AuthenticationPrincipal User user) {
         noteService.updateNote(id, noteUpdateForm, user);
     }
 
-    @DeleteMapping("/notes/{note_id}")
-    public void delete(@PathVariable("note_id") Long id,
+    @DeleteMapping("/notes/{note-id}")
+    public void delete(@PathVariable("note-id") Long id,
                        @AuthenticationPrincipal User user) {
         noteService.deleteNote(id, user);
     }
 
-    @DeleteMapping("/{igdbId}/all")
-    public void deleteAllByIgdbId(@PathVariable("igdbId") Long igdbId,
+    @DeleteMapping("/{igdb-id}/all")
+    public void deleteAllByIgdbId(@PathVariable("igdb-id") Long igdbId,
                                   @AuthenticationPrincipal User user) {
         noteService.deleteAllGameNotes(igdbId, user);
     }

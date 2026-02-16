@@ -20,8 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,7 +71,7 @@ public class UserGameService {
         Game game = gameService.getOrCreate(igdbId);
 
         UserGame saved;
-        if (game.getCategory() == Enums.CategoryIGDB.DLC || game.getCategory() == Enums.CategoryIGDB.EXPANSION) {
+        if (game.getCategory() == Enums.IgdbGameType.DLC || game.getCategory() == Enums.IgdbGameType.EXPANSION) {
             Optional<UserGame> parentGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(game.getParentGame().getIgdbId(), author.getUsername());
             if (parentGame.isPresent()) {
                 saved = userGameRepository.save(new UserGame(author, game, parentGame.get()));
@@ -154,10 +152,6 @@ public class UserGameService {
         UserGame userGame = findByUserUsernameAndIgdbId(igdbId, user);
         userGame.setStatus(status);
 
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        userGame.setUpdatedAt(offsetDateTime.toInstant());
-
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated status for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
 
@@ -173,10 +167,6 @@ public class UserGameService {
         UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
         userGame.setFullyCompleted(fullyCompleted);
 
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        userGame.setUpdatedAt(offsetDateTime.toInstant());
-
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated isFullyCompleted for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
 
@@ -187,10 +177,6 @@ public class UserGameService {
     public UserGame updateOverallRating(Long gameId, User user, Double rating) {
         UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
         userGame.setOverallRating(rating);
-
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        userGame.setUpdatedAt(offsetDateTime.toInstant());
 
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated rating for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());
@@ -208,10 +194,6 @@ public class UserGameService {
 
         userGame.setModeRating(mode, rating);
 
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        userGame.setUpdatedAt(offsetDateTime.toInstant());
-
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated info for mode {} in UserGame with id={} for user '{}'",
                 mode.name(), saved.getId(), saved.getUser().getUsername());
@@ -223,10 +205,6 @@ public class UserGameService {
     public UserGame updateReview(Long gameId, User user, String review) {
         UserGame userGame = findByUserUsernameAndIgdbId(gameId, user);
         userGame.setReview(review);
-
-        ZoneId zoneId = ZoneId.systemDefault();
-        OffsetDateTime offsetDateTime = OffsetDateTime.now(zoneId);
-        userGame.setUpdatedAt(offsetDateTime.toInstant());
 
         UserGame saved = userGameRepository.save(userGame);
         log.info("Successfully updated review for UserGame with id={} for user '{}'", saved.getId(), saved.getUser().getUsername());

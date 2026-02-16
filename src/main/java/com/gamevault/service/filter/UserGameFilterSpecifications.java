@@ -54,7 +54,7 @@ public class UserGameFilterSpecifications {
                 .orElse(null);
     }
 
-    public static UserGameFilterSpecification gameTypeEquals(Enums.CategoryIGDB gameType) {
+    public static UserGameFilterSpecification gameTypeEquals(Enums.IgdbGameType gameType) {
         return (ug, game) -> Optional.ofNullable(gameType)
                 .map(ug.game.category::eq)
                 .orElse(null);

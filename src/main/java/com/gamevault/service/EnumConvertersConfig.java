@@ -20,11 +20,11 @@ public class EnumConvertersConfig {
     }
 
     @Bean
-    public Converter<String, Enums.CategoryIGDB> stringToCategoryIgdbConverter() {
+    public Converter<String, Enums.IgdbGameType> stringToCategoryIgdbConverter() {
         return new Converter<>() {
             @Override
-            public Enums.CategoryIGDB convert(@NotNull String source) {
-                return Enums.CategoryIGDB.fromNumber(Integer.parseInt(source));
+            public Enums.IgdbGameType convert(@NotNull String source) {
+                return Enums.IgdbGameType.fromNumber(Integer.parseInt(source));
             }
         };
     }

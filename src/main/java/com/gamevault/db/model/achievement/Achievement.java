@@ -1,5 +1,6 @@
 package com.gamevault.db.model.achievement;
 
+import com.gamevault.db.model.BaseEntity;
 import com.gamevault.enums.Enums;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class Achievement {
+public abstract class Achievement extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
