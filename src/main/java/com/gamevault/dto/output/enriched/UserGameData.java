@@ -56,7 +56,7 @@ public record UserGameData(
                 userGame.isFullyCompleted(),
                 userGame.isOverallRating(),
                 userGame.isOverallStatus(),
-                userGame.getUserCoverUrl(),
+                userGame.getCustomCoverUrl(),
                 userGame.getCreatedAt(),
                 userGame.getUpdatedAt(),
                 (long) (userGame.getNotes() != null ? userGame.getNotes().size() : 0),

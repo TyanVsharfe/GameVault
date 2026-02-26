@@ -1,0 +1,6 @@
+Please verify your email address.
+
+Click the link below:
+${verificationLink}
+
+If you did not register, ignore this message.

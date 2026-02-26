@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +53,7 @@ public class UserGame extends BaseEntity{
     @Column(columnDefinition = "TEXT")
     private String review;
 
+    // TODO убрать is
     @Setter
     private boolean isFullyCompleted;
 
@@ -65,19 +65,21 @@ public class UserGame extends BaseEntity{
 
     private Double userRating;
 
+    // TODO убрать is
     @Column(nullable = false)
     private boolean isOverallRating = true;
 
+    // TODO убрать is
     @Column(nullable = false)
     private boolean isOverallStatus = true;
 
     @Setter
     @Column(length = 512)
-    private String userCoverUrl;
+    private String customCoverUrl;
 
     public UserGame(User user, Game game) {
         this.user = user;
-        this.userCoverUrl = game.getCoverUrl();
+        this.customCoverUrl = game.getCoverUrl();
         this.isFullyCompleted = false;
         this.game = game;
         initializeUserModesFromGame();
@@ -85,7 +87,7 @@ public class UserGame extends BaseEntity{
 
     public UserGame(User user, Game game, UserGame parent) {
         this.user = user;
-        this.userCoverUrl = game.getCoverUrl();
+        this.customCoverUrl = game.getCoverUrl();
         this.isFullyCompleted = false;
         this.game = game;
         initializeUserModesFromGame();
@@ -112,8 +114,8 @@ public class UserGame extends BaseEntity{
         else if (dto.userRating() != null) {
             this.userRating = dto.userRating();
             this.isOverallRating = true;
-            System.out.println(dto.userRating());
             setOverallModeRating(dto.userRating());
+            clearModeRating();
         }
         if (dto.platform() != null) {
             this.platform = dto.platform();
@@ -123,43 +125,6 @@ public class UserGame extends BaseEntity{
         }
         if (dto.isFullyCompleted() != null) {
             this.isFullyCompleted = dto.isFullyCompleted();
-        }
-    }
-
-    public void updateMode(Enums.GameModesIGDB mode, UserGameModeUpdateForm dto) {
-        if (dto.status() != null) {
-            setModeStatus(mode, dto.status());
-            this.isOverallStatus = false;
-        }
-        if (dto.userRating() != null) {
-            setModeRating(mode, dto.userRating());
-            this.isOverallRating = false;
-        }
-    }
-
-    public void setOverallRating(Double rating) {
-        this.userRating = rating;
-        this.isOverallRating = true;
-    }
-
-    public void setModeRating(Enums.GameModesIGDB mode, Double rating) {
-        for (UserGameMode m : userModes) {
-            if (m.getMode() == mode) {
-                m.setUserRating(rating);
-                computeOverallRating();
-                return;
-            }
-        }
-    }
-
-    private void setModeStatus(Enums.GameModesIGDB mode, Enums.Status status) {
-        if (this.getUserModes().size() > 1) {
-            for (UserGameMode m : userModes) {
-                if (m.getMode() == mode) {
-                    m.setStatus(status);
-                    return;
-                }
-            }
         }
     }
 
@@ -185,6 +150,39 @@ public class UserGame extends BaseEntity{
         }
     }
 
+    public void updateMode(Enums.GameModesIGDB mode, UserGameModeUpdateForm dto) {
+        if (dto.status() != null) {
+            setModeStatus(mode, dto.status());
+            this.isOverallStatus = false;
+            this.status = Enums.Status.NONE;
+        }
+        if (dto.userRating() != null) {
+            setModeRating(mode, dto.userRating());
+            this.isOverallRating = false;
+        }
+    }
+
+    private void setModeStatus(Enums.GameModesIGDB mode, Enums.Status status) {
+        if (this.getUserModes().size() > 1) {
+            for (UserGameMode m : userModes) {
+                if (m.getMode() == mode) {
+                    m.setStatus(status);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void setModeRating(Enums.GameModesIGDB mode, Double rating) {
+        for (UserGameMode m : userModes) {
+            if (m.getMode() == mode) {
+                m.setUserRating(rating);
+                computeOverallRating();
+                return;
+            }
+        }
+    }
+
     private void computeOverallRating() {
         List<Double> ratings = new ArrayList<>();
         for (UserGameMode m : userModes) {
@@ -195,5 +193,10 @@ public class UserGame extends BaseEntity{
         if (ratings.isEmpty()) return;
         Double overallRating = ratings.stream().mapToDouble(Double::doubleValue).average().orElse(0);
         setOverallRating(overallRating);
+    }
+
+    public void setOverallRating(Double rating) {
+        this.userRating = rating;
+        this.isOverallRating = true;
     }
 }

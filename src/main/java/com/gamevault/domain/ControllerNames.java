@@ -13,6 +13,7 @@ public class ControllerNames {
     private static final String USERS_URI_PART = "/users";
     private static final String REGISTRATION_URI_PART = "/registration";
     private static final String LOGIN_URI_PART = "/login";
+    private static final String VERIFY_TOKEN_URI_PART = "/auth/verify";
 
     public String getApiPrefix() {
         return apiProperties.getPrefix();
@@ -20,6 +21,10 @@ public class ControllerNames {
 
     public String getRegistrationUrl() {
         return getApiPrefix() + USERS_URI_PART + REGISTRATION_URI_PART;
+    }
+
+    public String getVerifyTokenUrl() {
+        return getApiPrefix() + USERS_URI_PART + VERIFY_TOKEN_URI_PART;
     }
 
     public String getLoginUrl() {

@@ -63,7 +63,7 @@ public class UserProfileService {
         profile.steamSyncStart(steamSettings);
 
         UserProfile saved = userProfileRepository.save(profile);
-        return new UserSteamSync(saved.getSteamSyncEnabled(), saved.getIgnoredGameIds(), saved.getSyncFrequency());
+        return new UserSteamSync(saved.isSteamSyncEnabled(), saved.getIgnoredGameIds(), saved.getSyncFrequency());
     }
 
     public UserSteamSettings steamSyncRemove(User user) {
@@ -73,7 +73,7 @@ public class UserProfileService {
         profile.setSteamSyncEnabled(false);
 
         UserProfile saved = userProfileRepository.save(profile);
-        return new UserSteamSettings(saved.getSteamId(), saved.getSteamSyncEnabled());
+        return new UserSteamSettings(saved.getSteamId(), saved.isSteamSyncEnabled());
     }
 
     public UserSteamSync steamSyncUpdate(UserSteamSync steamSync) {

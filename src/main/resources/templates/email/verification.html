@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif;">
+<h2>Confirm your email</h2>
+
+<p>Thank you for registering.</p>
+
+<p>Please click the button below to activate your account:</p>
+
+<a th:href="${verificationLink}"
+   style="display:inline-block;
+              padding:12px 20px;
+              background:#4CAF50;
+              color:white;
+              text-decoration:none;
+              border-radius:6px;">
+    Verify Email
+</a>
+
+<p>If you did not register, ignore this email.</p>
+</body>
+</html>

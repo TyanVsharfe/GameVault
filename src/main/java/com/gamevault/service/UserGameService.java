@@ -13,12 +13,12 @@ import com.gamevault.dto.input.update.UserGameUpdateForm;
 import com.gamevault.dto.output.UserReviewsDto;
 import com.gamevault.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -141,7 +141,7 @@ public class UserGameService {
         userGame.updateMode(mode, updateForm);
 
         UserGame saved = userGameRepository.save(userGame);
-        log.info("Successfully updated rating for mode {} in UserGame with id={} for user '{}'",
+        log.info("Successfully updated mode {} in UserGame with id={} for user '{}'",
                 mode.name(), saved.getId(), saved.getUser().getUsername());
 
         return saved;

@@ -2,6 +2,7 @@ package com.gamevault.controller;
 
 import com.gamevault.dto.input.UserForm;
 import com.gamevault.dto.input.UserFormLogin;
+import com.gamevault.service.email.EmailVerificationTokenService;
 import com.gamevault.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,7 +10,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,19 +28,27 @@ import java.util.Map;
 @RequestMapping("${api.prefix}/users")
 public class UserController {
     private final UserService userService;
+    private final EmailVerificationTokenService mailEmailVerificationTokenService;
     private final AuthenticationManager authenticationManager;
     private final TokenBasedRememberMeServices rememberMeServices;
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
-    public UserController(UserService userService, AuthenticationManager authenticationManager, TokenBasedRememberMeServices rememberMeServices) {
+    public UserController(UserService userService, EmailVerificationTokenService mailEmailVerificationTokenService, AuthenticationManager authenticationManager, TokenBasedRememberMeServices rememberMeServices) {
         this.userService = userService;
+        this.mailEmailVerificationTokenService = mailEmailVerificationTokenService;
         this.authenticationManager = authenticationManager;
         this.rememberMeServices = rememberMeServices;
     }
 
     @PostMapping("/registration")
-    public String register(@RequestBody UserForm user) {
-        return userService.add(user);
+    public void register(@RequestBody UserForm user) {
+        userService.register(user);
+    }
+
+    @GetMapping("/auth/verify")
+    public ResponseEntity<?> verify(@RequestParam String token) {
+        mailEmailVerificationTokenService.verify(token);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
@@ -101,13 +109,7 @@ public class UserController {
     }
 
     @GetMapping("/check-session")
-    public ResponseEntity<Void> checkSession() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public void checkSession() {
     }
 }
