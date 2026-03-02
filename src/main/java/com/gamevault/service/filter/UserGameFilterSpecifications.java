@@ -24,12 +24,20 @@ public class UserGameFilterSpecifications {
 
     public static UserGameFilterSpecification ratingBetween(Integer min, Integer max) {
         return (ug, game) -> {
+            if (min == null && max == null) {
+                return null;
+            }
+
             BooleanExpression expression = null;
+
             if (min != null) {
                 expression = ug.userRating.goe(min);
             }
+
             if (max != null) {
-                expression = expression != null ? expression.and(ug.userRating.loe(max)) : ug.userRating.loe(max);
+                expression = expression == null
+                        ? ug.userRating.loe(max)
+                        : expression.and(ug.userRating.loe(max));
             }
 
             return expression;
@@ -38,19 +46,23 @@ public class UserGameFilterSpecifications {
 
     public static UserGameFilterSpecification hasRating(Boolean hasRating) {
         return (ug, game) -> Optional.ofNullable(hasRating)
-                .map(has -> has ? ug.userRating.isNotNull() : ug.userRating.isNull())
+                .map(has -> has
+                        ? ug.userRating.isNotNull()
+                        : ug.userRating.isNull())
                 .orElse(null);
     }
 
     public static UserGameFilterSpecification hasReview(Boolean hasReview) {
         return (ug, game) -> Optional.ofNullable(hasReview)
-                .map(has -> has ? ug.review.isNotNull() : ug.review.isNull())
+                .map(has -> has
+                        ? ug.review.isNotNull().and(ug.review.ne(""))
+                        : ug.review.isNull().or(ug.review.eq("")))
                 .orElse(null);
     }
 
     public static UserGameFilterSpecification isFullyCompleted(Boolean isFullyCompleted) {
         return (ug, game) -> Optional.ofNullable(isFullyCompleted)
-                .map(has -> has ? ug.isFullyCompleted.isNotNull() : ug.isFullyCompleted.isNull())
+                .map(ug.isFullyCompleted::eq)
                 .orElse(null);
     }
 
@@ -58,6 +70,19 @@ public class UserGameFilterSpecifications {
         return (ug, game) -> Optional.ofNullable(gameType)
                 .map(ug.game.category::eq)
                 .orElse(null);
+    }
+
+    public static UserGameFilterSpecification dlcOrExpansion(Boolean dlcOnly) {
+        return (ug, game) -> {
+            if (dlcOnly == null) return null;
+
+            BooleanExpression dlcExpr =
+                    game.category.in(Enums.IgdbGameType.DLC, Enums.IgdbGameType.EXPANSION);
+
+            return dlcOnly
+                    ? dlcExpr
+                    : dlcExpr.not().or(game.category.isNull());
+        };
     }
 
     public static UserGameFilterSpecification titleContains(String title) {

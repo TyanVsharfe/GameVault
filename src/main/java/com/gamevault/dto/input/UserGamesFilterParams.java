@@ -12,6 +12,7 @@ public class UserGamesFilterParams {
     private Integer minRating;
     private Integer maxRating;
     private Boolean hasReview;
+    private Boolean dlcOnly;
     private Boolean isFullyCompleted;
     private Enums.IgdbGameType gameType;
     private String title;
