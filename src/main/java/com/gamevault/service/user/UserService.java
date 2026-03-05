@@ -44,19 +44,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId);
     }
 
-    public void completeRegistration(User user) {
-        try {
-            log.info("Start complete registration for User '{}' started.", user.getUsername());
-            user.createProfile();
-            userRepository.save(user);
-            achievementService.initializeUserAchievements(user);
-            log.info("Complete registration for User '{}' completed successfully.", user.getUsername());
-        } catch (Exception e) {
-            log.warn("Complete registration for User '{}' completed with error: {}", user.getUsername(), e.getMessage());
-            throw e;
-        }
-    }
-
     @Transactional
     public void register(UserForm form) {
         log.info("Attempting to register user: {}", form.username());
@@ -80,5 +67,18 @@ public class UserService implements UserDetailsService {
         );
 
         log.info("Registration for User with username '{}' in progress. Email confirmation link has been sent", form.username());
+    }
+
+    public void completeRegistration(User user) {
+        try {
+            log.info("Start complete registration for User '{}' started.", user.getUsername());
+            user.createProfile();
+            userRepository.save(user);
+            achievementService.initializeUserAchievements(user);
+            log.info("Complete registration for User '{}' completed successfully.", user.getUsername());
+        } catch (Exception e) {
+            log.warn("Complete registration for User '{}' completed with error: {}", user.getUsername(), e.getMessage());
+            throw e;
+        }
     }
 }

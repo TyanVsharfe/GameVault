@@ -25,15 +25,23 @@ public class UserRegisteredListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(UserRegisteredEvent event) {
         log.info("Attempting to send email token for registration user: {}", event.userId());
-        EmailVerificationToken token =
-                emailVerificationTokenService.createToken(event.userId());
+        try {
+            EmailVerificationToken token = emailVerificationTokenService.createToken(event.userId());
 
-        kafkaTemplate.send(
-                "email-verification-topic",
-                new VerificationEmailEvent(
-                        token.getUser().getEmail(),
-                        token.getToken()
-                )
-        );
+            kafkaTemplate.send(
+                    "email-verification-topic",
+                    new VerificationEmailEvent(
+                            token.getUser().getEmail(),
+                            token.getToken()
+                    )
+            ).whenComplete((emailVerificationToken, throwable) -> {
+                if (throwable != null) {
+                    log.error("Failed to send Kafka message for user {}: {}",
+                            event.userId(), throwable.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            log.error("Error while sending email token for registration user: {}", event.userId(), e);
+        }
     }
 }
