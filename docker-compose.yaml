@@ -53,6 +53,17 @@ services:
     networks:
       - backend
 
+  prometheus:
+    image: prom/prometheus:v2.47.1
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./src/main/resources/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9090" ]
+
   backend:
     build: .
     image: backend:latest

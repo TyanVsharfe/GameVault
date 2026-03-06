@@ -2,7 +2,6 @@ package com.gamevault.config;
 
 import com.gamevault.domain.ControllerNames;
 import com.gamevault.security.SecurityContextLoggingFilter;
-import com.gamevault.service.user.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,11 +29,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final AuthenticationEntryPoint entryPoint;
-    private final UserService userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final ControllerNames controllerNames;
 
-    public SecurityConfig(AuthenticationEntryPoint entryPoint, UserService userDetailsService, PasswordEncoder passwordEncoder, ControllerNames controllerNames) {
+    public SecurityConfig(AuthenticationEntryPoint entryPoint, UserDetailsService  userDetailsService, PasswordEncoder passwordEncoder, ControllerNames controllerNames) {
         this.entryPoint = entryPoint;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
@@ -42,16 +42,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices("uniqueAndSecretKey", userDetailsService);
-        rememberMeServices.setTokenValiditySeconds(1209600);
-        rememberMeServices.setParameter("remember-me");
-
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
                     .requestMatchers(controllerNames.getIgdbPattern(), controllerNames.getUserReviewsUrl()).permitAll()
                     .requestMatchers(controllerNames.getRegistrationUrl(), controllerNames.getVerifyTokenUrl(),
-                            controllerNames.getLoginUrl()).permitAll()
+                            controllerNames.getLoginUrl(), "v3/**", "swagger-ui/**").permitAll()
+                    .requestMatchers("/actuator/prometheus").permitAll()
                     .anyRequest().authenticated())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
@@ -59,11 +56,10 @@ public class SecurityConfig {
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
             .addFilterBefore(new SecurityContextLoggingFilter(), UsernamePasswordAuthenticationFilter.class)
-            .rememberMe(rememberMe -> rememberMe
+            .rememberMe(rememberMeConfigurer -> rememberMeConfigurer
                     .userDetailsService(userDetailsService)
-                    .rememberMeServices(rememberMeServices)
+                    .rememberMeServices(rememberMeServices(userDetailsService))
             );
-
 
         return http.build();
     }
@@ -86,7 +82,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public TokenBasedRememberMeServices rememberMeServices(UserService userDetailsService) {
+    public TokenBasedRememberMeServices rememberMeServices(UserDetailsService  userDetailsService) {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices("uniqueAndSecretKey", userDetailsService);
         services.setTokenValiditySeconds(1209600);
         services.setParameter("remember-me");

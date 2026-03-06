@@ -4,6 +4,7 @@ import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserRepository;
 import com.gamevault.dto.input.UserForm;
 import com.gamevault.events.UserRegisteredEvent;
+import com.gamevault.metrics.CustomMetrics;
 import com.gamevault.service.achievement.AchievementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,23 +16,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final AchievementService achievementService;
     private final PasswordEncoder passwordEncoder;
-    private final ApplicationEventPublisher eventPublisher;
 
-    public UserService(UserRepository userRepository, AchievementService achievementService, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
+    private final AchievementService achievementService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final UserRepository userRepository;
+    private final CustomMetrics customMetrics;
+
+    public UserService(UserRepository userRepository, AchievementService achievementService, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher, CustomMetrics customMetrics) {
         this.userRepository = userRepository;
         this.achievementService = achievementService;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
+        this.customMetrics = customMetrics;
     }
 
     @Override
@@ -75,6 +77,8 @@ public class UserService implements UserDetailsService {
             user.createProfile();
             userRepository.save(user);
             achievementService.initializeUserAchievements(user);
+
+            customMetrics.incrementUserAuth("registration");
             log.info("Complete registration for User '{}' completed successfully.", user.getUsername());
         } catch (Exception e) {
             log.warn("Complete registration for User '{}' completed with error: {}", user.getUsername(), e.getMessage());

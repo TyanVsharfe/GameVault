@@ -11,6 +11,7 @@ import com.gamevault.db.repository.UserGameRepository;
 import com.gamevault.events.UserGameCompletedEvent;
 import com.gamevault.dto.input.update.UserGameUpdateForm;
 import com.gamevault.dto.output.UserReviewsDto;
+import com.gamevault.metrics.CustomMetrics;
 import com.gamevault.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,16 @@ public class UserGameService {
     private final GameService gameService;
     private final ApplicationEventPublisher eventPublisher;
     private final UserGameCustomRepository userGameCustomRepository;
+    private final CustomMetrics customMetrics;
 
     public UserGameService(UserGameRepository userGameRepository, UserService userService,
-                           GameService gameService, ApplicationEventPublisher eventPublisher, UserGameCustomRepository userGameCustomRepository) {
+                           GameService gameService, ApplicationEventPublisher eventPublisher, UserGameCustomRepository userGameCustomRepository, CustomMetrics customMetrics) {
         this.userGameRepository = userGameRepository;
         this.userService = userService;
         this.gameService = gameService;
         this.eventPublisher = eventPublisher;
         this.userGameCustomRepository = userGameCustomRepository;
+        this.customMetrics = customMetrics;
     }
 
     public Page<UserGame> getAll(User author, Pageable pageable, UserGamesFilterParams filterParams) {
@@ -72,20 +75,26 @@ public class UserGameService {
 
         UserGame saved;
         if (game.getCategory() == Enums.IgdbGameType.DLC || game.getCategory() == Enums.IgdbGameType.EXPANSION) {
-            Optional<UserGame> parentGame = userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(game.getParentGame().getIgdbId(), author.getUsername());
+            Optional<UserGame> parentGame = Optional.ofNullable(game.getParentGame())
+                    .flatMap(parent -> userGameRepository.findUserGameByGame_IgdbIdAndUser_Username(parent.getIgdbId(), author.getUsername()));
+
             if (parentGame.isPresent()) {
                 saved = userGameRepository.save(new UserGame(author, game, parentGame.get()));
                 log.warn("Game with igdbId={} is already added for user '{}'", igdbId, author.getUsername());
             }
             else {
-                log.warn("DLC with igdbId={} not added because the user={} does not have a parent game", igdbId, author.getUsername());
-                throw new EntityNotFoundException("DLC cannot be added if the parent game is not added");
+                String message = game.getParentGame() != null
+                        ? "DLC cannot be added because the parent game is not added for user"
+                        : "DLC cannot be added because it has no parent game";
+                log.warn("DLC with igdbId={} not added: {}", igdbId, message);
+                throw new EntityNotFoundException(message);
             }
         }
         else {
             saved = userGameRepository.save(new UserGame(author, game));
         }
 
+        customMetrics.incrementUserAction("game_added");
         log.info("Game with igdbId={} successfully added for user '{}'", igdbId, author.getUsername());
         return saved;
     }
