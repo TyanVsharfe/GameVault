@@ -2,7 +2,7 @@ package com.gamevault.config;
 
 import com.gamevault.component.IgdbTokenManager;
 import com.gamevault.component.SteamTokenManager;
-import com.gamevault.http.igdb.IgdbLoggingInterceptor;
+import com.gamevault.http.igdb.interceptor.IgdbLoggingInterceptor;
 import com.gamevault.http.igdb.interceptor.IgdbAuthInterceptor;
 import com.gamevault.http.steam.interceptor.SteamRequestInterceptor;
 import okhttp3.ConnectionPool;

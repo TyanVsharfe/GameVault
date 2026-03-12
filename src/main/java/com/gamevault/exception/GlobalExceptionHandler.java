@@ -28,6 +28,13 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "Authentication failed"));
     }
 
+    @ExceptionHandler(IgdbRateLimitException.class)
+    public ResponseEntity<Map<String, String>> handleIgdbRateLimit(IgdbRateLimitException e) {
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(Map.of("error", "Too many requests to IGDB API"));
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Void> handleEntityNotFoundException(EntityNotFoundException e) {
         return ResponseEntity.notFound().build();

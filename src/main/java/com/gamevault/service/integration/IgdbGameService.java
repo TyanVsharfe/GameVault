@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.dto.output.igdb.Series;
-import com.gamevault.http.igdb.interceptor.IgdbHttpClient;
+import com.gamevault.http.igdb.IgdbHttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
