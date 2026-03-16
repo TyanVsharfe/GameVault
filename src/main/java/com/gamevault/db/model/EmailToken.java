@@ -1,5 +1,6 @@
 package com.gamevault.db.model;
 
+import com.gamevault.enums.Enums;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +11,10 @@ import java.time.Instant;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "email_verification_tokens",
+@Table(name = "email_tokens",
         indexes = @Index(name = "idx_token", columnList = "token"),
         uniqueConstraints = @UniqueConstraint(columnNames = "token"))
-public class EmailVerificationToken {
+public class EmailToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +27,10 @@ public class EmailVerificationToken {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Enums.TokenType tokenType;
+
     @Column(nullable = false)
     private Instant expiresAt;
 
@@ -33,9 +38,10 @@ public class EmailVerificationToken {
     @Column(nullable = false)
     private boolean used = false;
 
-    public EmailVerificationToken(String token, User user, Instant expiresAt) {
+    public EmailToken(String token, User user,  Enums.TokenType tokenType, Instant expiresAt) {
         this.token = token;
         this.user = user;
+        this.tokenType = tokenType;
         this.expiresAt = expiresAt;
         this.used = false;
     }

@@ -46,7 +46,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
                     .requestMatchers(controllerNames.getIgdbPattern(), controllerNames.getUserReviewsUrl()).permitAll()
-                    .requestMatchers(controllerNames.getRegistrationUrl(), controllerNames.getVerifyTokenUrl(),
+                    .requestMatchers(controllerNames.getRegistrationUrl(), controllerNames.getResetPasswordUrl(),
+                            controllerNames.getRegistrationVerifyUrl(), controllerNames.getResetPasswordVerifyUrl(),
                             controllerNames.getLoginUrl(), "v3/**", "swagger-ui/**").permitAll()
                     .requestMatchers("/actuator/prometheus").permitAll()
                     .anyRequest().authenticated())

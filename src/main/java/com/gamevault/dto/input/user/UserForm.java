@@ -1,4 +1,4 @@
-package com.gamevault.dto.input;
+package com.gamevault.dto.input.user;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

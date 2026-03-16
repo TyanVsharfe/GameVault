@@ -1,4 +1,4 @@
-package com.gamevault.dto.input;
+package com.gamevault.dto.input.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;

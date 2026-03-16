@@ -1,6 +1,6 @@
 package com.gamevault.service.user;
 
-import com.gamevault.dto.input.UserFormLogin;
+import com.gamevault.dto.input.user.UserFormLogin;
 import com.gamevault.metrics.CustomMetrics;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

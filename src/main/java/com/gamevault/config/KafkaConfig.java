@@ -1,7 +1,7 @@
 package com.gamevault.config;
 
 import com.gamevault.dto.input.SteamImportTask;
-import com.gamevault.events.VerificationEmailEvent;
+import com.gamevault.events.VerificationEmailMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -58,10 +58,10 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, VerificationEmailEvent> emailFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, VerificationEmailEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, VerificationEmailMessage> emailFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, VerificationEmailMessage> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory("email-group", VerificationEmailEvent.class.getName()));
+        factory.setConsumerFactory(consumerFactory("email-group", VerificationEmailMessage.class.getName()));
         factory.setCommonErrorHandler(errorHandler());
         return factory;
     }

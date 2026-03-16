@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -218,5 +219,18 @@ public class Enums {
     public enum SteamSync {
         WEEKLY,
         MONTHLY
+    }
+
+    @Getter
+    public enum TokenType {
+        EMAIL_VERIFICATION(Duration.ofHours(24)),
+        PASSWORD_RESET(Duration.ofMinutes(15));
+
+        private final Duration ttl;
+
+        TokenType(Duration ttl) {
+            this.ttl = ttl;
+        }
+
     }
 }

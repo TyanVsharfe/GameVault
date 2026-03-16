@@ -2,8 +2,10 @@ package com.gamevault.service.user;
 
 import com.gamevault.db.model.User;
 import com.gamevault.db.repository.UserRepository;
-import com.gamevault.dto.input.UserForm;
+import com.gamevault.dto.input.user.ResetUserPasswordForm;
+import com.gamevault.dto.input.user.UserForm;
 import com.gamevault.events.UserRegisteredEvent;
+import com.gamevault.events.UserResetPasswordEvent;
 import com.gamevault.metrics.CustomMetrics;
 import com.gamevault.service.achievement.AchievementService;
 import lombok.extern.slf4j.Slf4j;
@@ -68,20 +70,45 @@ public class UserService implements UserDetailsService {
                 new UserRegisteredEvent(user.getId())
         );
 
-        log.info("Registration for User with username '{}' in progress. Email confirmation link has been sent", form.username());
+        log.info("Registration for User with username '{}' in progress. Email confirmation link has been sent.", form.username());
     }
 
     public void completeRegistration(User user) {
         try {
-            log.info("Start complete registration for User '{}' started.", user.getUsername());
+            log.info("Complete registration for User '{}' started.", user.getUsername());
             user.createProfile();
             userRepository.save(user);
             achievementService.initializeUserAchievements(user);
 
             customMetrics.incrementUserAuth("registration");
-            log.info("Complete registration for User '{}' completed successfully.", user.getUsername());
+            log.info("Registration for User '{}' completed successfully.", user.getUsername());
         } catch (Exception e) {
-            log.warn("Complete registration for User '{}' completed with error: {}", user.getUsername(), e.getMessage());
+            log.warn("Registration for User '{}' completed with error: {}", user.getUsername(), e.getMessage());
+            throw e;
+        }
+    }
+
+    public void resetPassword(ResetUserPasswordForm form) {
+        userRepository.findByEmail(form.email())
+                .ifPresent(user -> {
+                    log.info("Attempting to reset password for user with email: {}", form.email());
+                    eventPublisher.publishEvent(
+                            new UserResetPasswordEvent(user.getId(), user.getEmail())
+                    );
+                    log.info("Reset password for user with email {} in progress. Password reset link has been sent.", form.email());
+                });
+    }
+
+    @Transactional
+    public void completeResetPassword(User user, String newPassword) {
+        try {
+            log.info("Beginning reset password for User '{}' started.", user.getUsername());
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+
+            log.info("Reset password for User '{}' completed successfully.", user.getUsername());
+        } catch (Exception e) {
+            log.warn("Reset password for User '{}' completed with error: {}", user.getUsername(), e.getMessage());
             throw e;
         }
     }

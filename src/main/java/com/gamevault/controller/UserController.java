@@ -1,8 +1,10 @@
 package com.gamevault.controller;
 
-import com.gamevault.dto.input.UserForm;
-import com.gamevault.dto.input.UserFormLogin;
-import com.gamevault.service.email.EmailVerificationTokenService;
+import com.gamevault.dto.input.user.ResetPasswordVerifyForm;
+import com.gamevault.dto.input.user.ResetUserPasswordForm;
+import com.gamevault.dto.input.user.UserForm;
+import com.gamevault.dto.input.user.UserFormLogin;
+import com.gamevault.service.email.EmailTokenService;
 import com.gamevault.service.user.AuthService;
 import com.gamevault.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,12 +21,12 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final AuthService authService;
-    private final EmailVerificationTokenService mailEmailVerificationTokenService;
+    private final EmailTokenService emailTokenService;
 
-    public UserController(UserService userService, AuthService authService, EmailVerificationTokenService mailEmailVerificationTokenService) {
+    public UserController(UserService userService, AuthService authService, EmailTokenService emailTokenService) {
         this.userService = userService;
         this.authService = authService;
-        this.mailEmailVerificationTokenService = mailEmailVerificationTokenService;
+        this.emailTokenService = emailTokenService;
     }
 
     @PostMapping("/login")
@@ -48,9 +50,21 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Register in process. Check your email."));
     }
 
-    @GetMapping("/auth/verify")
-    public ResponseEntity<?> verify(@RequestParam String token) {
-        mailEmailVerificationTokenService.verify(token);
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetUserPasswordForm form) {
+        userService.resetPassword(form);
+        return ResponseEntity.ok(Map.of("message", "Reset password in process. Check your email."));
+    }
+
+    @PostMapping("/auth/registration/verify")
+    public ResponseEntity<?> registrationVerify(@RequestParam String token) {
+        emailTokenService.registrationVerify(token);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auth/reset-password/verify")
+    public ResponseEntity<?> resetPasswordVerify(@RequestBody ResetPasswordVerifyForm form) {
+        emailTokenService.resetPasswordVerify(form.token(), form.newPassword());
         return ResponseEntity.ok().build();
     }
 
