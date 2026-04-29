@@ -9,6 +9,7 @@ import com.gamevault.dto.output.db.UserGameBatchData;
 import com.gamevault.dto.output.enriched.*;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.service.integration.IgdbGameService;
+import com.gamevault.service.integration.steam.SteamImportService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,13 @@ import java.util.stream.Collectors;
 public class GameAggregationService {
 
     private final IgdbGameService igdbService;
+    private final SteamImportService steamImportService;
     private final UserGameCustomRepository userGameCustomRepository;
     private final UserGameListRepository userGameListRepository;
 
-    public GameAggregationService(IgdbGameService igdbService, UserGameCustomRepository userGameCustomRepository, UserGameListRepository userGameListRepository) {
+    public GameAggregationService(IgdbGameService igdbService, SteamImportService steamImportService, UserGameCustomRepository userGameCustomRepository, UserGameListRepository userGameListRepository) {
         this.igdbService = igdbService;
+        this.steamImportService = steamImportService;
         this.userGameCustomRepository = userGameCustomRepository;
         this.userGameListRepository = userGameListRepository;
     }
@@ -139,5 +142,37 @@ public class GameAggregationService {
         Map<Long, UserGameBatchData> games = loadUserGameDataBatch(user, igdbGameIdsMono);
 
         return EnrichedGameList.fromUserGameList(monoList, games);
+    }
+
+    public List<EnrichedGameSearchDto> importSteamGamesWithUserData(Long steamId, User user) {
+        return importSteamGamesWithUserDataAsync(steamId, user).join();
+    }
+
+    public CompletableFuture<List<EnrichedGameSearchDto>> importSteamGamesWithUserDataAsync(Long steamId, User user) {
+        return CompletableFuture.supplyAsync(() -> steamImportService.importSteamGames(steamId, user))
+                .thenCompose(importResult -> {
+                    if (importResult == null || importResult.isEmpty())  {
+                        return CompletableFuture.completedFuture(List.of());
+                    }
+
+                    if (user == null) {
+                        List<EnrichedGameSearchDto> result = importResult.stream()
+                                .map(EnrichedGameSearchDto::fromIgdb)
+                                .toList();
+                        return CompletableFuture.completedFuture(result);
+                    }
+
+                    Set<Long> gameIds = importResult.stream()
+                            .map(IgdbGameDto::id)
+                            .collect(Collectors.toSet());
+
+                    return CompletableFuture.supplyAsync(() -> loadUserGameDataBatch(user, gameIds))
+                            .thenApply(userGameDataMap -> importResult.stream()
+                                    .map(igdbGame -> EnrichedGameSearchDto.fromIgdb(
+                                            igdbGame,
+                                            userGameDataMap.get(igdbGame.id())
+                                    ))
+                                    .toList());
+                });
     }
 }

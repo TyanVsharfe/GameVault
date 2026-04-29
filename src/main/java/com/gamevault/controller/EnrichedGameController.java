@@ -36,6 +36,20 @@ public class EnrichedGameController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/steam-import/{steam-id}")
+    public ResponseEntity<List<EnrichedGameSearchDto>> importSteamGames(
+            @PathVariable("steam-id") Long steamId,
+            @AuthenticationPrincipal User user) {
+        List<EnrichedGameSearchDto> result = gameAggregationService
+                .importSteamGamesWithUserData(steamId,user);
+
+        if (result == null || result.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/game-lists/{list-id}")
     public ResponseEntity<EnrichedGameList> getGameList(
             @PathVariable("list-id") UUID listId,
