@@ -43,10 +43,14 @@ public class User extends BaseEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile profile;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile profile;
+
     public User(String username, String password, List<String> roles) {
         this.username = username;
         this.password = password;
         this.roles = roles;
+        this.profile = new UserProfile(this);
         this.subscription = Enums.Subscription.FREE;
     }
 
