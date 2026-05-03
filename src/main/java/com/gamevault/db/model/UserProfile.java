@@ -18,7 +18,6 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class UserProfile {
-
     @Id
     private UUID userId;
 
@@ -31,7 +30,7 @@ public class UserProfile {
     @Setter
     private String steamId;
     @Setter
-    private Boolean steamSyncEnabled = false;
+    private boolean steamSyncEnabled = false;
     @Setter
     @Enumerated(EnumType.STRING)
     private Enums.SteamSync syncFrequency = Enums.SteamSync.MONTHLY;

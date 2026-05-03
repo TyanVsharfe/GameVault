@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class Enums {
     @Getter
-    public enum CategoryIGDB {
+    public enum IgdbGameType {
         MAIN_GAME(0),
         DLC(1),
         EXPANSION(2),
@@ -29,29 +30,69 @@ public class Enums {
         UPDATE(14);
 
         private final int number;
-        private static final Map<Integer, CategoryIGDB> BY_NUMBER;
+        private static final Map<Integer, IgdbGameType> BY_NUMBER;
 
         static {
             BY_NUMBER = Arrays.stream(values())
                     .collect(Collectors
                             .toUnmodifiableMap(
-                                    CategoryIGDB::getNumber,
+                                    IgdbGameType::getNumber,
                                     Function.identity())
                     );
         }
 
-        CategoryIGDB(int number) {
+        IgdbGameType(int number) {
             this.number = number;
         }
 
-        public static CategoryIGDB fromNumber(Integer number) {
-            CategoryIGDB category = BY_NUMBER.get(number);
+        public static IgdbGameType fromNumber(Integer number) {
+            IgdbGameType category = BY_NUMBER.get(number);
             if (category == null) {
                 throw new IllegalArgumentException("Unknown IGDB category number: " + number);
             }
             return category;
         }
     }
+
+    @Getter
+    public enum NoteType {
+        GENERAL("general"),
+        GAMEPLAY("gameplay"),
+        GUIDE("guide"),
+        COMBAT("combat"),
+        LORE("lore");
+
+        private final String slug;
+        private static final Map<String, NoteType> BY_SLUG;
+
+        static {
+            BY_SLUG = Arrays.stream(values())
+                    .collect(Collectors
+                            .toUnmodifiableMap(
+                                    NoteType::getSlug,
+                                    Function.identity())
+                    );
+        }
+
+        NoteType(String slug) {
+            this.slug = slug;
+        }
+
+        @JsonValue
+        public String toJson() {
+            return slug;
+        }
+
+        @JsonCreator
+        public static NoteType fromJson(String value) {
+            NoteType noteType = BY_SLUG.get(value.toLowerCase());
+            if (noteType == null) {
+                throw new IllegalArgumentException("Unknown note type: " + value);
+            }
+            return noteType;
+        }
+    }
+
 
     @Getter
     public enum GameModesIGDB {
@@ -178,5 +219,18 @@ public class Enums {
     public enum SteamSync {
         WEEKLY,
         MONTHLY
+    }
+
+    @Getter
+    public enum TokenType {
+        EMAIL_VERIFICATION(Duration.ofHours(24)),
+        PASSWORD_RESET(Duration.ofMinutes(15));
+
+        private final Duration ttl;
+
+        TokenType(Duration ttl) {
+            this.ttl = ttl;
+        }
+
     }
 }

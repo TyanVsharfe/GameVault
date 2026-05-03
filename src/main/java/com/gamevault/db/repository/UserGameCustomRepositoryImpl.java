@@ -77,7 +77,7 @@ public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
                         ug.isFullyCompleted,
                         ug.isOverallRating,
                         ug.isOverallStatus,
-                        ug.userCoverUrl,
+                        ug.customCoverUrl,
                         ug.createdAt,
                         ug.updatedAt,
                         note.countDistinct()
@@ -127,7 +127,7 @@ public class UserGameCustomRepositoryImpl implements UserGameCustomRepository {
                         ug.isFullyCompleted,
                         ug.isOverallRating,
                         ug.isOverallStatus,
-                        ug.userCoverUrl,
+                        ug.customCoverUrl,
                         ug.createdAt,
                         ug.updatedAt,
                         Expressions.constant(Collections.emptyList())

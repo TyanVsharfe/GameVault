@@ -2,27 +2,44 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
 
   data:
     web:
       pageable:
         one-indexed-parameters: true
 
-  datasource:
-    url: jdbc:h2:file:./database
-    driver-class-name: org.h2.Driver
-    username: root
-    password: root
-
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_CLIENT_USERNAME}
+    password: ${GMAIL_CLIENT_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
 server:
+  port: ${SERVER_PORT:8080}
   servlet:
     session:
       timeout: 24h
@@ -36,15 +53,16 @@ app:
   kafka:
     topics:
       steam-save: steam-save-topic
+  frontend-url: ${FRONTEND_URL}
 
 igdb:
   client:
-    id: YOUR-IGDB-CLIENT-ID
-    secret: YOUR-IGDB-CLIENT-SECRET
+    id: ${IGDB_CLIENT_ID}
+    secret: ${IGDB_CLIENT_SECRET}
 
 steam:
   api:
-    key: YOUR-STEAM-API-KEY
+    key: ${STEAM_API_KEY}
 
 api:
   prefix: /api/v1

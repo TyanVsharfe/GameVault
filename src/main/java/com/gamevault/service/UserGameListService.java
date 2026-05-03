@@ -8,6 +8,7 @@ import com.gamevault.db.repository.UserGameListRepository;
 import com.gamevault.dto.input.UserGameListForm;
 import com.gamevault.dto.input.update.UpdateOrderDto;
 import com.gamevault.dto.input.update.UserGameListUpdateForm;
+import com.gamevault.metrics.CustomMetrics;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,16 +26,20 @@ public class UserGameListService {
     private final UserGameListRepository userGameListRepository;
     private final UserGameListItemRepository userGameListItemRepository;
     private final GameService gameService;
+    private final CustomMetrics customMetrics;
 
-    public UserGameListService(UserGameListRepository userGameListRepository, UserGameListItemRepository userGameListItemRepository, GameService gameService) {
+    public UserGameListService(UserGameListRepository userGameListRepository, UserGameListItemRepository userGameListItemRepository, GameService gameService, CustomMetrics customMetrics) {
         this.userGameListRepository = userGameListRepository;
         this.userGameListItemRepository = userGameListItemRepository;
         this.gameService = gameService;
+        this.customMetrics = customMetrics;
     }
     
     public UserGameList createList(UserGameListForm userGameListForm, User author) {
         UserGameList userGameList = new UserGameList(author, userGameListForm);
         UserGameList saved = userGameListRepository.save(userGameList);
+
+        customMetrics.incrementUserAction("list_added");
         log.info("GameList with name={} successfully added for user '{}'", saved.getName(), saved.getAuthor().getUsername());
         return saved;
     }

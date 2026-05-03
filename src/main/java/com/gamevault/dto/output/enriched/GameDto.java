@@ -7,7 +7,7 @@ public record GameDto(
         Long igdbId,
         String title,
         String coverUrl,
-        Enums.CategoryIGDB category
+        Enums.IgdbGameType category
 ) {
     public static GameDto fromEntity(Game game) {
         return new GameDto(

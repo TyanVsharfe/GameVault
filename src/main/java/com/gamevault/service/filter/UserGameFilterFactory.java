@@ -14,6 +14,7 @@ public class UserGameFilterFactory {
                 UserGameFilterSpecifications.ratingBetween(params.getMinRating(), params.getMaxRating()),
                 UserGameFilterSpecifications.hasReview(params.getHasReview()),
                 UserGameFilterSpecifications.isFullyCompleted(params.getIsFullyCompleted()),
+                UserGameFilterSpecifications.dlcOrExpansion(params.getDlcOnly()),
                 UserGameFilterSpecifications.gameTypeEquals(params.getGameType()),
                 UserGameFilterSpecifications.titleContains(params.getTitle()),
                 UserGameFilterSpecifications.createdBetween(params.getCreatedAfter(), params.getCreatedBefore())

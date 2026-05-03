@@ -47,8 +47,7 @@ public class NoteService {
         Note note = noteRepository.findByIdAndUser_Id(id, user.getId()).orElseThrow(
                 () -> new EntityNotFoundException("Note with id " + id + " not found"));
 
-        if (noteUpdateForm.title() != null) note.setTitle(noteUpdateForm.title());
-        if (noteUpdateForm.content() != null) note.setContent(noteUpdateForm.content());
+        note.updateDto(noteUpdateForm);
 
         noteRepository.save(note);
         log.info("Updated note with id={} for UserGame id={}:", id, note.getUserGame().getGame().getIgdbId());

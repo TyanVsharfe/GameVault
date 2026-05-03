@@ -1,6 +1,8 @@
-package com.gamevault.http.igdb.interceptor;
+package com.gamevault.http.igdb;
 
 import com.gamevault.exception.IgdbApiException;
+import com.gamevault.exception.IgdbRateLimitException;
+import com.gamevault.http.igdb.annotation.IgdbRateLimited;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,6 +23,7 @@ public class IgdbHttpClient {
         this.client = client;
     }
 
+    @IgdbRateLimited
     public String post(String endpoint, String body) {
         HttpUrl url = Objects.requireNonNull(HttpUrl.parse(BASE_URL))
                 .newBuilder()
@@ -33,6 +36,10 @@ public class IgdbHttpClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
+
+            if (response.code() == 429) {
+                throw new IgdbRateLimitException();
+            }
 
             if (!response.isSuccessful()) {
                 logIgdbApiError(response, response.code());

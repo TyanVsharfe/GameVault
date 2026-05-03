@@ -18,21 +18,30 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Setter
+    @Column(unique = true, nullable = false)
     private String username;
     @Setter
+    @Column(nullable = false)
     private String password;
     @Setter
+    @Column(unique = true, nullable = false)
     private String email;
     @Setter
     private Enums.Subscription subscription;
     @Setter
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
+    @Setter
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean enabled = false;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile profile;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile profile;
@@ -43,6 +52,12 @@ public class User implements UserDetails {
         this.roles = roles;
         this.profile = new UserProfile(this);
         this.subscription = Enums.Subscription.FREE;
+    }
+
+    public void createProfile() {
+        if (this.profile == null) {
+            this.profile = new UserProfile(this);
+        }
     }
 
     @Override
@@ -69,7 +84,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 
     @Override
