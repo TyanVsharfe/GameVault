@@ -11,9 +11,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "email_tokens",
-        indexes = @Index(name = "idx_token", columnList = "token"),
-        uniqueConstraints = @UniqueConstraint(columnNames = "token"))
+@Table(name = "email_tokens")
 public class EmailToken {
 
     @Id

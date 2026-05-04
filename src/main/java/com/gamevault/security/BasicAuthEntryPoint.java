@@ -1,5 +1,6 @@
 package com.gamevault.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -9,12 +10,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.security.core.AuthenticationException;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Component
 public class BasicAuthEntryPoint extends BasicAuthenticationEntryPoint {
     private static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
     private static final String REALM_NAME = "GameVault authentication";
+
+    private final ObjectMapper objectMapper;
+
+    public BasicAuthEntryPoint(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -24,9 +32,14 @@ public class BasicAuthEntryPoint extends BasicAuthenticationEntryPoint {
         }
         response.setHeader(WWW_AUTHENTICATE_HEADER, "Basic realm \"%s\"".formatted(getRealmName()));
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        Writer writer = response.getWriter();
-        writer.append(authException.getMessage());
+
+        String msg = authException.getMessage();
+        String json = objectMapper.writeValueAsString(Map.of(
+                "error", (msg == null || msg.isBlank()) ? "Authentication required" : msg
+        ));
+        response.getWriter().write(json);
     }
 
     @Override
