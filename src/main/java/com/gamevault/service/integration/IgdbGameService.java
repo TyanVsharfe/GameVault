@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamevault.dto.output.overview.company.GameCompanyOverviewDto;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.dto.output.igdb.Series;
 import com.gamevault.http.igdb.IgdbHttpClient;
@@ -114,9 +115,10 @@ public class IgdbGameService {
         return executeRequest("games", body, new TypeReference<>() {});
     }
 
-    public List<JsonNode> getGameCompany(String company) {
+    public List<GameCompanyOverviewDto> getGameCompany(String company) {
         String body = "fields *, logo.url,"
-                + "developed.name, developed.game_type.type, developed.cover.url;"
+                + "developed.name, developed.game_type.type, developed.cover.url, developed.first_release_date,"
+                + "developed.collections.name, developed.collections.slug;"
                 + "where slug = \"" + company + "\"; sort games.first_release_date desc;";
 
         return executeRequest("companies", body, new TypeReference<>() {});

@@ -12,7 +12,7 @@ public record IgdbGameDto(
         ParentGame parent_game,
         List<GameMode> game_modes,
         long first_release_date,
-        Company.Cover cover,
+        Cover cover,
         List<IgdbGameDto> dlcs,
         List<IgdbGameDto> expansions,
         List<ReleaseDate> release_dates,

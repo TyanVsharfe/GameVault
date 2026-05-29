@@ -1,8 +1,13 @@
 package com.gamevault.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.gamevault.dto.output.overview.company.CompanyShortDto;
+import com.gamevault.dto.output.overview.company.GameCompanyGroupsDto;
+import com.gamevault.dto.output.overview.series.GameSeriesGroupsDto;
 import com.gamevault.dto.output.igdb.IgdbGameDto;
 import com.gamevault.dto.output.igdb.Series;
+import com.gamevault.dto.output.overview.GameDetailsDto;
+import com.gamevault.service.GameOverviewService;
 import com.gamevault.service.integration.IgdbGameService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +17,11 @@ import java.util.List;
 @RequestMapping("${api.prefix}/igdb")
 public class IgdbGameApiController {
     private final IgdbGameService igdbGameService;
+    private final GameOverviewService gameOverviewService;
 
-    public IgdbGameApiController(IgdbGameService igdbGameService) {
+    public IgdbGameApiController(IgdbGameService igdbGameService, GameOverviewService gameOverviewService) {
         this.igdbGameService = igdbGameService;
+        this.gameOverviewService = gameOverviewService;
     }
 
     @PostMapping("/games")
@@ -25,7 +32,6 @@ public class IgdbGameApiController {
 
     @PostMapping("/games/ids")
     public List<JsonNode> gamesIGDBids(@RequestBody List<Long> igdbIds) {
-        System.out.println(igdbIds);
         return igdbGameService.getGamesByIds(igdbIds);
     }
 
@@ -35,17 +41,17 @@ public class IgdbGameApiController {
     }
 
     @GetMapping("/series/{series}")
-    public List<Series> gameSeries(@PathVariable String series) {
-        return igdbGameService.getGameSeries(series);
+    public GameDetailsDto<Series, GameSeriesGroupsDto> gameSeries(@PathVariable String series) {
+        return gameOverviewService.getSeriesOverview(series);
     }
 
     @GetMapping("/game-company/{company}")
-    public List<com.fasterxml.jackson.databind.JsonNode> getGameCompany(@PathVariable String company) {
-        return igdbGameService.getGameCompany(company);
+    public GameDetailsDto<CompanyShortDto, GameCompanyGroupsDto> getGameCompany(@PathVariable String company) {
+        return gameOverviewService.getCompanyOverview(company);
     }
 
     @GetMapping("/games/release-dates")
-    public List<com.fasterxml.jackson.databind.JsonNode> gamesReleaseDates() {
+    public List<JsonNode> gamesReleaseDates() {
         return igdbGameService.getGamesReleaseDates();
     }
 }

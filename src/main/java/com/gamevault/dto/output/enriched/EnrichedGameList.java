@@ -1,14 +1,8 @@
 package com.gamevault.dto.output.enriched;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gamevault.db.model.UserGame;
 import com.gamevault.db.model.UserGameList;
 import com.gamevault.db.model.UserGameListItem;
 import com.gamevault.dto.output.db.UserGameBatchData;
-import com.gamevault.dto.output.igdb.GameType;
-import com.gamevault.dto.output.igdb.IgdbGameDto;
-import com.gamevault.dto.output.igdb.Platform;
-import com.gamevault.dto.output.igdb.ReleaseDate;
 
 import java.time.Instant;
 import java.util.List;
