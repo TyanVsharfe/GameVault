@@ -17,6 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/games/enriched")
+@Deprecated(forRemoval = true)
 public class EnrichedGameController {
 
     private final SteamImportPreviewService steamImportPreviewService;
@@ -34,11 +35,6 @@ public class EnrichedGameController {
             @RequestParam String query,
             @AuthenticationPrincipal User user) {
         List<EnrichedGameSearchDto> result = enrichedGameQueryService.searchGamesWithUserData(query, user);
-
-        if (result == null || result.isEmpty()) {
-            return ResponseEntity.ok().build();
-        }
-
         return ResponseEntity.ok(result);
     }
 
@@ -48,11 +44,6 @@ public class EnrichedGameController {
             @AuthenticationPrincipal User user) {
         List<EnrichedGameSearchDto> result = steamImportPreviewService
                 .importSteamGamesWithUserData(steamId,user);
-
-        if (result == null || result.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(result);
     }
 

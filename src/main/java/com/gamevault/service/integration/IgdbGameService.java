@@ -106,7 +106,7 @@ public class IgdbGameService {
 
         titlesString.replace(titlesString.length() - 1, titlesString.length(), ")");
 
-        String body = "fields name,cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
+        String body = "fields name, game_type.type, cover.url, release_dates.y, platforms, platforms.abbreviation, aggregated_rating, first_release_date, category;"
                 + "where (name = " + titlesString + " | alternative_names.name = " + titlesString + ") & "
                 + "game_type = (0,1,4,5,8,9) & "
                 + "platforms.abbreviation = \"" + "PC" + "\";"

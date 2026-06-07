@@ -2,6 +2,7 @@ package com.gamevault.db.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gamevault.dto.input.UserGameListForm;
+import com.gamevault.dto.input.update.UserGameListUpdateForm;
 import com.gamevault.dto.output.UserGameListOutput;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -109,6 +110,18 @@ public class UserGameList extends BaseEntity {
                 this.items,
                 this.isOwnedBy(currentUser)
         );
+    }
+
+    public void update(UserGameListUpdateForm form) {
+        if (form.name() != null) {
+            this.name = form.name();
+        }
+        if (form.description() != null) {
+            this.description = form.description();
+        }
+        if (form.isPublic() != null) {
+            this.isPublic = form.isPublic();
+        }
     }
 
     public void addGame(Game game, Integer order) {

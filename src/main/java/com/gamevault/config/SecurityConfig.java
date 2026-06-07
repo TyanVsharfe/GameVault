@@ -45,6 +45,9 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(registry -> registry
+                    .requestMatchers(controllerNames.getGameByIdPattern(),
+                            controllerNames.getLegacyEnrichedGamesPattern(),
+                            controllerNames.getGameListByIdPattern()).permitAll()
                     .requestMatchers(controllerNames.getIgdbPattern(), controllerNames.getUserReviewsUrl()).permitAll()
                     .requestMatchers(controllerNames.getRegistrationUrl(), controllerNames.getResetPasswordUrl(),
                             controllerNames.getRegistrationVerifyUrl(), controllerNames.getResetPasswordVerifyUrl(),
@@ -74,7 +77,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:8080","http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -2,9 +2,9 @@ package com.gamevault.controller;
 
 import com.gamevault.db.model.User;
 import com.gamevault.dto.input.SteamImportTask;
-import com.gamevault.dto.output.igdb.IgdbGameDto;
+import com.gamevault.dto.output.enriched.EnrichedGameSearchDto;
+import com.gamevault.service.enriched.SteamImportPreviewService;
 import com.gamevault.service.integration.steam.SteamImportProducer;
-import com.gamevault.service.integration.steam.SteamImportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +14,11 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/steam-import")
 public class SteamImportController {
-    private final SteamImportService steamImportService;
+    private final SteamImportPreviewService steamImportPreviewService;
     private final SteamImportProducer steamImportProducer;
 
-    public SteamImportController(SteamImportService steamImportService, SteamImportProducer steamImportProducer) {
-        this.steamImportService = steamImportService;
+    public SteamImportController(SteamImportPreviewService steamImportPreviewService, SteamImportProducer steamImportProducer) {
+        this.steamImportPreviewService = steamImportPreviewService;
         this.steamImportProducer = steamImportProducer;
     }
 
@@ -31,9 +31,9 @@ public class SteamImportController {
     }
 
     @GetMapping("/{steam-id}")
-    public ResponseEntity<List<IgdbGameDto>> getSteamGames(@PathVariable("steam-id") Long steamId,
-                                                                 @AuthenticationPrincipal User user) {
-        List<IgdbGameDto> games = steamImportService.importSteamGames(steamId, user);
+    public ResponseEntity<List<EnrichedGameSearchDto>> getSteamGames(@PathVariable("steam-id") Long steamId,
+                                                                     @AuthenticationPrincipal User user) {
+        List<EnrichedGameSearchDto> games = steamImportPreviewService.importSteamGamesWithUserData(steamId, user);
         return ResponseEntity.ok(games);
     }
 }

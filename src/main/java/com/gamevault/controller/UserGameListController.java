@@ -6,7 +6,9 @@ import com.gamevault.dto.input.UserGameListForm;
 import com.gamevault.dto.input.update.UpdateOrderDto;
 import com.gamevault.dto.input.update.UserGameListUpdateForm;
 import com.gamevault.dto.output.UserGameListOutput;
+import com.gamevault.dto.output.enriched.EnrichedGameList;
 import com.gamevault.service.UserGameListService;
+import com.gamevault.service.enriched.EnrichedGameService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,15 +26,17 @@ import java.util.UUID;
 @RequestMapping("${api.prefix}/users/game-lists")
 public class UserGameListController {
     private final UserGameListService userGameListService;
+    private final EnrichedGameService enrichedGameService;
 
-    public UserGameListController(UserGameListService userGameListService) {
+    public UserGameListController(UserGameListService userGameListService, EnrichedGameService enrichedGameService) {
         this.userGameListService = userGameListService;
+        this.enrichedGameService = enrichedGameService;
     }
 
     @GetMapping("/{list-id}")
-    public ResponseEntity<UserGameListOutput> get(@PathVariable("list-id") UUID listId,
-                                                  @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok().body(userGameListService.getGameListById(listId, user).toOutput(user));
+    public ResponseEntity<EnrichedGameList> get(@PathVariable("list-id") UUID listId,
+                                                @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(enrichedGameService.getGameListWithUserData(listId, user));
     }
 
     @GetMapping

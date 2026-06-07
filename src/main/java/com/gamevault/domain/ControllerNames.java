@@ -48,4 +48,16 @@ public class ControllerNames {
     public String getIgdbPattern() {
         return getApiPrefix() + "/igdb/**";
     }
+
+    public String getGameByIdPattern() {
+        return getApiPrefix() + "/games/*";
+    }
+
+    public String getLegacyEnrichedGamesPattern() {
+        return getApiPrefix() + "/games/enriched/**";
+    }
+
+    public String getGameListByIdPattern() {
+        return getApiPrefix() + USERS_URI_PART + "/game-lists/*";
+    }
 }

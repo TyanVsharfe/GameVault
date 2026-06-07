@@ -30,6 +30,9 @@ public class EnrichedGameService {
 
     public EnrichedGameDto getGameWithUserData(Long igdbId, User user) {
         IgdbGameDto igdbGame = igdbService.getGame(igdbId);
+        if (igdbGame == null) {
+            return null;
+        }
 
         if (user == null) {
             return EnrichedGameDto.fromIgdb(igdbGame);
@@ -44,19 +47,17 @@ public class EnrichedGameService {
         UserGameList list =  userGameListRepository.findByIdWithItems(listId)
                 .orElseThrow(() -> new EntityNotFoundException("Game list not found"));
 
-        if (user == null) {
-            return EnrichedGameList.fromUserGameList(list);
+        if (!list.isPublic() && (user == null || !list.isOwnedBy(user))) {
+            throw new AccessDeniedException("This list is private");
         }
 
-        if (!list.isPublic()) {
-            if (!list.isOwnedBy(user)) {
-                throw new AccessDeniedException("You don't have permission to modify this list");
-            }
+        if (user == null) {
+            return EnrichedGameList.fromUserGameList(list, null);
         }
 
         Set<Long> igdbGameIds = list.getItems().stream().map(item -> item.getGame().getIgdbId()).collect(Collectors.toSet());
         Map<Long, UserGameBatchData> games = userGameEnrichmentLoader.loadUserGameDataBatch(user, igdbGameIds);
 
-        return EnrichedGameList.fromUserGameList(list, games);
+        return EnrichedGameList.fromUserGameList(list, games, user);
     }
 }

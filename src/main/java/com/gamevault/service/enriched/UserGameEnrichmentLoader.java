@@ -43,6 +43,10 @@ public class UserGameEnrichmentLoader {
     }
 
     public Map<Long, UserGameBatchData> loadUserGameDataBatch(User user, Set<Long> igdbIds) {
+        if (igdbIds == null || igdbIds.isEmpty()) {
+            return Map.of();
+        }
+
         List<UserGameBatchData> baseData = userGameCustomRepository.getUserGamesBaseDataBatch(user.getUsername(), igdbIds);
 
         if (baseData.isEmpty()) {

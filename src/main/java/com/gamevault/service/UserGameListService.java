@@ -45,25 +45,6 @@ public class UserGameListService {
     }
 
     @Transactional
-    public UserGameList addGamesToList(UserGameList userGameList, List<Long> igdbIds) {
-        List<Game> games = gameService.getOrCreateBatch(igdbIds);
-
-        int order = userGameList.getItems().size();
-        log.info("GameList with id={} will receive '{}' games", userGameList.getUuid(), games.size());
-        for (Game game : games) {
-            boolean exists = userGameList.getItems().stream()
-                    .anyMatch(item -> item.getGame().getIgdbId().equals(game.getIgdbId()));
-
-            if (!exists) {
-                userGameList.addGame(game, order++);
-                log.info("GameListItem with igdbId={} successfully added for user '{}'", game.getIgdbId(), userGameList.getAuthorUsername());
-            }
-        }
-
-        return userGameListRepository.save(userGameList);
-    }
-
-    @Transactional
     public void removeGameFromList(UUID listId, Long igdbId, User user) {
         UserGameList userGameList = getGameListById(listId, user);
         validateOwnership(userGameList, user);
@@ -92,15 +73,7 @@ public class UserGameListService {
         UserGameList userGameList = getGameListById(listId, user);
         validateOwnership(userGameList, user);
 
-        if (form.name() != null) {
-            userGameList.setName(form.name());
-        }
-        if (form.description() != null) {
-            userGameList.setDescription(form.description());
-        }
-        if (form.isPublic() != null) {
-            userGameList.setPublic(form.isPublic());
-        }
+        userGameList.update(form);
 
         if (form.games() != null && !form.games().isEmpty()) {
             addGamesToList(userGameList, form.games());
@@ -137,6 +110,25 @@ public class UserGameListService {
                 .toList();
 
         return addGamesToList(copiedList, gameIds);
+    }
+
+    @Transactional
+    public UserGameList addGamesToList(UserGameList userGameList, List<Long> igdbIds) {
+        List<Game> games = gameService.getOrCreateBatch(igdbIds);
+
+        int order = userGameList.getItems().size();
+        log.info("GameList with id={} will receive '{}' games", userGameList.getUuid(), games.size());
+        for (Game game : games) {
+            boolean exists = userGameList.getItems().stream()
+                    .anyMatch(item -> item.getGame().getIgdbId().equals(game.getIgdbId()));
+
+            if (!exists) {
+                userGameList.addGame(game, order++);
+                log.info("GameListItem with igdbId={} successfully added for user '{}'", game.getIgdbId(), userGameList.getAuthorUsername());
+            }
+        }
+
+        return userGameListRepository.save(userGameList);
     }
 
     @Transactional(readOnly = true)
